@@ -1,6 +1,6 @@
 # Zerotoprod\DataModel
 
-The DataModel trait creates class instances from arrays or JSON, dynamically assigning and casting property values based on type annotations.
+The `DataModel` trait creates class instances from arrays or JSON, dynamically assigning and casting property values based on type annotations.
 
 ## Installation
 
