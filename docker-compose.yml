@@ -1,0 +1,27 @@
+services:
+  php71composer:
+    build:
+      context: docker/php71
+      target: composer
+    volumes:
+      - ./:/app
+
+  php71:
+    build:
+      context: docker/php71
+      target: base
+    volumes:
+      - ./:/app
+
+  php71debug:
+    build:
+      context: docker/php71
+      target: debug
+    volumes:
+      - ./:/app
+
+  php74format:
+    image: ghcr.io/php-cs-fixer/php-cs-fixer:${FIXER_VERSION:-3.57.0-php7.4}
+    volumes:
+      - ./:/code
+    command: fix src

@@ -1,0 +1,51 @@
+{
+  "type": "library",
+  "name": "zero-to-prod/data-model",
+  "description": "A PHP library for mapping and transforming data to a class instance.",
+  "keywords": [
+    "zero-to-prod",
+    "DataModel",
+    "data-model",
+    "data_model",
+    "data model",
+    "Data-Model",
+    "Data_Model",
+    "Data Model"
+  ],
+  "homepage": "https://github.com/zero-to-prod/data-model",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "David Smith",
+      "email": "dave0016@gmail.com"
+    }
+  ],
+  "require": {
+    "php": ">=7.1.0",
+    "ext-json": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "Zerotoprod\\DataModel\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Tests\\": "tests/"
+    }
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true,
+  "require-dev": {
+    "phpunit/phpunit": "^7.0"
+  },
+  "suggest": {
+    "zero-to-prod/transformable": "Transform a class into different types."
+  },
+  "scripts": {
+    "post-install-cmd": [
+      "@echo Thank you for installing zero-to-prod/data-model!",
+      "@echo Visit our repository at: https://github.com/zero-to-prod/data-model"
+    ]
+  }
+}
