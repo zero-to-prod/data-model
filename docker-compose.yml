@@ -6,6 +6,22 @@ services:
     volumes:
       - ./:/app
 
+  php71install:
+    build:
+      context: docker/php71
+      target: composer
+    volumes:
+      - ./:/app
+    command: composer install
+
+  php71update:
+    build:
+      context: docker/php71
+      target: composer
+    volumes:
+      - ./:/app
+    command: composer update
+
   php71:
     build:
       context: docker/php71
