@@ -44,7 +44,8 @@ Automatically casted types include:
 - `object`
 - `float`
 - Classes with a `from()` method
-**Note**
+
+**Notes**
 
 - The `from()` method will only assign values to existing properties in the class.
 - If a key in the array or JSON string does not correspond to a property in the class, it will be ignored.
