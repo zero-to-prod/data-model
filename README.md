@@ -21,22 +21,29 @@ namespace App\Traits;
 trait DataModel 
 {
     use \Zerotoprod\DataModel\DataModel;
-    use \Zerotoprod\DataModel\Transformable;
+    use \Zerotoprod\Transformable\Transformable;
 }
 ```
 
-### Property Type Hinting with Doc Comments
+### Automatically Typecast Properties With Doc Comments
 
-Use PHPDoc comments to link properties to their classes for accurate mapping and conversion, especially with nested objects.
-Add a `@var` annotation above the property to specify its class type.
+Use PHPDoc `@var` annotations to link and cast properties to their classes, ensuring accurate mapping and conversion, especially with nested objects.
 
 ```php
 /** @var Address $Address */
 public $Address;
 ```
 
-This tells the `from()` method to instantiate the `Address` class for the `$Address` property when mapping data.
+This directs the `from()` method to instantiate the `Address` class for `$Address` when mapping data.
 
+Automatically casted types include:
+- `string`
+- `array`
+- `int`
+- `bool`
+- `object`
+- `float`
+- Classes with a `from()` method
 **Note**
 
 - The `from()` method will only assign values to existing properties in the class.
@@ -92,31 +99,28 @@ $user = User::from('{"name": "Jane Doe", "email": "janedoe@example.com"}');
 echo $user->name; // Outputs: Jane Doe
 echo $user->email; // Outputs: janedoe@example.com
 ```
-## Traits
+## Suggested Traits
 ### Transformable
-The Transformable trait provides methods to convert an object’s properties into an array or a JSON string. This is particularly useful for serializing your data models.
+The [Transformable](https://github.com/zero-to-prod/transformable) trait provides methods to convert an object’s properties into an array or a JSON string. This is particularly useful for serializing your data models.
 
-#### Methods
-
-- `toArray(): array` Converts the object’s properties into an associative array.
-- `toJson(): string` Converts the object’s properties into a JSON string.
+```bash
+composer require zerotoprod/transformable
+```
 
 #### Usage
-To use the `Zerotoprod\DataModel\Transformable` trait in your class, simply include it:
+To use the `Zerotoprod\Transformable\Transformable` trait in your class, simply include it:
 ```php
-use Zerotoprod\DataModel\Transformable;
 
 class YourDataModel
 {
-    use Transformable;
+    use \Zerotoprod\DataModel\DataModel;
+    use \Zerotoprod\Transformable\Transformable;
 
     public $name;
     public $email;
 }
 
 $model = new YourDataModel();
-$model->name = 'John Doe';
-$model->email = 'john.doe@example.com';
 
 $array = $model->toArray();
 $json = $model->toJson();
