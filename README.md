@@ -64,6 +64,10 @@ Use PHPDoc `@var` annotations to link and cast properties to their classes, ensu
 /** @var Address $Address */
 public $Address;
 ```
+Inlining the fully qualified namespace is faster as a lookup does not have to be performed.
+```php
+/** @var \App\Address $Address */
+```
 
 This directs the `from()` method to instantiate the `Address` class for `$Address` when mapping data.
 
