@@ -6,23 +6,23 @@ use ReflectionClass;
 use ReflectionException;
 use Zerotoprod\DataModel\Helpers\Str;
 
+/**
+ * The `DataModel` trait creates class instances from arrays, strings, or objects,
+ * automatically casting types based on PHPDoc annotations. It simplifies populating
+ * class properties by using reflection to match data with annotated types.
+ *
+ * @package Zerotoprod\DataModel
+ */
 trait DataModel
 {
     /**
-     * @param  array|string|object  $value
+     * Instantiates the class from an array, string, or object, casting values based on PHPDoc annotations.
+     * Uses reflection to match data with property types, supporting primitives and classes with a `from` method.
+     *
+     * @param array|string|object $value Data to populate class properties.
      */
     public static function from($value = null): self
     {
-        if (is_string($value)) {
-            $decoded = json_decode($value, true);
-
-            if (!is_array($decoded)) {
-                return new self();
-            }
-
-            $value = $decoded;
-        }
-
         $self = new self();
         $ReflectionClass = new ReflectionClass(__CLASS__);
 
@@ -30,24 +30,8 @@ trait DataModel
             try {
                 preg_match(Str::pattern, $ReflectionClass->getProperty($property)->getDocComment(), $matches);
 
-                /** Property has a class type annotation */
-                if (isset($matches[Str::class_type])) {
-                    /** Determine if the type annotation is a Fully Qualified Namespace (fqns) */
-                    $fqns = $matches[Str::class_type][0] === '\\'
-                        /** Class type is fully qualified */
-                        ? $matches[Str::class_type]
-                        /** Prepend the namespace of the current class */
-                        : "{$ReflectionClass->getNamespaceName()}\\{$matches[Str::class_type]}";
-
-                    if (method_exists($fqns, Str::from)) {
-                        $self->{$property} = $fqns::from($val);
-                    }
-
-                    continue;
-                }
-
-                /** Cast value based on type annotation */
-                switch ($matches[Str::type]) {
+                /* Cast value based on type annotation */
+                switch ($matches[Str::native_type]) {
                     case Str::string:
                         $self->{$property} = !is_string($val) ? (string)$val : $val;
                         continue 2;
@@ -60,21 +44,45 @@ trait DataModel
                         $self->{$property} = is_object($val) ? get_object_vars($val) : (array)$val;
                         continue 2;
                     case Str::int:
-                        $self->{$property} = !is_int($val) ? (int)$val : $val;
+                        $self->{$property} = (int)$val;
                         continue 2;
                     case Str::bool:
-                        $self->{$property} = !is_bool($val) ? (bool)$val : $val;
+                        $self->{$property} = (bool)$val;
+                        continue 2;
+                    case Str::float:
+                        $self->{$property} = (float)$val;
                         continue 2;
                     case Str::object:
                         $self->{$property} = !is_object($val) ? (object)$val : $val;
                         continue 2;
-                    case Str::float:
-                        $self->{$property} = !is_float($val) ? (float)$val : $val;
-                        continue 2;
-                    default:
+                    case Str::stdClass || Str::_stdClass:
                         $self->{$property} = $val;
                         continue 2;
                 }
+
+                /* Property type references a class */
+                if (isset($matches[Str::type])
+                    /* Leading '\' */
+                    && $matches[Str::type][0] === '\\'
+                    /* Class with a 'from' method exits. */
+                    && method_exists($matches[Str::type], Str::from)
+                ) {
+                    $self->{$property} = $matches[Str::type]::from($val);
+
+                    continue;
+                }
+
+                /* Prepend the current namespace */
+                $fqns = "{$ReflectionClass->getNamespaceName()}\\{$matches[Str::type]}";
+                /* Class with a 'from' method exits. */
+                if (method_exists($fqns, Str::from)) {
+                    $self->{$property} = $fqns::from($val);
+
+                    continue;
+                }
+
+                $self->{$property} = $val;
+                continue;
             } catch (ReflectionException $e) {
                 continue;
             }
