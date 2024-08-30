@@ -1,11 +1,11 @@
 <?php
 
-namespace Tests\Unit\Enum;
+namespace Tests\Unit\BogusType;
 
 use Tests\TestCase;
 use Zerotoprod\DataModel\DataModel;
 
-class EnumTest extends TestCase
+class BogusTypeTest extends TestCase
 {
     /**
      * @test

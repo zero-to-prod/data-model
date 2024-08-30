@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit\Enum;
+namespace Tests\Unit\BogusType;
 
 use Zerotoprod\DataModel\DataModel;
 
@@ -11,7 +11,7 @@ class BaseClass
     public const enum = 'enum';
     public const Child = 'Child';
 
-    /** @var enum $enum */
+    /** @var bogus $enum */
     public $enum;
 
     /** @var Child $Child */
