@@ -23,11 +23,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Git user
-        run: |
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
-
       - name: Validate composer.json and composer.lock
         run: composer validate --strict
 
@@ -43,20 +38,5 @@ jobs:
       - name: Install Composer dependencies
         run: docker compose run --rm php71composer composer install --prefer-dist --no-progress --no-suggest
 
-      - name: Run PHP-CS-Fixer
-        run: docker run --rm -v $(pwd):/code ghcr.io/php-cs-fixer/php-cs-fixer:${FIXER_VERSION:-3.57.0-php7.4} fix src
-
-      - name: Check for changes and commit if any
-        run: |
-          if [[ $(git status --porcelain) ]]; then
-            git add .
-            git commit -m "Apply PHP-CS-Fixer changes"
-            git push
-            # Run PHPUnit tests after committing formatting changes
-            docker compose run --rm php71 vendor/bin/phpunit
-          else
-            echo "No changes to commit. Running PHPUnit tests."
-            docker compose run --rm php71 vendor/bin/phpunit
-          fi
       - name: Run PHPUnit tests
         run: docker compose run --rm php71 vendor/bin/phpunit
