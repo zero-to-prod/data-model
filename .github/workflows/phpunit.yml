@@ -18,8 +18,11 @@ jobs:
     services:
       docker:
         image: docker:20.10.7
+        options: --privileged
 
     steps:
+      - uses: actions/checkout@v4
+
       - name: Validate composer.json and composer.lock
         run: composer validate --strict
 
