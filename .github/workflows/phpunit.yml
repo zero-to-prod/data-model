@@ -48,14 +48,16 @@ jobs:
 
       - name: Check for changes and commit if any
         run: |
+          current_branch=$(git rev-parse --abbrev-ref HEAD)
+          if [ "$current_branch" = "HEAD" ]; then
+            current_branch=$(git symbolic-ref --short HEAD)
+          fi
+          git checkout "$current_branch"  # Check out the current branch
           if [[ $(git status --porcelain) ]]; then
             git add .
             git commit -m "Apply PHP-CS-Fixer changes"
-            git push
+            git push origin HEAD:"$current_branch"  # Push the changes to the current branch
             # Run PHPUnit tests after committing formatting changes
-            docker compose run --rm php71 vendor/bin/phpunit
-          else
-            echo "No changes to commit. Running PHPUnit tests."
             docker compose run --rm php71 vendor/bin/phpunit
           fi
       - name: Run PHPUnit tests
