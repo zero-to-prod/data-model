@@ -122,7 +122,7 @@ $user->name;  // 'John'
 $user->email; // 'john@domain.com'
 ```
 
-### `Zerotoprod\Transformable\Transformable`
+### `Zerotoprod\Transformable`
 
 The [Transformable](https://github.com/zero-to-prod/transformable) trait provides methods to convert an object’s properties into an array or a JSON
 string. This is particularly useful for serializing your data models.
