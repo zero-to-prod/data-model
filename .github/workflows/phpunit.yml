@@ -48,12 +48,22 @@ jobs:
 
       - name: Check for changes and commit if any
         run: |
-          current_branch=${{ github.ref_name }}
-          git checkout "$current_branch"  # Check out the branch that triggered the workflow
+          # Determine if this is a pull request or a branch
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            current_branch="${{ github.head_ref }}"
+          else
+            current_branch="${{ github.ref_name }}"
+          fi
+
+          echo "Checking out branch: $current_branch"
+          git checkout "$current_branch"
+
           if [[ $(git status --porcelain) ]]; then
             git add .
             git commit -m "Apply PHP-CS-Fixer changes"
-            git push origin "$current_branch"  # Push the changes to the current branch
+            git push origin "$current_branch"
+          else
+            echo "No changes to commit."
           fi
       - name: Run PHPUnit tests
         run: docker compose run --rm php71 vendor/bin/phpunit
