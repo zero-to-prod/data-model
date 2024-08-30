@@ -19,7 +19,7 @@ trait DataModel
      * Instantiates the class from an array, string, or object, casting values based on PHPDoc annotations.
      * Uses reflection to match data with property types, supporting primitives and classes with a `from` method.
      *
-     * @param array|string|object $value Data to populate class properties.
+     * @param  array|string|object  $value  Data to populate class properties.
      */
     public static function from($value = null): self
     {
@@ -60,13 +60,8 @@ trait DataModel
                         continue 2;
                 }
 
-                /* Property type references a class */
-                if (isset($matches[Str::type])
-                    /* Leading '\' */
-                    && $matches[Str::type][0] === '\\'
-                    /* Class with a 'from' method exits. */
-                    && method_exists($matches[Str::type], Str::from)
-                ) {
+                /* Property type references a class denoted by a leading '\' */
+                if ($matches[Str::type][0] === '\\' && method_exists($matches[Str::type], Str::from)) {
                     $self->{$property} = $matches[Str::type]::from($val);
 
                     continue;
@@ -82,6 +77,7 @@ trait DataModel
                 }
 
                 $self->{$property} = $val;
+
                 continue;
             } catch (ReflectionException $e) {
                 continue;

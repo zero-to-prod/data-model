@@ -11,9 +11,9 @@ class BaseClass
     public const bool = 'bool';
     public const Child = 'Child';
 
-    /** @var bool $bool */
+    /** @var   bool    $bool    */
     public $bool;
 
-    /** @var Child $Child */
+    /**   @var   Child   $Child   */
     public $Child;
 }

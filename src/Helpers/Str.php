@@ -10,7 +10,7 @@ namespace Zerotoprod\DataModel\Helpers;
  */
 class Str
 {
-    public const pattern = '/@var\s+(?P<native_type>string|array|int|bool|object|float|stdClass|\\\stdClass|[\w\\\\]+\|[\w\\\\]+)?\s*(?P<type>[\\\\\w]+)?/';
+    public const pattern = '/@var\s+(?<native_type>string|array|int|bool|object|float|stdClass|\\\stdClass|[\w\\\\]+\|[\w\\\\]+)?\s*(?<type>[\\\\\w]+)?\s*/';
     public const type = 'type';
     public const from = 'from';
     public const native_type = 'native_type';
