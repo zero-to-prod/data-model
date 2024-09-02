@@ -23,6 +23,10 @@ trait DataModel
      */
     public static function from($value = null): self
     {
+        if ($value instanceof self) {
+            return $value;
+        }
+
         $self = new self();
         $ReflectionClass = new ReflectionClass(__CLASS__);
 
