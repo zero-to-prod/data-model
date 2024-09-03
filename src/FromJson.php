@@ -17,9 +17,14 @@ trait FromJson
      * Instantiates the class from a JSON string by decoding it into an associative array
      * and mapping the array to class properties using the `from` method.
      *
-     * @param string $value JSON string to decode.
-     * @param int $depth Maximum decoding depth (default: 512).
-     * @param int $flags JSON decode options (default: 0).
+     * Example
+     *  ```
+     *  MyClass::fromJson('{"json": 1}');
+     *  ```
+     *
+     * @param  string  $value  JSON string to decode.
+     * @param  int     $depth  Maximum decoding depth (default: 512).
+     * @param  int     $flags  JSON decode options (default: 0).
      */
     public static function fromJson(string $value, int $depth = 512, int $flags = 0): self
     {
