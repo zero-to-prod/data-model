@@ -19,10 +19,14 @@ composer require zerotoprod/data-model
 
 Import the `Zerotoprod\DataModel\DataModel` trait in your class. Use the `from()` static method to map array keys to class properties.
 
+It is recommended to extend your own `DataModel` trait with the `Zerotoprod\DataModel\DataModel` trait.
 ### Basic Example
 
 ```php
-use Zerotoprod\DataModel\DataModel;
+trait DataModel extends \Zerotoprod\DataModel\DataModel
+{
+    // Add additional utility methods and traits
+}
 
 class User
 {
@@ -82,18 +86,6 @@ Automatically casted types include:
 - Classes with a `from()` method
 
 **Notes**
-
-It is recommended to create your own DataModel trait and import the `\Zerotoprod\DataModel\DataModel` trait as well as any additional ones.
-
-```php
-namespace App\Traits;
-
-trait DataModel 
-{
-    use \Zerotoprod\DataModel\DataModel;
-    use \Zerotoprod\Transformable\Transformable;
-}
-```
 
 - The `from()` method will only assign values to existing properties in the class.
 - If a key does not correspond to a property in the class, it will be ignored.
