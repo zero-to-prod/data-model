@@ -34,18 +34,10 @@
       "Tests\\": "tests/"
     }
   },
-  "minimum-stability": "dev",
-  "prefer-stable": true,
   "require-dev": {
     "phpunit/phpunit": "^7.0"
   },
   "suggest": {
     "zero-to-prod/transformable": "Transform a class into different types."
-  },
-  "scripts": {
-    "post-install-cmd": [
-      "@echo Thank you for installing zero-to-prod/data-model!",
-      "@echo Visit our repository at: https://github.com/zero-to-prod/data-model"
-    ]
   }
 }
