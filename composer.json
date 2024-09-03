@@ -1,7 +1,7 @@
 {
   "type": "library",
   "name": "zero-to-prod/data-model",
-  "description": "A PHP library for mapping and transforming data to a class instance.",
+  "description": "Transform data to a class instance.",
   "keywords": [
     "zero-to-prod",
     "DataModel",
