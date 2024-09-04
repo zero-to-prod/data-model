@@ -2,16 +2,15 @@
 
 namespace Tests\Unit\FromJson;
 
-use InvalidArgumentException;
 use Tests\TestCase;
-use Zerotoprod\DataModel\DataModel;
+use Zerotoprod\DataModel\FromJson;
 
 class FromJsonTest extends TestCase
 {
     /**
      * @test
      *
-     * @see DataModel
+     * @see FromJson::fromJson()
      */
     public function creates_instance_from_json_string(): void
     {
@@ -29,11 +28,10 @@ class FromJsonTest extends TestCase
     /**
      * @test
      *
-     * @see DataModel
+     * @see FromJson::tryFromJson()
      */
     public function invalid_json_string(): void
     {
-        $this->expectException(InvalidArgumentException::class);
-        BaseClass::fromJson("'");
+        $this->assertNull(BaseClass::tryFromJson("'"));
     }
 }

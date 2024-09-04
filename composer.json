@@ -1,7 +1,7 @@
 {
   "type": "library",
   "name": "zero-to-prod/data-model",
-  "description": "Transform data to a class instance.",
+  "description": "Transform data into a class.",
   "keywords": [
     "zero-to-prod",
     "DataModel",

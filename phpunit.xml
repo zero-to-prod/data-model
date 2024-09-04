@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit bootstrap="vendor/autoload.php" colors="true">
     <testsuites>
-        <testsuite name="Test Suite">
-            <directory suffix="Test.php">./tests</directory>
+        <testsuite name="DataModel">
+            <directory suffix="Test.php">./tests/Unit/DataModel</directory>
+        </testsuite>
+        <testsuite name="FromJson">
+            <directory suffix="Test.php">./tests/Unit/FromJson</directory>
         </testsuite>
     </testsuites>
     <filter>
