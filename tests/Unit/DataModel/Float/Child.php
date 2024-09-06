@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit\DataModel;
+namespace Tests\Unit\DataModel\Float;
 
 use Zerotoprod\DataModel\DataModel;
 
