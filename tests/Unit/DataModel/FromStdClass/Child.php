@@ -9,7 +9,7 @@ class Child
     /* @var int $id */
     public $id;
 
-    public function from(): self
+    public static function from(): self
     {
         $self = new self();
         $self->id = 1;
