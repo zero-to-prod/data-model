@@ -10,16 +10,5 @@ namespace Zerotoprod\DataModel\Helpers;
  */
 class Str
 {
-    public const pattern = '/@var\s+(?<native_type>string|array|int|bool|object|float|stdClass|\\\stdClass|[\w\\\\]+\|[\w\\\\]+)?\s*(?<type>[\\\\\w]+)?\s*/';
-    public const type = 'type';
-    public const from = 'from';
-    public const native_type = 'native_type';
-    public const string = 'string';
-    public const array = 'array';
-    public const int = 'int';
-    public const bool = 'bool';
-    public const object = 'object';
-    public const float = 'float';
-    public const stdClass = 'stdClass';
-    public const _stdClass = '\stdClass';
+    public const types = ['string', 'array', 'int', 'bool', 'object', 'float', 'stdClass', '\stdClass'];
 }

@@ -3,7 +3,8 @@
 namespace Zerotoprod\DataModel;
 
 use ReflectionClass;
-use ReflectionException;
+use ReflectionUnionType;
+use Zerotoprod\DataModel\Helpers\Str;
 
 /**
  * The `DataModel` trait creates class instances from arrays, strings, or objects,
@@ -26,32 +27,48 @@ trait DataModel
      *
      * @param  iterable|object|null  $value  Data to populate class properties.
      */
-    public static function from($value = null): self
+    public static function from(iterable|object|null $value = null): self
     {
         if ($value instanceof self) {
             return $value;
         }
 
+        if (is_object($value)) {
+            $value = (array)$value;
+        }
         $self = new self();
-        $ReflectionClass = new ReflectionClass(__CLASS__);
+        $ReflectionProperties = (new ReflectionClass($self))->getProperties();
 
-        foreach ($value as $property => $val) {
-            try {
-                $child_classname = class_exists($ReflectionClass->getProperty($property)->name)
-                    ? $ReflectionClass->getProperty($property)->name
-                    : $ReflectionClass->getNamespaceName()."\\".$ReflectionClass->getProperty($property)->name;
+        foreach ($ReflectionProperties as $ReflectionProperty) {
+            $property = $ReflectionProperty->getName();
 
-                if (method_exists($child_classname, 'from')) {
-                    $self->{$property} = $child_classname::from($val);
-                    continue;
-                }
-
-                $self->{$property} = $val;
-
-                continue;
-            } catch (ReflectionException) {
+            if (!array_key_exists($property, $value)) {
                 continue;
             }
+
+            $ReflectionType = $ReflectionProperty->getType();
+
+            // Skip if no type or if it's a union type
+            if (!$ReflectionType || $ReflectionType instanceof ReflectionUnionType) {
+                $self->{$property} = $value[$property];
+                continue;
+            }
+
+            $type = $ReflectionType->getName();
+
+            // Handle primitive types
+            if (in_array($type, Str::types, true)) {
+                $self->{$property} = $value[$property];
+                continue;
+            }
+
+            // Handle class types with a 'from' method
+            if (is_callable([$type, 'from'])) {
+                $self->{$property} = $type::from($value[$property]);
+                continue;
+            }
+
+            $self->{$property} = $value[$property];
         }
 
         return $self;
