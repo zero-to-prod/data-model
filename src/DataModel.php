@@ -36,10 +36,10 @@ trait DataModel
         if (is_object($value)) {
             $value = (array)$value;
         }
-        $self = new self();
-        $ReflectionProperties = (new ReflectionClass($self))->getProperties();
 
-        foreach ($ReflectionProperties as $ReflectionProperty) {
+        $self = new self();
+
+        foreach ((new ReflectionClass($self))->getProperties() as $ReflectionProperty) {
             $property = $ReflectionProperty->getName();
 
             if (!array_key_exists($property, $value)) {
@@ -52,6 +52,16 @@ trait DataModel
             if (!$ReflectionType || $ReflectionType instanceof ReflectionUnionType) {
                 $self->{$property} = $value[$property];
                 continue;
+            }
+
+            foreach ($ReflectionProperty->getAttributes() as $Attribute) {
+                if ($Attribute->getName() === Describe::class) {
+                    $Describe = new Describe(...$Attribute->getArguments());
+                    if (isset($Describe->from) && is_callable([$Describe->from, 'parse'])) {
+                        $self->{$property} = $Describe->from::parse($value[$property]);
+                        continue 2;
+                    }
+                }
             }
 
             $type = $ReflectionType->getName();

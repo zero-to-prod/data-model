@@ -4,6 +4,9 @@
         <testsuite name="DataModel">
             <directory suffix="Test.php">./tests/Unit/DataModel</directory>
         </testsuite>
+        <testsuite name="Describe">
+            <directory suffix="Test.php">./tests/Unit/Describe</directory>
+        </testsuite>
         <testsuite name="FromJson">
             <directory suffix="Test.php">./tests/Unit/FromJson</directory>
         </testsuite>
