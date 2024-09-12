@@ -4,7 +4,7 @@ namespace Tests\Unit\DataModel\FromArray;
 
 use Zerotoprod\DataModel\DataModel;
 
-class BaseClass
+readonly class BaseClass
 {
     use DataModel;
 
@@ -12,11 +12,8 @@ class BaseClass
     public const object = 'object';
     public const Child = 'Child';
 
-    /** @var array $array */
-    public $array;
+    public array $array;
 
-    /** @var Child $Child */
-    public $Child;
-    /** @var array $object */
-    public $object;
+    public Child $Child;
+    public array $object;
 }

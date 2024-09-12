@@ -5,7 +5,7 @@ namespace Tests\Unit\DataModel\Recursion;
 use stdClass;
 use Zerotoprod\DataModel\DataModel;
 
-class BaseClass
+readonly class BaseClass
 {
     use DataModel;
 
@@ -20,28 +20,14 @@ class BaseClass
     public const Child = 'Child';
     public const ShortNamespaceChild = 'ShortNamespaceChild';
 
-    /** @var int $id */
-    public $id;
-    /** @var string $name */
-    public $name;
-    /** @var float $price */
-    public $price;
-    /** @var bool $is_free */
-    public $is_free;
-    /** @var array $list */
-    public $list;
-    /** @var object $object */
-    public $object;
-    /** @var stdClass $stdClass */
-    public $stdClass;
-    /** @var mixed $mixed */
-    public $mixed;
-    /**
-     * @var \Tests\Unit\DataModel\Recursion\Child $Child
-     */
-    public $Child;
-    /**
-     * @var ShortNamespaceChild $ShortNamespaceChild
-     */
-    public $ShortNamespaceChild;
+    public int $id;
+    public string $name;
+    public float $price;
+    public bool $is_free;
+    public array $list;
+    public object $object;
+    public stdClass $stdClass;
+    public mixed $mixed;
+    public \Tests\Unit\DataModel\Recursion\Child $Child;
+    public ShortNamespaceChild $ShortNamespaceChild;
 }

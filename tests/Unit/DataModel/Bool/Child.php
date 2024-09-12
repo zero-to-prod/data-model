@@ -4,12 +4,10 @@ namespace Tests\Unit\DataModel\Bool;
 
 use Zerotoprod\DataModel\DataModel;
 
-class Child
+readonly class Child
 {
     use DataModel;
 
     public const bool = 'bool';
-
-    /** @var bool $bool */
-    public $bool;
+    public bool $bool;
 }

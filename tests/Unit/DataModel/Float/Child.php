@@ -4,12 +4,10 @@ namespace Tests\Unit\DataModel\Float;
 
 use Zerotoprod\DataModel\DataModel;
 
-class Child
+readonly class Child
 {
     use DataModel;
 
     public const float = 'float';
-
-    /* @var float $float */
-    public $float;
+    public float $float;
 }

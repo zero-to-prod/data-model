@@ -5,7 +5,7 @@ namespace Tests\Unit\DataModel\FromStdClass;
 use stdClass;
 use Zerotoprod\DataModel\DataModel;
 
-class BaseClass
+readonly class BaseClass
 {
     use DataModel;
 
@@ -14,23 +14,8 @@ class BaseClass
     public const stdClass = 'stdClass';
     public const stdClassWithoutBackslash = 'stdClassWithoutBackslash';
 
-    /**
-     * @var int $id
-     */
-    public $id;
-
-    /**
-     * @var Child $Child
-     */
-    public $Child;
-
-    /**
-     * @var \stdClass $stdClass
-     */
-    public $stdClass;
-
-    /**
-     * @var stdClass $stdClassWithoutBackslash
-     */
-    public $stdClassWithoutBackslash;
+    public int $id;
+    public Child $Child;
+    public stdClass $stdClass;
+    public stdClass $stdClassWithoutBackslash;
 }

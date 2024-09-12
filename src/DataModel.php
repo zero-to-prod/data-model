@@ -4,7 +4,6 @@ namespace Zerotoprod\DataModel;
 
 use ReflectionClass;
 use ReflectionException;
-use Zerotoprod\DataModel\Helpers\Str;
 
 /**
  * The `DataModel` trait creates class instances from arrays, strings, or objects,
@@ -38,61 +37,19 @@ trait DataModel
 
         foreach ($value as $property => $val) {
             try {
-                preg_match(Str::pattern, $ReflectionClass->getProperty($property)->getDocComment(), $matches);
+                $child_classname = class_exists($ReflectionClass->getProperty($property)->name)
+                    ? $ReflectionClass->getProperty($property)->name
+                    : $ReflectionClass->getNamespaceName()."\\".$ReflectionClass->getProperty($property)->name;
 
-                /* Cast value based on type annotation */
-                switch ($matches[Str::native_type]) {
-                    case Str::string:
-                        $self->{$property} = !is_string($val) ? (string)$val : $val;
-                        continue 2;
-                    case Str::array:
-                        if (is_array($val)) {
-                            $self->{$property} = $val;
-                            continue 2;
-                        }
-
-                        $self->{$property} = is_object($val) ? get_object_vars($val) : (array)$val;
-                        continue 2;
-                    case Str::int:
-                        $self->{$property} = (int)$val;
-                        continue 2;
-                    case Str::bool:
-                        $self->{$property} = (bool)$val;
-                        continue 2;
-                    case Str::float:
-                        $self->{$property} = (float)$val;
-                        continue 2;
-                    case Str::object:
-                        $self->{$property} = !is_object($val) ? (object)$val : $val;
-                        continue 2;
-                    case Str::stdClass || Str::_stdClass:
-                        $self->{$property} = $val;
-                        continue 2;
-                }
-
-                /* Property type references a class denoted by a leading '\' */
-                if ($matches[Str::type][0] === '\\' && method_exists($matches[Str::type], Str::from)) {
-                    $self->{$property} = $matches[Str::type]::from($val);
-
-                    continue;
-                }
-
-                /**
-                 * Prepend the current namespace
-                 *
-                 * @var DataModel $fqns
-                 */
-                $fqns = "{$ReflectionClass->getNamespaceName()}\\{$matches[Str::type]}";
-                if (method_exists($fqns, Str::from)) {
-                    $self->{$property} = $fqns::from($val);
-
+                if (method_exists($child_classname, 'from')) {
+                    $self->{$property} = $child_classname::from($val);
                     continue;
                 }
 
                 $self->{$property} = $val;
 
                 continue;
-            } catch (ReflectionException $e) {
+            } catch (ReflectionException) {
                 continue;
             }
         }

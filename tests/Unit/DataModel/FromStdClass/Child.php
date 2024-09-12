@@ -2,12 +2,10 @@
 
 namespace Tests\Unit\DataModel\FromStdClass;
 
-class Child
+readonly class Child
 {
     public const id = 'id';
-
-    /* @var int $id */
-    public $id;
+    public int $id;
 
     public static function from(): self
     {
