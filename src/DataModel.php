@@ -37,9 +37,7 @@ trait DataModel
             return $value;
         }
 
-        if (is_object($value)) {
-            $value = (array)$value;
-        }
+        $value = is_object($value) ? (array)$value : $value;
 
         $self = new self();
 
