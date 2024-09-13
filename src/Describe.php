@@ -16,7 +16,7 @@ readonly class Describe
      * @var string|array{name: string, method: string, include_context: bool}
      */
     public string|array $class;
-    public bool $strict;
+    public bool $required;
     public string $via;
     public string $map_from;
     public bool $require_typed_properties;
@@ -26,7 +26,7 @@ readonly class Describe
      * @param  string|null|array{
      *      class?: string|array{name: string, method: string, include_context: bool},
      *      function?: string|array{name: string, include_context: bool},
-     *      strict?: bool,
+     *      required?: bool,
      *      via?: string,
      *      map_from?: string,
      *      require_typed_properties?: bool,

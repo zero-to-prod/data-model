@@ -16,6 +16,7 @@ readonly class BaseClass
     public const string4 = 'string4';
     public const string5 = 'string5';
     public const DateTime = 'DateTime';
+    public const null_value = 'null_value';
 
     #[Describe([
         'class' => [
@@ -57,12 +58,12 @@ readonly class BaseClass
             'method' => 'fullName',
             'include_context' => true,
         ],
-        'strict' => true
+        'required' => true
     ])]
     public string $full_name;
 
     public static function fullName($value, $context): string
     {
-        return $context['first_name'] . ' ' . $context['last_name'];
+        return $context['first_name'].' '.$context['last_name'];
     }
 }
