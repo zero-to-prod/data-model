@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit\Describe\From;
+namespace Tests\Unit\Describe\Class;
 
 readonly class Parser
 {

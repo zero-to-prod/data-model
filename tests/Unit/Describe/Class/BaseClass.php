@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit\Describe\From;
+namespace Tests\Unit\Describe\Class;
 
 use Zerotoprod\DataModel\DataModel;
 use Zerotoprod\DataModel\Describe;
@@ -11,6 +11,6 @@ readonly class BaseClass
 
     public const string = 'string';
 
-    #[Describe(['from' => Parser::class])]
+    #[Describe(['class' => Parser::class])]
     public string $string;
 }

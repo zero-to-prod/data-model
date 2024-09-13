@@ -1,18 +1,18 @@
 <?php
 
-namespace Tests\Unit\Describe\From;
+namespace Tests\Unit\Describe\Class;
 
 use Tests\TestCase;
 use Zerotoprod\DataModel\DataModel;
 
-class FromTest extends TestCase
+class ClassTest extends TestCase
 {
     /**
      * @test
      *
      * @see DataModel
      */
-    public function bool(): void
+    public function from(): void
     {
         $BaseClass = BaseClass::from([
             BaseClass::string => 'foo',

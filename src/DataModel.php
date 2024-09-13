@@ -57,9 +57,24 @@ trait DataModel
             foreach ($ReflectionProperty->getAttributes() as $Attribute) {
                 if ($Attribute->getName() === Describe::class) {
                     $Describe = new Describe(...$Attribute->getArguments());
-                    if (isset($Describe->from) && is_callable([$Describe->from, 'parse'])) {
-                        $self->{$property} = $Describe->from::parse($value[$property]);
-                        continue 2;
+                    if (isset($Describe->class)) {
+                        $include_context = $Describe->class[Describe::include_context] ?? false;
+                        $method = $Describe->class[Describe::method] ?? Describe::parse;
+
+                        if (is_callable([$Describe->class, $method])) {
+                            $self->{$property} = $include_context
+                                ? $Describe->class::$method($value[$property], $value)
+                                : $Describe->class::$method($value[$property]);
+                            continue 2;
+                        }
+
+                        if (is_array($Describe->class) && isset($Describe->class[Describe::name])) {
+                            $class = $Describe->class[Describe::name];
+                            $self->{$property} = $include_context
+                                ? $class::$method($value[$property], $value)
+                                : $class::$method($value[$property]);
+                            continue 2;
+                        }
                     }
                 }
             }
