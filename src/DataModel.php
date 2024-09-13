@@ -41,11 +41,6 @@ trait DataModel
 
         foreach ((new ReflectionClass($self))->getProperties() as $ReflectionProperty) {
             $property = $ReflectionProperty->getName();
-
-            if (!array_key_exists($property, $value)) {
-                continue;
-            }
-
             $ReflectionType = $ReflectionProperty->getType();
 
             // Skip if no type or if it's a union type

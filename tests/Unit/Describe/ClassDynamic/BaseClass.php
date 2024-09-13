@@ -50,4 +50,19 @@ readonly class BaseClass
         ]
     ])]
     public DateTime $DateTime;
+
+    #[Describe([
+        'class' => [
+            'name' => __CLASS__,
+            'method' => 'fullName',
+            'include_context' => true,
+        ],
+        'strict' => true
+    ])]
+    public string $full_name;
+
+    public static function fullName($value, $context): string
+    {
+        return $context['first_name'] . ' ' . $context['last_name'];
+    }
 }

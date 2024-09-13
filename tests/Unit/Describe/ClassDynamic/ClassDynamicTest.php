@@ -22,6 +22,8 @@ class ClassDynamicTest extends TestCase
             BaseClass::string4 => 'foo',
             BaseClass::string5 => 'foo',
             BaseClass::DateTime => '2015-10-04 17:24:43.000000',
+            'first_name' => 'john',
+            'last_name' => 'doe',
         ]);
 
         $this->assertEquals('foobar', $BaseClass->string);
@@ -30,5 +32,6 @@ class ClassDynamicTest extends TestCase
         $this->assertEquals('bar', $BaseClass->string4);
         $this->assertEquals('bar', $BaseClass->string5);
         $this->assertInstanceOf(DateTime::class, $BaseClass->DateTime);
+        $this->assertEquals('john doe', $BaseClass->full_name);
     }
 }
