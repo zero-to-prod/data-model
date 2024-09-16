@@ -16,23 +16,16 @@ class ClassDynamicTest extends TestCase
     public function fromDynamic(): void
     {
         $BaseClass = BaseClass::from([
-            BaseClass::string => 'foo',
-            BaseClass::string2 => 'foo',
-            BaseClass::string3 => 'foo',
-            BaseClass::string4 => 'foo',
-            BaseClass::string5 => 'foo',
+            BaseClass::string_from_class => 'foo',
+            BaseClass::string_from_function => 'foo',
             BaseClass::DateTime => '2015-10-04 17:24:43.000000',
-            'first_name' => 'john',
-            'last_name' => 'doe',
-            BaseClass::function => 'foo'
+            'first_name' => 'John',
+            'last_name' => 'Doe',
         ]);
 
-        $this->assertEquals('foobar', $BaseClass->string);
-        $this->assertEquals('bar', $BaseClass->string2);
-        $this->assertEquals('foo', $BaseClass->string3);
-        $this->assertEquals('bar', $BaseClass->string4);
-        $this->assertEquals('bar', $BaseClass->string5);
+        $this->assertEquals('bar', $BaseClass->string_from_class);
+        $this->assertEquals('foobar', $BaseClass->string_from_function);
+        $this->assertEquals('John Doe', $BaseClass->fullName);
         $this->assertInstanceOf(DateTime::class, $BaseClass->DateTime);
-        $this->assertEquals('foobar', $BaseClass->function);
     }
 }

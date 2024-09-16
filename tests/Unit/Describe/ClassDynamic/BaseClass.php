@@ -10,67 +10,19 @@ readonly class BaseClass
 {
     use DataModel;
 
-    public const string = 'string';
-    public const string2 = 'string2';
-    public const string3 = 'string3';
-    public const string4 = 'string4';
-    public const string5 = 'string5';
+    public const string_from_class = 'string_from_class';
+    public const string_from_function = 'string_from_function';
     public const DateTime = 'DateTime';
-    public const null_value = 'null_value';
-    public const function = 'function';
 
-    #[Describe([
-        'cast' => [
-            'name' => Parser::class,
-            'method' => 'arbitrary',
-            'include_context' => true,
-        ]
-    ])]
-    public string $string;
+    #[Describe(['target' => [Parser::class, 'arbitrary']])]
+    public string $string_from_class;
 
-    #[Describe(['cast' => ['name' => Parser::class]])]
-    public string $string2;
+    #[Describe(['target' => 'parse'])]
+    public string $string_from_function;
 
-    #[Describe(['cast' => ['method' => 'parse']])]
-    public string $string3;
-
-    #[Describe(['cast' => Parser::class])]
-    public string $string4;
-
-    #[Describe([
-        'cast' => [
-            'name' => Parser::class,
-            'method' => 'arbitrary',
-        ]
-    ])]
-    public string $string5;
-
-    #[Describe([
-        'cast' => [
-            'name' => Parser::class,
-            'method' => 'dateTime',
-        ]
-    ])]
+    #[Describe(['target' => [Parser::class, 'dateTime']])]
     public DateTime $DateTime;
-
-    #[Describe([
-        'cast' => [
-            'name' => __CLASS__,
-            'method' => 'fullName',
-            'include_context' => true,
-        ],
-        'required' => true
-    ])]
-    public string $full_name;
-
-    #[Describe([
-        'cast' => [
-            'name' => 'parse',
-            'include_context' => true,
-        ],
-        'required' => true
-    ])]
-    public string $function;
+    public string $fullName;
 
     public static function fullName($value, $context): string
     {

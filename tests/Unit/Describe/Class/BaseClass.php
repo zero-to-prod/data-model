@@ -11,6 +11,6 @@ readonly class BaseClass
 
     public const string = 'string';
 
-    #[Describe(['cast' => Parser::class])]
+    #[Describe(['target' => Parser::class])]
     public string $string;
 }

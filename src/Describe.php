@@ -10,12 +10,14 @@ readonly class Describe
     public const parse = 'parse';
     public const cast = 'cast';
     public const name = 'name';
+    public const target = 'target';
     public const method = 'method';
-    public const include_context = 'include_context';
+    public const exclude_context = 'exclude_context';
     /**
-     * @var string|array{name: string, method: string, include_context: bool}
+     * @var string|array{target: string|array{classname: string, method: string}|array{string, string}, exclude_context: bool}
      */
-    public string|array $cast;
+    public string|array $target;
+    public bool $exclude_context;
     public bool $required;
     public string $via;
     public string $map_from;
@@ -25,8 +27,8 @@ readonly class Describe
 
     /**
      * @param  string|null|array{
-     *      cast?: string|array{name: string, method: string, include_context: bool},
-     *      function?: string|array{name: string, include_context: bool},
+     *      target?: string|array{string, string},
+     *      exclude_context?: bool,
      *      required?: bool,
      *      via?: string,
      *      map_from?: string,
