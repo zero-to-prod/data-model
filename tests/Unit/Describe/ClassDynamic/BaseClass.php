@@ -17,9 +17,10 @@ readonly class BaseClass
     public const string5 = 'string5';
     public const DateTime = 'DateTime';
     public const null_value = 'null_value';
+    public const function = 'function';
 
     #[Describe([
-        'class' => [
+        'cast' => [
             'name' => Parser::class,
             'method' => 'arbitrary',
             'include_context' => true,
@@ -27,17 +28,17 @@ readonly class BaseClass
     ])]
     public string $string;
 
-    #[Describe(['class' => ['name' => Parser::class]])]
+    #[Describe(['cast' => ['name' => Parser::class]])]
     public string $string2;
 
-    #[Describe(['class' => ['method' => 'parse']])]
+    #[Describe(['cast' => ['method' => 'parse']])]
     public string $string3;
 
-    #[Describe(['class' => Parser::class])]
+    #[Describe(['cast' => Parser::class])]
     public string $string4;
 
     #[Describe([
-        'class' => [
+        'cast' => [
             'name' => Parser::class,
             'method' => 'arbitrary',
         ]
@@ -45,7 +46,7 @@ readonly class BaseClass
     public string $string5;
 
     #[Describe([
-        'class' => [
+        'cast' => [
             'name' => Parser::class,
             'method' => 'dateTime',
         ]
@@ -53,7 +54,7 @@ readonly class BaseClass
     public DateTime $DateTime;
 
     #[Describe([
-        'class' => [
+        'cast' => [
             'name' => __CLASS__,
             'method' => 'fullName',
             'include_context' => true,
@@ -61,6 +62,15 @@ readonly class BaseClass
         'required' => true
     ])]
     public string $full_name;
+
+    #[Describe([
+        'cast' => [
+            'name' => 'parse',
+            'include_context' => true,
+        ],
+        'required' => true
+    ])]
+    public string $function;
 
     public static function fullName($value, $context): string
     {

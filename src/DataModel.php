@@ -43,6 +43,12 @@ trait DataModel
 
         foreach ((new ReflectionClass($self))->getProperties() as $ReflectionProperty) {
             $property = $ReflectionProperty->getName();
+
+            // Call method named the same as property
+            if (is_callable([$self, $property])) {
+                $self->{$property} = $self->$property($value[$property], $value);
+                continue;
+            }
             $ReflectionType = $ReflectionProperty->getType();
 
             // Skip if no type or if it's a union type
@@ -50,28 +56,41 @@ trait DataModel
                 $self->{$property} = $value[$property];
                 continue;
             }
-            $Attribute = current(array_filter(
-                $ReflectionProperty->getAttributes(),
-                static fn($Attr) => $Attr->getName() === Describe::class
-            ));
+            $Attribute = current(
+                array_filter(
+                    $ReflectionProperty->getAttributes(),
+                    static fn($Attr) => $Attr->getName() === Describe::class
+                )
+            );
 
             if ($Attribute) {
                 $Describe = new Describe(...$Attribute->getArguments());
-            }
 
-            if ($Attribute && isset($Describe->class)) {
-                $include_context = $Describe->class[Describe::include_context] ?? false;
-                $method = $Describe->class[Describe::method] ?? Describe::parse;
-
-                if (is_callable([$Describe->class, $method])) {
-                    $self->{$property} = $Describe->class::$method($value[$property], $include_context ? $value : []);
+                if (isset($Describe->method) && is_callable([__CLASS__, $Describe->method])) {
+                    $self->{$property} = call_user_func([__CLASS__, $Describe->method], $value[$property], $value);
                     continue;
                 }
 
-                if (is_array($Describe->class) && isset($Describe->class[Describe::name])) {
-                    $self->{$property} = ($Describe->class[Describe::name])::$method($value[$property], $include_context ? $value : []);
+                if (isset($Describe->cast)) {
+                    $include_context = $Describe->cast[Describe::include_context] ?? false;
+                    $method = $Describe->cast[Describe::method] ?? Describe::parse;
+                    $args = [$value[$property], $include_context ? $value : []];
 
-                    continue;
+                    if (is_callable([$Describe->cast, $method])) {
+                        $self->{$property} = call_user_func([$Describe->cast, $method], ...$args);
+                        continue;
+                    }
+
+                    if (is_array($Describe->cast) && isset($Describe->cast[Describe::name])) {
+                        $self->{$property} = call_user_func(
+                            is_callable($Describe->cast[Describe::name])
+                                ? $Describe->cast[Describe::name]
+                                : [$Describe->cast[Describe::name], $method],
+                            ...$args
+                        );
+
+                        continue;
+                    }
                 }
             }
 
