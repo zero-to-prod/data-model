@@ -113,5 +113,4 @@ trait DataModel
 
         return $self;
     }
-
 }
