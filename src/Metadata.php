@@ -7,10 +7,7 @@ use Attribute;
 #[Attribute]
 readonly class Metadata
 {
-    public const cast = 'cast';
-    /**
-     * @var string|array{name: string, method: string, include_context: bool}
-     */
+
     public string|array $cast;
 
     /**

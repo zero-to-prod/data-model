@@ -47,6 +47,7 @@ trait DataModel
                 static fn($Attr) => $Attr->getName() === Metadata::class
             )
         );
+        /** @var Metadata|null $Metadata */
         $Metadata = $ClassAttribute ? $ClassAttribute->newInstance() : null;
 
         foreach ($ReflectionClass->getProperties() as $ReflectionProperty) {
@@ -65,6 +66,7 @@ trait DataModel
             }
 
             $Attribute = $ReflectionProperty->getAttributes(Describe::class)[0] ?? null;
+            /** @var Describe $Describe */
             $Describe = $Attribute ? $Attribute->newInstance() : null;
 
             if ($Describe && isset($Describe->target)) {
@@ -83,7 +85,7 @@ trait DataModel
             }
 
             if (!array_key_exists($property, $context)) {
-                if ($Describe && ($Describe->required ?? false)) {
+                if ($Describe->required ?? false) {
                     throw new PropertyRequired('Property: '.$property.' is required');
                 }
                 continue;
