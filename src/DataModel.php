@@ -40,13 +40,22 @@ trait DataModel
         $context = is_object($context) ? (array)$context : $context;
 
         $self = new self();
+        $ReflectionClass = (new ReflectionClass($self));
 
-        foreach ((new ReflectionClass($self))->getProperties() as $ReflectionProperty) {
+        $ClassAttribute = current(
+            array_filter(
+                $ReflectionClass->getAttributes(),
+                static fn($Attr) => $Attr->getName() === Metadata::class
+            )
+        );
+        $Metadata = $ClassAttribute ? new Metadata(...$ClassAttribute->getArguments()) : null;
+
+        foreach ($ReflectionClass->getProperties() as $ReflectionProperty) {
             $property = $ReflectionProperty->getName();
 
             // Call method named the same as property
             if (is_callable([$self, $property])) {
-                $self->{$property} = $self->$property($context[$property], $context);
+                $self->{$property} = call_user_func([$self, $property], $context[$property], $context);
                 continue;
             }
             $ReflectionType = $ReflectionProperty->getType();
@@ -81,7 +90,7 @@ trait DataModel
                 }
             }
 
-            // Reject
+            // Reject if property is required.
             if (!array_key_exists($property, $context)) {
                 if (isset($Describe->required) && $Describe->required) {
                     throw new PropertyRequired('Property: '.$property.' is required');
@@ -91,13 +100,19 @@ trait DataModel
 
             $type = $ReflectionType->getName();
 
-            // Handle primitive types
+            // Metadata
+            if (isset($Metadata->cast[$type])) {
+                $self->{$property} = call_user_func($Metadata?->cast[$type], $context[$property]);
+                continue;
+            }
+
+            // Primitive types
             if (in_array($type, Str::types, true)) {
                 $self->{$property} = $context[$property];
                 continue;
             }
 
-            // Handle class types with a 'from' method
+            // Instantiate 'from' method
             if (is_callable([$type, 'from'])) {
                 $self->{$property} = call_user_func([$type, 'from'], $context[$property]);
                 continue;

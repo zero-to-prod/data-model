@@ -11,11 +11,11 @@ readonly class Metadata
     /**
      * @var string|array{name: string, method: string, include_context: bool}
      */
-    public string|array $class;
+    public string|array $cast;
 
     /**
      * @param  array{
-     *      cast?: string|array{name: string, method?: string, include_context: bool},
+     *      cast?: array,
      * }  $attributes
      */
     public function __construct(array $attributes)
