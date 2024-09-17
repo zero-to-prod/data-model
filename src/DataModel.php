@@ -93,8 +93,8 @@ trait DataModel
 
             $type = $ReflectionType->getName();
 
-            if ($Metadata?->cast[$type] ?? false) {
-                $self->{$property} = ($Metadata->cast[$type])($context[$property]);
+            if ($Metadata?->targets[$type] ?? false) {
+                $self->{$property} = ($Metadata->targets[$type])($context[$property]);
                 continue;
             }
 

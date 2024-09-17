@@ -8,11 +8,11 @@ use Attribute;
 readonly class Metadata
 {
 
-    public string|array $cast;
+    public string|array $targets;
 
     /**
      * @param  array{
-     *      cast?: array,
+     *      targets?: array,
      * }  $attributes
      */
     public function __construct(array $attributes)

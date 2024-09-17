@@ -7,7 +7,7 @@ use Zerotoprod\DataModel\DataModel;
 use Zerotoprod\DataModel\Metadata;
 
 #[Metadata([
-    'cast' => [
+    'targets' => [
         DateTimeImmutable::class => [Helpers::class, 'dateTimeImmutable'],
         'string' => [Helpers::class, 'setString'],
     ]

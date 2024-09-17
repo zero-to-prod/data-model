@@ -16,7 +16,7 @@ class MetadataTest extends TestCase
     public function from(): void
     {
         define('metadata', [
-            'cast' => [
+            'targets' => [
                 DateTimeImmutable::class => [Helpers::class, 'dateTimeImmutable'],
                 'string' => [Helpers::class, 'setString'],
             ]
