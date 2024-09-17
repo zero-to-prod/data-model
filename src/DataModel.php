@@ -51,17 +51,16 @@ trait DataModel
 
         foreach ($ReflectionClass->getProperties() as $ReflectionProperty) {
             $property = $ReflectionProperty->getName();
-            $value = $context[$property] ?? null;
 
             if (is_callable([$self, $property])) {
-                $self->{$property} = $self->{$property}($value, $context);
+                $self->{$property} = $self->{$property}($context[$property], $context);
                 continue;
             }
 
             $ReflectionType = $ReflectionProperty->getType();
 
             if (!$ReflectionType || $ReflectionType instanceof ReflectionUnionType) {
-                $self->{$property} = $value;
+                $self->{$property} = $context[$property];
                 continue;
             }
 
@@ -69,18 +68,17 @@ trait DataModel
             $Describe = $Attribute ? $Attribute->newInstance() : null;
 
             if ($Describe && isset($Describe->target)) {
-                $args = [$value];
+                $args = [$context[$property]];
                 if (!($Describe->exclude_context ?? false)) {
                     $args[] = $context;
                 }
 
-                $target = $Describe->target;
-                if (is_callable([$target, 'parse'])) {
-                    $self->{$property} = $target::parse(...$args);
+                if (is_callable([$Describe->target, 'parse'])) {
+                    $self->{$property} = ($Describe->target)::parse(...$args);
                     continue;
                 }
 
-                $self->{$property} = $target(...$args);
+                $self->{$property} = ($Describe->target)(...$args);
                 continue;
             }
 
@@ -93,22 +91,22 @@ trait DataModel
 
             $type = $ReflectionType->getName();
 
-            if ($Metadata && isset($Metadata->cast[$type])) {
-                $self->{$property} = ($Metadata->cast[$type])($value);
+            if ($Metadata?->cast[$type] ?? false) {
+                $self->{$property} = ($Metadata->cast[$type])($context[$property]);
                 continue;
             }
 
             if (in_array($type, Str::types, true)) {
-                $self->{$property} = $value;
+                $self->{$property} = $context[$property];
                 continue;
             }
 
             if (is_callable([$type, 'from'])) {
-                $self->{$property} = $type::from($value);
+                $self->{$property} = $type::from($context[$property]);
                 continue;
             }
 
-            $self->{$property} = $value;
+            $self->{$property} = $context[$property];
         }
 
         return $self;
