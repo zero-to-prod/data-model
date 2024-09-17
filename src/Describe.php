@@ -7,12 +7,12 @@ use Attribute;
 #[Attribute]
 readonly class Describe
 {
-    public string|array $target;
+    public string|array $cast;
     public bool $required;
 
     /**
      * @param  string|null|array{
-     *      target?: string|array{string, string},
+     *      cast?: array|string,
      *      exclude_context?: bool,
      *      required?: bool,
      * }  $attributes

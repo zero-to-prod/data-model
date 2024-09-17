@@ -4,9 +4,9 @@ namespace Tests\Unit\Metadata\CastFromConst;
 
 use DateTimeImmutable;
 use Zerotoprod\DataModel\DataModel;
-use Zerotoprod\DataModel\Metadata;
+use Zerotoprod\DataModel\Describe;
 
-#[Metadata(metadata)]
+#[Describe(describe)]
 readonly class BaseClass
 {
     use DataModel;

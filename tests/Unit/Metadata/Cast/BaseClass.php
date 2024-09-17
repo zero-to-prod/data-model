@@ -4,10 +4,10 @@ namespace Tests\Unit\Metadata\Cast;
 
 use DateTimeImmutable;
 use Zerotoprod\DataModel\DataModel;
-use Zerotoprod\DataModel\Metadata;
+use Zerotoprod\DataModel\Describe;
 
-#[Metadata([
-    'targets' => [
+#[Describe([
+    'cast' => [
         DateTimeImmutable::class => [Helpers::class, 'dateTimeImmutable'],
         'string' => [Helpers::class, 'setString'],
     ]

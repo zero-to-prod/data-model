@@ -4,15 +4,14 @@ namespace Tests\Unit\Metadata\CastOverride;
 
 use Zerotoprod\DataModel\DataModel;
 use Zerotoprod\DataModel\Describe;
-use Zerotoprod\DataModel\Metadata;
 
-#[Metadata(metadata)]
+#[Describe(describe)]
 readonly class BaseClass
 {
     use DataModel;
 
     public const name = 'name';
 
-    #[Describe(['target' => [Helpers::class, 'setFooString']])]
+    #[Describe(['cast' => [Helpers::class, 'setFooString']])]
     public string $name;
 }

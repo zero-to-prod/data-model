@@ -15,8 +15,8 @@ class MetadataTest extends TestCase
      */
     public function foo(): void
     {
-        define('metadata', [
-            'targets' => [
+        define('describe', [
+            'cast' => [
                 'string' => [Helpers::class, 'setBarString'],
             ]
         ]);

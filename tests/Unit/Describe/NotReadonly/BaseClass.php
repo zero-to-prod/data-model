@@ -15,13 +15,13 @@ class BaseClass
     public const DateTime = 'DateTime';
     public const no_type = 'no_type';
 
-    #[Describe(['target' => [Parser::class, 'arbitrary']])]
+    #[Describe(['cast' => [Parser::class, 'arbitrary']])]
     public string $string_from_class;
 
-    #[Describe(['target' => 'parse'])]
+    #[Describe(['cast' => 'parse'])]
     public string $string_from_function;
 
-    #[Describe(['target' => [Parser::class, 'dateTime']])]
+    #[Describe(['cast' => [Parser::class, 'dateTime']])]
     public DateTime $DateTime;
     public string $fullName;
     public $no_type;

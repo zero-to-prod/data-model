@@ -44,11 +44,11 @@ trait DataModel
         $ClassAttribute = current(
             array_filter(
                 $ReflectionClass->getAttributes(),
-                static fn($Attr) => $Attr->getName() === Metadata::class
+                static fn($Attr) => $Attr->getName() === Describe::class
             )
         );
-        /** @var Metadata|null $Metadata */
-        $Metadata = $ClassAttribute ? $ClassAttribute->newInstance() : null;
+        /** @var Describe|null $ClassDescribe */
+        $ClassDescribe = $ClassAttribute ? $ClassAttribute->newInstance() : null;
 
         foreach ($ReflectionClass->getProperties() as $ReflectionProperty) {
             $property = $ReflectionProperty->getName();
@@ -69,18 +69,18 @@ trait DataModel
             /** @var Describe $Describe */
             $Describe = $Attribute ? $Attribute->newInstance() : null;
 
-            if ($Describe && isset($Describe->target)) {
+            if ($Describe && isset($Describe->cast)) {
                 $args = [$context[$property]];
                 if (!($Describe->exclude_context ?? false)) {
                     $args[] = $context;
                 }
 
-                if (is_callable([$Describe->target, 'parse'])) {
-                    $self->{$property} = ($Describe->target)::parse(...$args);
+                if (is_callable([$Describe->cast, 'parse'])) {
+                    $self->{$property} = ($Describe->cast)::parse(...$args);
                     continue;
                 }
 
-                $self->{$property} = ($Describe->target)(...$args);
+                $self->{$property} = ($Describe->cast)(...$args);
                 continue;
             }
 
@@ -93,8 +93,8 @@ trait DataModel
 
             $type = $ReflectionType->getName();
 
-            if ($Metadata?->targets[$type] ?? false) {
-                $self->{$property} = ($Metadata->targets[$type])($context[$property]);
+            if ($ClassDescribe?->cast[$type] ?? false) {
+                $self->{$property} = ($ClassDescribe->cast[$type])($context[$property]);
                 continue;
             }
 
