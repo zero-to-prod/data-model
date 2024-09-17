@@ -38,9 +38,8 @@ trait DataModel
         }
 
         $context = is_object($context) ? (array)$context : $context;
-
         $self = new self();
-        $ReflectionClass = (new ReflectionClass($self));
+        $ReflectionClass = new ReflectionClass($self);
 
         $ClassAttribute = current(
             array_filter(
@@ -48,51 +47,45 @@ trait DataModel
                 static fn($Attr) => $Attr->getName() === Metadata::class
             )
         );
-        $Metadata = $ClassAttribute ? new Metadata(...$ClassAttribute->getArguments()) : null;
+        $Metadata = $ClassAttribute ? $ClassAttribute->newInstance() : null;
 
         foreach ($ReflectionClass->getProperties() as $ReflectionProperty) {
             $property = $ReflectionProperty->getName();
+            $value = $context[$property] ?? null;
 
-            // Call method named the same as property
             if (is_callable([$self, $property])) {
-                $self->{$property} = call_user_func([$self, $property], $context[$property], $context);
+                $self->{$property} = $self->{$property}($value, $context);
                 continue;
             }
+
             $ReflectionType = $ReflectionProperty->getType();
 
-            // Skip if no type or if it's a union type
             if (!$ReflectionType || $ReflectionType instanceof ReflectionUnionType) {
-                $self->{$property} = $context[$property];
+                $self->{$property} = $value;
                 continue;
             }
 
-            $Attribute = current(
-                array_filter(
-                    $ReflectionProperty->getAttributes(),
-                    static fn($Attr) => $Attr->getName() === Describe::class
-                )
-            );
+            $Attribute = $ReflectionProperty->getAttributes(Describe::class)[0] ?? null;
+            $Describe = $Attribute ? $Attribute->newInstance() : null;
 
-            if ($Attribute) {
-                $Describe = new Describe(...$Attribute->getArguments());
+            if ($Describe && isset($Describe->target)) {
+                $args = [$value];
+                if (!($Describe->exclude_context ?? false)) {
+                    $args[] = $context;
+                }
 
-                if (isset($Describe->target)) {
-                    $args = [$context[$property]];
-                    if (!($Describe->exclude_context ?? false)) {
-                        $args[] = $context;
-                    }
-
-                    $self->{$property} = is_callable([$Describe->target, Describe::parse])
-                        ? call_user_func([$Describe->target, Describe::parse], ...$args)
-                        : call_user_func($Describe->target, ...$args);
-
+                $target = $Describe->target;
+                if (is_callable([$target, 'parse'])) {
+                    $self->{$property} = $target::parse(...$args);
                     continue;
                 }
+
+                $self->{$property} = $target(...$args);
+                continue;
             }
 
-            // Reject if property is required.
             if (!array_key_exists($property, $context)) {
-                if (isset($Describe->required) && $Describe->required) {
+                if ($Describe && ($Describe->required ?? false)) {
                     throw new PropertyRequired('Property: '.$property.' is required');
                 }
                 continue;
@@ -100,27 +93,25 @@ trait DataModel
 
             $type = $ReflectionType->getName();
 
-            // Metadata
-            if (isset($Metadata->cast[$type])) {
-                $self->{$property} = call_user_func($Metadata?->cast[$type], $context[$property]);
+            if ($Metadata && isset($Metadata->cast[$type])) {
+                $self->{$property} = ($Metadata->cast[$type])($value);
                 continue;
             }
 
-            // Primitive types
             if (in_array($type, Str::types, true)) {
-                $self->{$property} = $context[$property];
+                $self->{$property} = $value;
                 continue;
             }
 
-            // Instantiate 'from' method
             if (is_callable([$type, 'from'])) {
-                $self->{$property} = call_user_func([$type, 'from'], $context[$property]);
+                $self->{$property} = $type::from($value);
                 continue;
             }
 
-            $self->{$property} = $context[$property];
+            $self->{$property} = $value;
         }
 
         return $self;
     }
+
 }
