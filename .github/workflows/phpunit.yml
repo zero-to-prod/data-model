@@ -36,7 +36,7 @@ jobs:
             ${{ runner.os }}-php-
 
       - name: Install Composer dependencies
-        run: docker compose run --rm php71composer composer install --prefer-dist --no-progress --no-suggest
+        run: docker compose run --rm php82composer composer install --prefer-dist --no-progress --no-suggest
 
       - name: Run PHPUnit tests
-        run: docker compose run --rm php71 vendor/bin/phpunit
+        run: docker compose run --rm php82 vendor/bin/phpunit
