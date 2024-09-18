@@ -16,7 +16,7 @@ Perfect for developers looking to simplify their Data Transfer Objects (DTOs);
 
 - [Easy Instantiation](#instantiating-from-data): Create class instances from arrays or objects with automatic type casting.
 - [Type Casting](#automatic-instantiation): Supports primitives, custom classes, enums, and more.
-- Describe Syntax: Describe how to resolve a value before .
+- Attribute Transformations: Describe how to resolve a value before instantiation.
 - Required Properties: Enforce required properties with descriptive exceptions.
 - Dynamic Property Setters: Define dynamic property setters for advanced use cases.
 
@@ -96,6 +96,46 @@ $user = User::from([
 
 echo $user->address->city; // Outputs: Hometown
 ```
+## Transformations
+The DataModel trait provides a variety of ways to transform data before the value is assigned to the class property.
+
+### Class Methods
+By default, class methods matching the class property are called with the `$value` and `$context` passed in.
+
+```php
+use Zerotoprod\DataModel\DataModel;
+
+readonly class User
+{
+    use DataModel;
+
+    public string $first_name;
+    public string $last_name;
+    public string $fullName;
+    
+    private function last_name(string $value, array $context): string
+    {
+        return strtoupper($value);
+    }
+
+    /* When method name does not match a property null is passed for the $value */
+    private function fullName(null $value, array $context): string
+    {
+        return "{$context['first_name']} {$context['last_name']}";
+    }
+}
+
+$user = User::from([
+    'first_name' => 'Jane',
+    'last_name' => 'Doe',
+]);
+
+$user->first_name; // 'Jane'
+$user->last_name; // 'DOE'
+$user->fullName; // 'Jane Doe'
+```
+
+The `Describe` attribute provides a declarative way to transform and describe the behavior of properties at the time they are instantiated. 
 ### Handling Required Properties
 Enforce that certain properties are required using the Describe attribute:
 ```php
