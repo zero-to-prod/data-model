@@ -3,11 +3,9 @@
     <testsuites>
         <testsuite name="Unit">
             <directory suffix="Test.php">./tests/Unit</directory>
-        </testsuite>W
+        </testsuite>
     </testsuites>
-    <filter>
-        <whitelist>
-            <directory suffix=".php">src</directory>
-        </whitelist>
-    </filter>
+    <whitelist>
+        <directory suffix=".php">src</directory>
+    </whitelist>
 </phpunit>
