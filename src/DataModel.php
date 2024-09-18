@@ -7,25 +7,43 @@ use ReflectionUnionType;
 use Zerotoprod\DataModel\Helpers\Str;
 
 /**
- * The `DataModel` trait creates class instances from arrays, strings, or objects,
- * automatically casting types based on PHPDoc annotations. It simplifies populating
- * class properties by using reflection to match data with annotated types.
+ * Trait DataModel
  *
- * @package Zerotoprod\DataModel
+ * Enables classes to instantiate themselves from arrays or objects, auto-populating properties based on type hints and attributes.
+ * Supports primitives, custom classes, enums, and allows for custom casting logic.
+ *
+ * Example:
+ * ```
+ * class User
+ * {
+ *     use DataModel;
+ *
+ *     public string $name;
+ *     public int $age;
+ * }
+ *
+ * $user = User::from(['name' => 'Alice', 'age' => 30]);
+ * ```
  */
 trait DataModel
 {
     /**
-     * Instantiates the class from an array, string, or object, casting values based on PHPDoc annotations.
-     * Uses reflection to match data with property types, supporting primitives and classes with a `from` method.
+     * Create an instance from data, populating properties based on type declarations.
      *
-     * Example:
+     * Examples:
      * ```
-     * MyClass::from(['name' => 'John Doe']);
-     * MyClass::from($stdClass);
+     * class User
+     * {
+     *     use DataModel;
+     *
+     *     public string $name;
+     *     public int $age;
+     * }
+     *
+     * $user = User::from(['name' => 'Alice', 'age' => 30]);
      * ```
      *
-     * @param  iterable|object|null  $context  Data to populate class properties.
+     * @param  iterable|object|null  $context  Data to populate the instance.
      */
     public static function from(iterable|object|null $context = null): self
     {

@@ -1,18 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit bootstrap="vendor/autoload.php" colors="true">
     <testsuites>
-        <testsuite name="DataModel">
-            <directory suffix="Test.php">./tests/Unit/DataModel</directory>
-        </testsuite>
-        <testsuite name="Describe">
-            <directory suffix="Test.php">./tests/Unit/Describe</directory>
-        </testsuite>
-        <testsuite name="FromJson">
-            <directory suffix="Test.php">./tests/Unit/FromJson</directory>
-        </testsuite>
-        <testsuite name="Metadata">
-            <directory suffix="Test.php">./tests/Unit/Metadata</directory>
-        </testsuite>
+        <testsuite name="Unit">
+            <directory suffix="Test.php">./tests/Unit</directory>
+        </testsuite>W
     </testsuites>
     <filter>
         <whitelist>
