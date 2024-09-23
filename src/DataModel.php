@@ -69,42 +69,37 @@ trait DataModel
         $ClassDescribe = $ClassAttribute ? $ClassAttribute->newInstance() : null;
 
         foreach ($ReflectionClass->getProperties() as $ReflectionProperty) {
-            $property = $ReflectionProperty->getName();
+            $property_name = $ReflectionProperty->getName();
 
-            if (is_callable([$self, $property])) {
-                $self->{$property} = $self->{$property}($context[$property], $context);
+            /* Invokes method matching property name. */
+            if (is_callable([$self, $property_name])) {
+                $self->{$property_name} = $self->{$property_name}($context[$property_name], $context);
                 continue;
             }
 
             $ReflectionType = $ReflectionProperty->getType();
-
+            /* Assigns value when no type or union type is defined. */
             if (!$ReflectionType || $ReflectionType instanceof ReflectionUnionType) {
-                $self->{$property} = $context[$property];
+                $self->{$property_name} = $context[$property_name];
                 continue;
             }
 
-            $Attribute = $ReflectionProperty->getAttributes(Describe::class)[0] ?? null;
             /** @var Describe $Describe */
-            $Describe = $Attribute ? $Attribute->newInstance() : null;
-
-            if ($Describe && isset($Describe->cast)) {
-                $args = [$context[$property]];
+            $Describe = ($ReflectionProperty->getAttributes(Describe::class)[0] ?? null)?->newInstance();
+            if (isset($Describe->cast)) {
+                $args = [$context[$property_name]];
+                /* Pass the context as the second argument if not excluded. */
                 if (!($Describe->exclude_context ?? false)) {
                     $args[] = $context;
                 }
 
-                if (is_callable([$Describe->cast, 'parse'])) {
-                    $self->{$property} = ($Describe->cast)::parse(...$args);
-                    continue;
-                }
-
-                $self->{$property} = ($Describe->cast)(...$args);
+                $self->{$property_name} = ($Describe->cast)(...$args);
                 continue;
             }
 
-            if (!array_key_exists($property, $context)) {
+            if (!array_key_exists($property_name, $context)) {
                 if ($Describe->required ?? false) {
-                    throw new PropertyRequired('Property: '.$property.' is required');
+                    throw new PropertyRequired('Property: '.$property_name.' is required');
                 }
                 continue;
             }
@@ -112,21 +107,21 @@ trait DataModel
             $type = $ReflectionType->getName();
 
             if ($ClassDescribe?->cast[$type] ?? false) {
-                $self->{$property} = ($ClassDescribe->cast[$type])($context[$property]);
+                $self->{$property_name} = ($ClassDescribe->cast[$type])($context[$property_name]);
                 continue;
             }
 
             if (in_array($type, Str::types, true)) {
-                $self->{$property} = $context[$property];
+                $self->{$property_name} = $context[$property_name];
                 continue;
             }
 
             if (is_callable([$type, 'from'])) {
-                $self->{$property} = $type::from($context[$property]);
+                $self->{$property_name} = $type::from($context[$property_name]);
                 continue;
             }
 
-            $self->{$property} = $context[$property];
+            $self->{$property_name} = $context[$property_name];
         }
 
         return $self;
