@@ -2,9 +2,9 @@
 
 namespace Zerotoprod\DataModel;
 
+use ReflectionAttribute;
 use ReflectionClass;
 use ReflectionUnionType;
-use Zerotoprod\DataModel\Helpers\Str;
 
 /**
  * Trait DataModel
@@ -58,11 +58,11 @@ trait DataModel
         $context = is_object($context) ? (array)$context : $context;
         $self = new self();
         $ReflectionClass = new ReflectionClass($self);
-
+        /* Get Describe Attribute on class.   */
         $ClassAttribute = current(
             array_filter(
                 $ReflectionClass->getAttributes(),
-                static fn($Attr) => $Attr->getName() === Describe::class
+                static fn(ReflectionAttribute $ReflectionAttribute) => $ReflectionAttribute->getName() === Describe::class
             )
         );
         /** @var Describe|null $ClassDescribe */
@@ -97,27 +97,24 @@ trait DataModel
                 continue;
             }
 
+            /* When a property name does not match a key name  */
             if (!array_key_exists($property_name, $context)) {
                 if ($Describe->required ?? false) {
-                    throw new PropertyRequired('Property: '.$property_name.' is required');
+                    throw new PropertyRequired("Property: $property_name is required");
                 }
                 continue;
             }
 
-            $type = $ReflectionType->getName();
-
-            if ($ClassDescribe?->cast[$type] ?? false) {
-                $self->{$property_name} = ($ClassDescribe->cast[$type])($context[$property_name]);
+            $property_type = $ReflectionType->getName();
+            /* Invoke a method based on the type from the top level Describe. */
+            if ($ClassDescribe?->cast[$property_type] ?? false) {
+                $self->{$property_name} = ($ClassDescribe->cast[$property_type])($context[$property_name]);
                 continue;
             }
 
-            if (in_array($type, Str::types, true)) {
-                $self->{$property_name} = $context[$property_name];
-                continue;
-            }
-
-            if (is_callable([$type, 'from'])) {
-                $self->{$property_name} = $type::from($context[$property_name]);
+            /* Call the static method from(). */
+            if (is_callable([$property_type, 'from'])) {
+                $self->{$property_name} = $property_type::from($context[$property_name]);
                 continue;
             }
 
