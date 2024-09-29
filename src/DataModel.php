@@ -58,7 +58,7 @@ trait DataModel
         $context = is_object($context) ? (array)$context : $context;
         $self = new self();
         $ReflectionClass = new ReflectionClass($self);
-        /* Get Describe Attribute on class.   */
+        /* Get Describe Attribute on class. */
         $ClassAttribute = current(
             array_filter(
                 $ReflectionClass->getAttributes(),
@@ -77,6 +77,17 @@ trait DataModel
                 continue;
             }
 
+            /** @var Describe $Describe */
+            $Describe = ($ReflectionProperty->getAttributes(Describe::class)[0] ?? null)?->newInstance();
+
+            /* When a property name does not match a key name  */
+            if (!array_key_exists($property_name, $context)) {
+                if ($Describe->required ?? false) {
+                    throw new PropertyRequired("Property: $property_name is required");
+                }
+                continue;
+            }
+
             $ReflectionType = $ReflectionProperty->getType();
             /* Assigns value when no type or union type is defined. */
             if (!$ReflectionType || $ReflectionType instanceof ReflectionUnionType) {
@@ -84,8 +95,6 @@ trait DataModel
                 continue;
             }
 
-            /** @var Describe $Describe */
-            $Describe = ($ReflectionProperty->getAttributes(Describe::class)[0] ?? null)?->newInstance();
             if (isset($Describe->cast)) {
                 $args = [$context[$property_name]];
                 /* Pass the context as the second argument if not excluded. */
@@ -93,15 +102,8 @@ trait DataModel
                     $args[] = $context;
                 }
 
+                /* Calls a function or a method */
                 $self->{$property_name} = ($Describe->cast)(...$args);
-                continue;
-            }
-
-            /* When a property name does not match a key name  */
-            if (!array_key_exists($property_name, $context)) {
-                if ($Describe->required ?? false) {
-                    throw new PropertyRequired("Property: $property_name is required");
-                }
                 continue;
             }
 
