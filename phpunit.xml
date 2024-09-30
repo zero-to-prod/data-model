@@ -1,16 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit bootstrap="vendor/autoload.php" colors="true">
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.5/phpunit.xsd" colors="true">
     <testsuites>
-        <testsuite name="DataModel">
-            <directory suffix="Test.php">./tests/Unit/DataModel</directory>
-        </testsuite>
-        <testsuite name="FromJson">
-            <directory suffix="Test.php">./tests/Unit/FromJson</directory>
+        <testsuite name="Unit">
+            <directory>./tests/Unit</directory>
         </testsuite>
     </testsuites>
-    <filter>
-        <whitelist>
-            <directory suffix=".php">src</directory>
-        </whitelist>
-    </filter>
+    <source>
+        <include>
+            <directory>./app</directory>
+        </include>
+    </source>
 </phpunit>

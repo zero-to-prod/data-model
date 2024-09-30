@@ -4,12 +4,10 @@ namespace Tests\Unit\DataModel\FromDataModel;
 
 use Zerotoprod\DataModel\DataModel;
 
-class Child
+readonly class Child
 {
     use DataModel;
 
     public const id = 'id';
-
-    /* @var int $id */
-    public $id;
+    public int $id;
 }

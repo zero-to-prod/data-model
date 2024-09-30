@@ -2,99 +2,125 @@
 
 namespace Zerotoprod\DataModel;
 
+use ReflectionAttribute;
 use ReflectionClass;
-use ReflectionException;
-use Zerotoprod\DataModel\Helpers\Str;
+use ReflectionUnionType;
 
 /**
- * The `DataModel` trait creates class instances from arrays, strings, or objects,
- * automatically casting types based on PHPDoc annotations. It simplifies populating
- * class properties by using reflection to match data with annotated types.
+ * Trait DataModel
  *
- * @package Zerotoprod\DataModel
+ * Enables classes to instantiate themselves from arrays or objects, auto-populating properties based on type hints and attributes.
+ * Supports primitives, custom classes, enums, and allows for custom casting logic.
+ *
+ * Example:
+ * ```
+ * class User
+ * {
+ *     use DataModel;
+ *
+ *     public string $name;
+ *     public int $age;
+ * }
+ *
+ * $user = User::from(['name' => 'Alice', 'age' => 30]);
+ * ```
  */
 trait DataModel
 {
     /**
-     * Instantiates the class from an array, string, or object, casting values based on PHPDoc annotations.
-     * Uses reflection to match data with property types, supporting primitives and classes with a `from` method.
+     * Create an instance from data, populating properties based on type declarations.
      *
-     * Example:
+     * Examples:
      * ```
-     * MyClass::from(['name' => 'John Doe']);
-     * MyClass::from($stdClass);
+     * class User
+     * {
+     *     use DataModel;
+     *
+     *     public string $name;
+     *     public int $age;
+     * }
+     *
+     * $user = User::from(['name' => 'Alice', 'age' => 30]);
      * ```
      *
-     * @param  iterable|object|null  $value  Data to populate class properties.
+     * @param  iterable|object|null  $context  Data to populate the instance.
      */
-    public static function from($value = null): self
+    public static function from(iterable|object|null $context = null): self
     {
-        if ($value instanceof self) {
-            return $value;
+        if (!$context) {
+            return new self();
         }
 
+        if ($context instanceof self) {
+            return $context;
+        }
+
+        $context = is_object($context) ? (array)$context : $context;
         $self = new self();
-        $ReflectionClass = new ReflectionClass(__CLASS__);
+        $ReflectionClass = new ReflectionClass($self);
+        /* Get Describe Attribute on class. */
+        $ClassAttribute = current(
+            array_filter(
+                $ReflectionClass->getAttributes(),
+                static fn(ReflectionAttribute $ReflectionAttribute) => $ReflectionAttribute->getName() === Describe::class
+            )
+        );
+        /** @var Describe|null $ClassDescribe */
+        $ClassDescribe = $ClassAttribute ? $ClassAttribute->newInstance() : null;
 
-        foreach ($value as $property => $val) {
-            try {
-                preg_match(Str::pattern, $ReflectionClass->getProperty($property)->getDocComment(), $matches);
+        foreach ($ReflectionClass->getProperties() as $ReflectionProperty) {
+            $property_name = $ReflectionProperty->getName();
 
-                /* Cast value based on type annotation */
-                switch ($matches[Str::native_type]) {
-                    case Str::string:
-                        $self->{$property} = !is_string($val) ? (string)$val : $val;
-                        continue 2;
-                    case Str::array:
-                        if (is_array($val)) {
-                            $self->{$property} = $val;
-                            continue 2;
-                        }
-
-                        $self->{$property} = is_object($val) ? get_object_vars($val) : (array)$val;
-                        continue 2;
-                    case Str::int:
-                        $self->{$property} = (int)$val;
-                        continue 2;
-                    case Str::bool:
-                        $self->{$property} = (bool)$val;
-                        continue 2;
-                    case Str::float:
-                        $self->{$property} = (float)$val;
-                        continue 2;
-                    case Str::object:
-                        $self->{$property} = !is_object($val) ? (object)$val : $val;
-                        continue 2;
-                    case Str::stdClass || Str::_stdClass:
-                        $self->{$property} = $val;
-                        continue 2;
-                }
-
-                /* Property type references a class denoted by a leading '\' */
-                if ($matches[Str::type][0] === '\\' && method_exists($matches[Str::type], Str::from)) {
-                    $self->{$property} = $matches[Str::type]::from($val);
-
-                    continue;
-                }
-
-                /**
-                 * Prepend the current namespace
-                 *
-                 * @var DataModel $fqns
-                 */
-                $fqns = "{$ReflectionClass->getNamespaceName()}\\{$matches[Str::type]}";
-                if (method_exists($fqns, Str::from)) {
-                    $self->{$property} = $fqns::from($val);
-
-                    continue;
-                }
-
-                $self->{$property} = $val;
-
-                continue;
-            } catch (ReflectionException $e) {
+            /* Invokes method matching property name. */
+            if (is_callable([$self, $property_name])) {
+                $self->{$property_name} = $self->{$property_name}($context[$property_name], $context);
                 continue;
             }
+
+            /** @var Describe $Describe */
+            $Describe = ($ReflectionProperty->getAttributes(Describe::class)[0] ?? null)?->newInstance();
+
+            /* When a property name does not match a key name  */
+            if (!array_key_exists($property_name, $context)) {
+                if ($Describe->required ?? false) {
+                    throw new PropertyRequired("Property: $property_name is required");
+                }
+                continue;
+            }
+
+            $ReflectionType = $ReflectionProperty->getType();
+            /* Assigns value when no type or union type is defined. */
+            if (!$ReflectionType || $ReflectionType instanceof ReflectionUnionType) {
+                $self->{$property_name} = $context[$property_name];
+                continue;
+            }
+
+            if (isset($Describe->cast)) {
+                $args = [$context[$property_name]];
+                /* Pass the context as the second argument if not excluded. */
+                if (!($Describe->exclude_context ?? false)) {
+                    $args[] = $context;
+                }
+
+                /* Calls a function or a method */
+                $self->{$property_name} = ($Describe->cast)(...$args);
+                continue;
+            }
+
+            $property_type = $ReflectionType->getName();
+            /* Invoke a method based on the type from the top level Describe. */
+            if ($ClassDescribe?->cast[$property_type] ?? false) {
+                $self->{$property_name} = ($ClassDescribe->cast[$property_type])($context[$property_name]);
+                continue;
+            }
+
+            /* Call the static method from(). */
+            if (is_callable([$property_type, 'from'])) {
+                $self->{$property_name} = $property_type::from($context[$property_name]);
+                continue;
+            }
+
+            $self->{$property_name} = $context[$property_name];
         }
 
         return $self;

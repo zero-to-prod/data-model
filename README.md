@@ -1,16 +1,24 @@
 # `Zerotoprod\DataModel`
+
 [![Repo](https://img.shields.io/badge/github-gray?logo=github)](https://github.com/zero-to-prod/data-model)
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/zero-to-prod/data-model.svg)](https://packagist.org/packages/zero-to-prod/data-model)
 ![test](https://github.com/zero-to-prod/data-model/actions/workflows/phpunit.yml/badge.svg)
 ![Downloads](https://img.shields.io/packagist/dt/zero-to-prod/data-model.svg?style=flat-square&#41;]&#40;https://packagist.org/packages/zero-to-prod/data-model&#41)
 
-
 The `Zerotoprod\DataModel` trait simplifies data handling by allowing developers to create class instances from arrays or JSON, dynamically
-assigning and casting property values based on type annotations.
+assigning and casting property values based on [PHP Attributes](https://www.php.net/manual/en/language.attributes.overview.php).
 
 Whether you’re managing simple strings or complex object types, this package ensures your data models are both flexible and reliable.
 
 Perfect for developers looking to simplify their Data Transfer Objects (DTOs);
+
+## Features
+
+- [Easy Instantiation](#instantiating-from-data): Create class instances from arrays or objects with automatic type casting.
+- [Type Casting](#recursive-instantiation): Supports primitives, custom classes, enums, and more.
+- Attribute Transformations: Describe how to resolve a value before instantiation.
+- Required Properties: Enforce required properties with descriptive exceptions.
+- Dynamic Property Setters: Define dynamic property setters for advanced use cases.
 
 ## Installation
 
@@ -22,80 +30,160 @@ composer require zerotoprod/data-model
 
 ## Usage
 
-Import the `Zerotoprod\DataModel\DataModel` trait in your class. Use the `from()` static method to map array keys to class properties.
+Import the `Zerotoprod\DataModel\DataModel` trait in your class.
 
-It is recommended to extend your own `DataModel` trait with the `Zerotoprod\DataModel\DataModel` trait.
-### Basic Example
+It is recommended to use the `DataModel` trait in your own trait.
 
 ```php
-trait DataModel extends \Zerotoprod\DataModel\DataModel
+trait DataModel
 {
-    // Add additional utility methods and traits
+    use \Zerotoprod\DataModel\DataModel;
 }
+```
 
-class User
-{
-    use DataModel;
+### Defining a Data Model
 
-    public $name;
-    public $email;
-    /** @var \App\Address $Address */
-    public Address;
-}
+Include the DataModel trait in your class.
 
-namespace App;
-
-class Address
+```php
+readonly class User
 {
     use DataModel;
 
-    public $street;
+    public string $name;
+    public int $age;
 }
+```
 
-$user = User::from(
-    [
-        'name' => 'John Doe',
-        'email' => 'johndoe@example.com',
-        'Address' => ['street' => '456 Memory Lane']
-    ]
-);
+### Instantiating from Data
 
+Use the `from` method to instantiate your class, passing an array or object.
+
+Notice the native type coercion.
+
+```php
+$user = User::from([
+    'name' => 'John Doe',
+    'age' => '30',
+]);
 echo $user->name; // 'John Doe'
-echo $user->email; // 'johndoe@example.com'
-echo $user->Address->street; // '456 Memory Lane'
+echo $user->age; // 30
 ```
 
-### Automatically Typecast Properties With Doc Comments
+### Recursive Instantiation
 
-Use PHPDoc `@var` annotations to link and cast properties to their classes, ensuring accurate mapping and conversion, especially with nested objects.
+The DataModel trait recursively instantiates property values based on their type declarations.
+If a property’s type hint is a class, its value is passed to that class’s `from()` method.
+
+In this example, the address array is automatically converted into an Address object,
+allowing direct access to its properties like `$user->address->city`.
 
 ```php
-/** @var Address $Address */
-public $Address;
+readonly class Address
+{
+    use DataModel;
+
+    public string $street;
+    public string $city;
+}
+
+readonly class User
+{
+    use DataModel;
+
+    public string $username;
+    public Address $address;
+}
+
+$user = User::from([
+    'username' => 'John Doe',
+    'address' => [
+        'street' => '123 Main St',
+        'city' => 'Hometown',
+    ],
+]);
+
+echo $user->address->city; // Outputs: Hometown
 ```
-Inlining the fully qualified namespace is faster as a lookup does not have to be performed.
+
+## Transformations
+
+The DataModel trait provides a variety of ways to transform data before the value is assigned to the class property.
+
+## Describing Behavior
+
+The `Describe` attribute provides a declarative way to transform and describe the behavior of properties at the time they are instantiated.
+
+There is an order of precedence when resolving a value for a property.
+
+1. [Class Methods](#class-methods)
+2. [Union Types](#union-types)
+3. Property-level Casts
+4. Class-level Casts
+5. Types that have a callable static method `from()`.
+6. Native Types
+
+### Class Methods
+
+To resolve a value using a class method, make a method on the class that matches the property name. The `$value` and `$context` will be passed to the
+methods.
 ```php
-/** @var \App\Address $Address */
+use Zerotoprod\DataModel\DataModel;
+
+readonly class User
+{
+    use DataModel;
+
+    public string $first_name;
+    public string $last_name;
+    public string $fullName;
+    
+    private function last_name(string $value, array $context): string
+    {
+        return strtoupper($value);
+    }
+
+    /* When method name does not match a property null is passed for the $value */
+    private function fullName(null $value, array $context): string
+    {
+        return "{$context['first_name']} {$context['last_name']}";
+    }
+}
+
+$user = User::from([
+    'first_name' => 'Jane',
+    'last_name' => 'Doe',
+]);
+
+$user->first_name; // 'Jane'
+$user->last_name; // 'DOE'
+$user->fullName; // 'Jane Doe'
 ```
 
-This directs the `from()` method to instantiate the `Address` class for `$Address` when mapping data.
+### Union Types
+A value passed to property with a union type is directly assigned to the property. 
+If you wish to resolve the value in a specific way, use a [class method](#class-methods).
 
-Automatically casted types include:
+### Handling Required Properties
 
-- `string`
-- `array`
-- `int`
-- `bool`
-- `object`
-- `float`
-- Classes with a `from()` method
+Enforce that certain properties are required using the Describe attribute:
 
-**Notes**
+```php
+use Zerotoprod\DataModel\Describe;
 
-- The `from()` method will only assign values to existing properties in the class.
-- If a key does not correspond to a property in the class, it will be ignored.
-- Unions like this are ignored: `/** @var Address|string $Address */`.
-- Use the fully qualified namespace unless the class is in the same namespace: `/** @var Address $Address */`.
+readonly class User
+{
+    use DataModel;
+
+    #[Describe(['required' => true])]
+    public string $username;
+
+    public string $email;
+}
+
+$user = User::from(['email' => 'john@example.com']);
+// Throws PropertyRequired exception: Property: username is required
+```
 
 ## Suggested Traits
 

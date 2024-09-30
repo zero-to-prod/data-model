@@ -2,10 +2,9 @@
 
 namespace Tests\Unit\DataModel\FromClass;
 
-class ChildWithoutFrom
+readonly class ChildWithoutFrom
 {
     public const id = 'id';
 
-    /* @var int $id */
-    public $id;
+    public int $id;
 }

@@ -15,14 +15,12 @@ class ArrayTest extends TestCase
      */
     public function array(): void
     {
-        $object = new stdClass();
-        $object->foo = 'bar';
         $BaseClass = BaseClass::from([
-            BaseClass::array => 1,
+            BaseClass::array => [1],
             BaseClass::Child => [
-                Child::array => '2'
+                Child::array => ['2']
             ],
-            BaseClass::object => $object
+            BaseClass::object => ['foo' => 'bar']
         ]);
 
         $this->assertEquals([1], $BaseClass->array);

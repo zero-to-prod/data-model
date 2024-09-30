@@ -2,14 +2,12 @@
 
 namespace Tests\Unit\DataModel\FromClass;
 
-class Child
+readonly class Child
 {
     public const id = 'id';
+    public int $id;
 
-    /* @var int $id */
-    public $id;
-
-    public function from(): self
+    public static function from(): self
     {
         $self = new self();
         $self->id = 1;

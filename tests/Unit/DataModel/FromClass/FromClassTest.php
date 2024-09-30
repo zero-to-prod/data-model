@@ -3,6 +3,7 @@
 namespace Tests\Unit\DataModel\FromClass;
 
 use Tests\TestCase;
+use TypeError;
 use Zerotoprod\DataModel\DataModel;
 
 class FromClassTest extends TestCase
@@ -28,12 +29,11 @@ class FromClassTest extends TestCase
      */
     public function does_not_assign_without_from_method(): void
     {
-        $BaseClass = BaseClass::from([
+        $this->expectException(TypeError::class);
+        BaseClass::from([
             BaseClass::ChildWithoutFrom => [
                 ChildWithoutFrom::id => 1
             ],
         ]);
-
-        $this->assertNull($BaseClass->ChildWithoutFrom->id);
     }
 }
