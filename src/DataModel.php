@@ -59,7 +59,7 @@ trait DataModel
         $context = is_object($context) ? (array)$context : $context;
         $self = new self();
         $ReflectionClass = new ReflectionClass($self);
-        /* Get Describe Attribute on class. */
+        /** Get Describe Attribute on class. */
         $ClassAttribute = current(
             array_filter(
                 $ReflectionClass->getAttributes(),
@@ -72,8 +72,8 @@ trait DataModel
         foreach ($ReflectionClass->getProperties() as $ReflectionProperty) {
             $property_name = $ReflectionProperty->getName();
 
-            /* Invokes method matching property name. */
-            if (is_callable([$self, $property_name])) {
+            /** Invokes method matching property name. */
+            if (method_exists($self, $property_name)) {
                 $self->{$property_name} = $self->{$property_name}($context[$property_name], $context);
                 continue;
             }
@@ -81,7 +81,7 @@ trait DataModel
             /** @var Describe $Describe */
             $Describe = ($ReflectionProperty->getAttributes(Describe::class)[0] ?? null)?->newInstance();
 
-            /* When a property name does not match a key name  */
+            /** When a property name does not match a key name  */
             if (!array_key_exists($property_name, $context)) {
                 if ($Describe->required ?? false) {
                     throw new PropertyRequired("Property: $property_name is required");
@@ -90,7 +90,7 @@ trait DataModel
             }
 
             $ReflectionType = $ReflectionProperty->getType();
-            /* Assigns value when no type or union type is defined. */
+            /** Assigns value when no type or union type is defined. */
             if (!$ReflectionType || $ReflectionType instanceof ReflectionUnionType) {
                 $self->{$property_name} = $context[$property_name];
                 continue;
@@ -98,25 +98,25 @@ trait DataModel
 
             if (isset($Describe->cast)) {
                 $args = [$context[$property_name]];
-                /* Pass the context as the second argument if not excluded. */
+                /** Pass the context as the second argument if not excluded. */
                 if (!($Describe->exclude_context ?? false)) {
                     $args[] = $context;
                 }
 
-                /* Calls a function or a method */
+                /** Calls a function or a method */
                 $self->{$property_name} = ($Describe->cast)(...$args);
                 continue;
             }
 
             $property_type = $ReflectionType->getName();
-            /* Invoke a method based on the type from the top level Describe. */
+            /** Invoke a method based on the type from the top level Describe. */
             if ($ClassDescribe?->cast[$property_type] ?? false) {
                 $self->{$property_name} = ($ClassDescribe->cast[$property_type])($context[$property_name]);
                 continue;
             }
 
-            /* Call the static method from(). */
-            if (is_callable([$property_type, 'from'])) {
+            /** Call the static method from(). */
+            if (method_exists($property_type, 'from')) {
                 $self->{$property_name} = $context[$property_name] instanceof UnitEnum
                     ? $context[$property_name]
                     : $property_type::from($context[$property_name]);
