@@ -117,7 +117,7 @@ The `Describe` attribute provides a declarative way to transform and describe th
 There is an order of precedence when resolving a value for a property.
 
 1. [Class Methods](#class-methods)
-2. Union Types
+2. [Union Types](#union-types)
 3. Property-level Casts
 4. Class-level Casts
 5. Types that have a callable static method `from()`.
@@ -160,6 +160,10 @@ $user->last_name; // 'DOE'
 $user->fullName; // 'Jane Doe'
 ```
 
+### Union Types
+A value passed to property with a union type is directly assigned to the property. 
+If you wish to resolve the value in a specific way, use a [class method](#class-methods).
+
 ### Handling Required Properties
 
 Enforce that certain properties are required using the Describe attribute:
@@ -179,23 +183,6 @@ readonly class User
 
 $user = User::from(['email' => 'john@example.com']);
 // Throws PropertyRequired exception: Property: username is required
-```
-
-### Custom Casting with Describe
-
-Define custom casting logic for properties using the Describe attribute.
-
-```php
-readonly class Name
-{
-    use \Zerotoprod\DataModel\DataModel\DataModel;
-
-    #[Describe('strtoupper')]
-    public string $first;
-}
-
-$name = Name::from(['first' => 'john']);
-echo $name->first;
 ```
 
 ## Suggested Traits
