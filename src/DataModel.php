@@ -5,6 +5,7 @@ namespace Zerotoprod\DataModel;
 use ReflectionAttribute;
 use ReflectionClass;
 use ReflectionUnionType;
+use UnitEnum;
 
 /**
  * Trait DataModel
@@ -116,7 +117,9 @@ trait DataModel
 
             /* Call the static method from(). */
             if (is_callable([$property_type, 'from'])) {
-                $self->{$property_name} = $property_type::from($context[$property_name]);
+                $self->{$property_name} = $context[$property_name] instanceof UnitEnum
+                    ? $context[$property_name]
+                    : $property_type::from($context[$property_name]);
                 continue;
             }
 
