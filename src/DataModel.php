@@ -74,7 +74,7 @@ trait DataModel
 
             /** Invokes method matching property name. */
             if (method_exists($self, $property_name)) {
-                $self->{$property_name} = $self->{$property_name}($context[$property_name], $context);
+                $self->{$property_name} = $self->{$property_name}($context[$property_name] ?? null, $context);
                 continue;
             }
 
