@@ -115,7 +115,7 @@ trait DataModel
                 continue;
             }
 
-            /** Call the static method from(). */
+            /* Call the static method from(). */
             if (method_exists($property_type, 'from')) {
                 $self->{$property_name} = $context[$property_name] instanceof UnitEnum
                     ? $context[$property_name]
