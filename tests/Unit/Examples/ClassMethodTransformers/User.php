@@ -12,7 +12,7 @@ readonly class User
     public string $last_name;
     public string $fullName;
 
-    private function last_name(string $value, array $context): string
+    private function last_name(?string $value, array $context): string
     {
         return strtoupper($value);
     }
