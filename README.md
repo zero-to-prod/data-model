@@ -125,8 +125,7 @@ There is an order of precedence when resolving a value for a property.
 
 ### Class Methods
 
-To resolve a value using a class method, make a method on the class that matches the property name. The `$value` and `$context` will be passed to the
-methods.
+Use the `Describe` attribute to resolve values with class methods. Methods receive `$value` and `$context` as parameters.
 ```php
 use Zerotoprod\DataModel\DataModel;
 
@@ -138,12 +137,13 @@ readonly class User
     public string $last_name;
     public string $fullName;
     
-    private function last_name(string $value, array $context): string
+    #[Describe('last_name')]
+    private function lastName(string $value, array $context): string
     {
         return strtoupper($value);
     }
 
-    /* When method name does not match a property null is passed for the $value */
+    #[Describe('fullName')]
     private function fullName(null $value, array $context): string
     {
         return "{$context['first_name']} {$context['last_name']}";

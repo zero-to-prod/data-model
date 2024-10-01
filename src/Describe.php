@@ -17,7 +17,7 @@ readonly class Describe
      *      required?: bool,
      * }  $attributes
      */
-    public function __construct(string|null|array $attributes)
+    public function __construct(string|null|array $attributes = null)
     {
         if ($attributes) {
             foreach ($attributes as $key => $value) {

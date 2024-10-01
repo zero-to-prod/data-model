@@ -3,6 +3,7 @@
 namespace Tests\Unit\DataModel\DynamicSet;
 
 use Zerotoprod\DataModel\DataModel;
+use Zerotoprod\DataModel\Describe;
 
 readonly class BaseClass
 {
@@ -13,6 +14,7 @@ readonly class BaseClass
     public string $foo;
     public string $bar;
 
+    #[Describe(self::foo)]
     private function foo($value, $context): string
     {
         return $value.$context[self::bar];

@@ -26,6 +26,7 @@ class BaseClass
     public string $fullName;
     public $no_type;
 
+    #[Describe('fullName')]
     public static function fullName($value, $context): string
     {
         return $context['first_name'].' '.$context['last_name'];
