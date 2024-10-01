@@ -69,12 +69,38 @@ trait DataModel
         /** @var Describe|null $ClassDescribe */
         $ClassDescribe = $ClassAttribute ? $ClassAttribute->newInstance() : null;
 
+        $methods = [];
+        foreach ($ReflectionClass->getMethods() as $ReflectionMethod) {
+            $ReflectionAttributes = $ReflectionMethod->getAttributes(Describe::class);
+            if (!empty($ReflectionAttributes)) {
+                foreach ($ReflectionAttributes as $ReflectionAttribute) {
+                    $property = $ReflectionAttribute->getArguments()[0];
+                    $methods[$property] = isset($methods[$property])
+                        ? throw new DuplicateDescribeAttributeException(
+                            sprintf(
+                                "\nDuplicate #[Describe($property)] attribute for property $%s found in methods:\n".
+                                "%s() %s:%d\n".
+                                "%s() %s:%d",
+                                $property,
+                                $methods[$property],
+                                $ReflectionClass->getMethod($methods[$property])->getFileName(),
+                                $ReflectionClass->getMethod($methods[$property])->getStartLine(),
+                                $ReflectionMethod->getName(),
+                                $ReflectionMethod->getFileName(),
+                                $ReflectionMethod->getStartLine()
+                            )
+                        )
+                        : $ReflectionMethod->getName();
+                }
+            }
+        }
+
         foreach ($ReflectionClass->getProperties() as $ReflectionProperty) {
             $property_name = $ReflectionProperty->getName();
 
-            /** Invokes method matching property name. */
-            if (method_exists($self, $property_name)) {
-                $self->{$property_name} = $self->{$property_name}($context[$property_name] ?? null, $context);
+            /** Call method from attribute */
+            if (isset($methods[$property_name])) {
+                $self->{$property_name} = $self->{$methods[$property_name]}($context[$property_name] ?? null, $context);
                 continue;
             }
 

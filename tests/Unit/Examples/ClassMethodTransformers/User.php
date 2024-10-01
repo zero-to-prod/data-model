@@ -3,6 +3,7 @@
 namespace Tests\Unit\Examples\ClassMethodTransformers;
 
 use Zerotoprod\DataModel\DataModel;
+use Zerotoprod\DataModel\Describe;
 
 readonly class User
 {
@@ -12,11 +13,13 @@ readonly class User
     public string $last_name;
     public string $fullName;
 
-    private function last_name(?string $value, array $context): string
+    #[Describe('last_name')]
+    private function lastName(?string $value, array $context): string
     {
         return strtoupper($value);
     }
 
+    #[Describe('fullName')]
     private function fullName(null $value, array $context): string
     {
         return "{$context['first_name']} {$context['last_name']}";

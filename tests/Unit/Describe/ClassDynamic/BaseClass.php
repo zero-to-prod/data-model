@@ -24,6 +24,7 @@ readonly class BaseClass
     public DateTime $DateTime;
     public string $fullName;
 
+    #[Describe('fullName')]
     public static function fullName($value, $context): string
     {
         return $context['first_name'].' '.$context['last_name'];
