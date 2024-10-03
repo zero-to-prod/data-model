@@ -13,35 +13,108 @@ use ReflectionUnionType;
  * Enables classes to instantiate themselves from arrays or objects, auto-populating properties based on type hints and attributes.
  * Supports primitives, custom classes, enums, and allows for custom casting logic.
  *
- * Example:
  * ```
+ * // Usage
+ * $user = User::from([
+ *     'first_name' => 'Jane',
+ *     'last_name' => 'Doe',
+ *     'registered' => '2015-10-04 17:24:43.000000'
+ * ]);
+ *
+ * $user->first_name;              // 'Jane'
+ * $user->last_name:               // 'DOE'
+ * $user->full_name:               // 'Jane Doe'
+ * $user->registered->format('l'); // 'Sunday'
+ *
+ * // Implementation
+ * #[Describe([
+ *  'cast' => [
+ *      DateTimeImmutable::class => [__CLASS__, 'toDateTimeImmutable'],
+ *  ]
+ * ])]
  * class User
  * {
  *     use DataModel;
  *
- *     public string $name;
- *     public int $age;
- * }
+ *     public string $first_name;
  *
- * $user = User::from(['name' => 'Alice', 'age' => 30]);
+ *     public string $last_name;
+ *
+ *     #[Describe(['cast' => [__CLASS__, 'fullName']])]
+ *     public string $full_name;
+ *
+ *     public DateTimeImmutable $registered;
+ *
+ *     #[Describe('last_name')]
+ *     public function lastName(?string $value, array $context): string
+ *     {
+ *         return strtoupper($value);
+ *     }
+ *
+ *     public static function fullName(null $value, array $context): string
+ *     {
+ *         return "{$context['first_name']} {$context['last_name']}";
+ *     }
+ *
+ *     public static function toDateTimeImmutable(string $value, array $context): DateTimeImmutable
+ *     {
+ *         return new DateTimeImmutable($value);
+ *     }
+ * }
  * ```
  */
 trait DataModel
 {
     /**
      * Create an instance from data, populating properties based on type declarations.
-     *
-     * Examples:
      * ```
+     * // Usage
+     * $user = User::from([
+     *     'first_name' => 'Jane',
+     *     'last_name' => 'Doe',
+     *     'registered' => '2015-10-04 17:24:43.000000'
+     * ]);
+     *
+     * $user->first_name;              // 'Jane'
+     * $user->last_name:               // 'DOE'
+     * $user->full_name:               // 'Jane Doe'
+     * $user->registered->format('l'); // 'Sunday'
+     *
+     * // Implementation
+     * #[Describe([
+     *  'cast' => [
+     *      DateTimeImmutable::class => [__CLASS__, 'toDateTimeImmutable'],
+     *  ]
+     * ])]
      * class User
      * {
      *     use DataModel;
      *
-     *     public string $name;
-     *     public int $age;
-     * }
+     *     public string $first_name;
      *
-     * $user = User::from(['name' => 'Alice', 'age' => 30]);
+     *     public string $last_name;
+     *
+     *     #[Describe(['cast' => [__CLASS__, 'fullName']])]
+     *     public string $full_name;
+     *
+     *     public DateTimeImmutable $registered;
+     *
+     *     #[Describe('last_name')]
+     *     public function lastName(?string $value, array $context): string
+     *     {
+     *         return strtoupper($value);
+     *     }
+     *
+     *     public static function fullName(null $value, array $context): string
+     *     {
+     *         return "{$context['first_name']} {$context['last_name']}";
+     *     }
+     *
+     *     public static function toDateTimeImmutable(string $value, array $context): DateTimeImmutable
+     *     {
+     *         return new DateTimeImmutable($value);
+     *     }
+     * }
      * ```
      *
      * @param  iterable|object|null  $context  Data to populate the instance.

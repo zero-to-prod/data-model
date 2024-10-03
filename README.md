@@ -15,10 +15,10 @@ Perfect for developers looking to simplify their Data Transfer Objects (DTOs);
 ## Features
 
 - [Easy Instantiation](#instantiating-from-data): Create class instances from arrays or objects with automatic type casting.
+- [Recursive Instantiation](#recursive-instantiation): Recursively instantiate classes based on their types.
 - [Type Casting](#recursive-instantiation): Supports primitives, custom classes, enums, and more.
-- Attribute Transformations: Describe how to resolve a value before instantiation.
-- Required Properties: Enforce required properties with descriptive exceptions.
-- Dynamic Property Setters: Define dynamic property setters for advanced use cases.
+- [Transformations](#transformations): Describe how to resolve a value before instantiation.
+- [Required Properties](#required-properties): Enforce required properties with descriptive exceptions.
 
 ## Installation
 
@@ -110,9 +110,7 @@ echo $user->address->city; // Outputs: Hometown
 
 The DataModel trait provides a variety of ways to transform data before the value is assigned to the class property.
 
-## Describing Behavior
-
-The `Describe` attribute provides a declarative way to transform and describe the behavior of properties at the time they are instantiated.
+The `Describe` attribute provides a declarative way describe the behavior of properties at the time their values are resolved.
 
 There is an order of precedence when resolving a value for a property.
 
@@ -120,7 +118,7 @@ There is an order of precedence when resolving a value for a property.
 2. [Method-level Cast](#method-level-cast)
 3. [Union Types](#union-types)
 4. [Class-level Casts](#class-level-cast)
-5. Types that have a callable static method `from()`.
+5. Types that have a **concrete** static method `from()`.
 6. Native Types
 
 ### Property Level Cast
@@ -217,6 +215,10 @@ use DateTimeImmutable;
 use Zerotoprod\DataModel\DataModel;
 use Zerotoprod\DataModel\Describe;
 
+function uppercase(mixed $value, array $context){
+    return strtoupper($value);
+}
+
 #[Describe([
     'cast' => [
         'string' => 'uppercase',
@@ -245,7 +247,7 @@ $user->first_name;              // 'JANE'
 $user->registered->format('l'); // 'Sunday'
 ```
 
-### Handling Required Properties
+## Required Properties
 
 Enforce that certain properties are required using the Describe attribute:
 
