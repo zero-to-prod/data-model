@@ -15,6 +15,7 @@ class ClassDynamicTest extends TestCase
      */
     public function fromDynamic(): void
     {
+        $this->cast('', []);
         $BaseClass = BaseClass::from([
             BaseClass::string_from_class => 'foo',
             BaseClass::string_from_function => 'foo',
@@ -27,5 +28,9 @@ class ClassDynamicTest extends TestCase
         $this->assertEquals('foobar', $BaseClass->string_from_function);
         $this->assertEquals('John Doe', $BaseClass->fullName);
         $this->assertInstanceOf(DateTime::class, $BaseClass->DateTime);
+    }
+
+    public function cast($value){
+
     }
 }

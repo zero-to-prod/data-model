@@ -4,8 +4,8 @@ namespace Zerotoprod\DataModel;
 
 use ReflectionAttribute;
 use ReflectionClass;
+use ReflectionException;
 use ReflectionUnionType;
-use UnitEnum;
 
 /**
  * Trait DataModel
@@ -75,6 +75,13 @@ trait DataModel
             if (!empty($ReflectionAttributes)) {
                 foreach ($ReflectionAttributes as $ReflectionAttribute) {
                     $property = $ReflectionAttribute->getArguments()[0];
+                    try {
+                        $filename = $ReflectionClass->getMethod($methods[$property])->getFileName();
+                        $start_line = $ReflectionClass->getMethod($methods[$property])->getStartLine();
+                    } catch (ReflectionException) {
+                        $filename = null;
+                        $start_line = null;
+                    }
                     $methods[$property] = isset($methods[$property])
                         ? throw new DuplicateDescribeAttributeException(
                             sprintf(
@@ -83,8 +90,8 @@ trait DataModel
                                 "%s() %s:%d",
                                 $property,
                                 $methods[$property],
-                                $ReflectionClass->getMethod($methods[$property])->getFileName(),
-                                $ReflectionClass->getMethod($methods[$property])->getStartLine(),
+                                $filename,
+                                $start_line,
                                 $ReflectionMethod->getName(),
                                 $ReflectionMethod->getFileName(),
                                 $ReflectionMethod->getStartLine()
@@ -96,21 +103,26 @@ trait DataModel
         }
 
         foreach ($ReflectionClass->getProperties() as $ReflectionProperty) {
+            /** @var Describe $Describe */
+            $Describe = ($ReflectionProperty->getAttributes(Describe::class)[0] ?? null)?->newInstance();
             $property_name = $ReflectionProperty->getName();
 
-            /** Call method from attribute */
-            if (isset($methods[$property_name])) {
-                $self->{$property_name} = $self->{$methods[$property_name]}($context[$property_name] ?? null, $context);
+            /** Property-level Cast */
+            if (isset($Describe->cast)) {
+                $self->{$property_name} = ($Describe->cast)($context[$property_name], $context);
                 continue;
             }
 
-            /** @var Describe $Describe */
-            $Describe = ($ReflectionProperty->getAttributes(Describe::class)[0] ?? null)?->newInstance();
+            /** Method-level Cast */
+            if (isset($methods[$property_name])) {
+                $self->{$property_name} = $self->{$methods[$property_name]}($context[$property_name], $context);
+                continue;
+            }
 
             /** When a property name does not match a key name  */
             if (!array_key_exists($property_name, $context)) {
                 if ($Describe->required ?? false) {
-                    throw new PropertyRequired("Property: $property_name is required");
+                    throw new PropertyRequiredException("Property: $property_name is required");
                 }
                 continue;
             }
@@ -122,30 +134,16 @@ trait DataModel
                 continue;
             }
 
-            if (isset($Describe->cast)) {
-                $args = [$context[$property_name]];
-                /** Pass the context as the second argument if not excluded. */
-                if (!($Describe->exclude_context ?? false)) {
-                    $args[] = $context;
-                }
-
-                /** Calls a function or a method */
-                $self->{$property_name} = ($Describe->cast)(...$args);
-                continue;
-            }
-
             $property_type = $ReflectionType->getName();
-            /** Invoke a method based on the type from the top level Describe. */
+            /** Class-level cast  */
             if ($ClassDescribe?->cast[$property_type] ?? false) {
-                $self->{$property_name} = ($ClassDescribe->cast[$property_type])($context[$property_name]);
+                $self->{$property_name} = $ClassDescribe->cast[$property_type]($context[$property_name], $context);
                 continue;
             }
 
-            /* Call the static method from(). */
+            /** Call the static method from(). */
             if (method_exists($property_type, 'from')) {
-                $self->{$property_name} = $context[$property_name] instanceof UnitEnum
-                    ? $context[$property_name]
-                    : $property_type::from($context[$property_name]);
+                $self->{$property_name} = $property_type::from($context[$property_name]->value ?? $context[$property_name]);
                 continue;
             }
 

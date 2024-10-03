@@ -13,7 +13,6 @@ readonly class Describe
     /**
      * @param  string|null|array{
      *      cast?: array|string,
-     *      exclude_context?: bool,
      *      required?: bool,
      * }  $attributes
      */

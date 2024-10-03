@@ -4,7 +4,7 @@ namespace Zerotoprod\DataModel;
 
 use RuntimeException;
 
-class PropertyRequired extends RuntimeException
+class PropertyRequiredException extends RuntimeException
 {
 
 }

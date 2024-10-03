@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit\Examples\ClassMethodTransformers;
+namespace Tests\Unit\Examples\MethodLevelCast;
 
 use Zerotoprod\DataModel\DataModel;
 use Zerotoprod\DataModel\Describe;
@@ -14,13 +14,13 @@ readonly class User
     public string $fullName;
 
     #[Describe('last_name')]
-    private function lastName(?string $value, array $context): string
+    public function lastName(?string $value, array $context): string
     {
         return strtoupper($value);
     }
 
     #[Describe('fullName')]
-    private function fullName(null $value, array $context): string
+    public function fullName(null $value, array $context): string
     {
         return "{$context['first_name']} {$context['last_name']}";
     }

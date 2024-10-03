@@ -4,7 +4,7 @@ namespace Tests\Unit\DataModel\IgnoresUnions;
 
 use Tests\TestCase;
 use Zerotoprod\DataModel\DataModel;
-use Zerotoprod\DataModel\PropertyRequired;
+use Zerotoprod\DataModel\PropertyRequiredException;
 
 class IgnoresUnionsTest extends TestCase
 {
@@ -42,7 +42,7 @@ class IgnoresUnionsTest extends TestCase
      */
     public function requires_unions(): void
     {
-        $this->expectException(PropertyRequired::class);
+        $this->expectException(PropertyRequiredException::class);
         BaseClass::from([
             BaseClass::id => '1',
             BaseClass::no_type => '1',
@@ -56,7 +56,7 @@ class IgnoresUnionsTest extends TestCase
      */
     public function requires_no_type(): void
     {
-        $this->expectException(PropertyRequired::class);
+        $this->expectException(PropertyRequiredException::class);
         BaseClass::from([
             BaseClass::id => '1',
             BaseClass::required => '1',
