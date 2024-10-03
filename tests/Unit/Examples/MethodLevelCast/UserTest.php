@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit\Examples\ClassMethodTransformers;
+namespace Tests\Unit\Examples\MethodLevelCast;
 
 use Tests\TestCase;
 use Zerotoprod\DataModel\DataModel;

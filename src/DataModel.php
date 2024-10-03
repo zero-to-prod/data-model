@@ -4,8 +4,8 @@ namespace Zerotoprod\DataModel;
 
 use ReflectionAttribute;
 use ReflectionClass;
+use ReflectionException;
 use ReflectionUnionType;
-use UnitEnum;
 
 /**
  * Trait DataModel
@@ -13,35 +13,108 @@ use UnitEnum;
  * Enables classes to instantiate themselves from arrays or objects, auto-populating properties based on type hints and attributes.
  * Supports primitives, custom classes, enums, and allows for custom casting logic.
  *
- * Example:
  * ```
+ * // Usage
+ * $user = User::from([
+ *     'first_name' => 'Jane',
+ *     'last_name' => 'Doe',
+ *     'registered' => '2015-10-04 17:24:43.000000'
+ * ]);
+ *
+ * $user->first_name;              // 'Jane'
+ * $user->last_name:               // 'DOE'
+ * $user->full_name:               // 'Jane Doe'
+ * $user->registered->format('l'); // 'Sunday'
+ *
+ * // Implementation
+ * #[Describe([
+ *  'cast' => [
+ *      DateTimeImmutable::class => [__CLASS__, 'toDateTimeImmutable'],
+ *  ]
+ * ])]
  * class User
  * {
  *     use DataModel;
  *
- *     public string $name;
- *     public int $age;
- * }
+ *     public string $first_name;
  *
- * $user = User::from(['name' => 'Alice', 'age' => 30]);
+ *     public string $last_name;
+ *
+ *     #[Describe(['cast' => [__CLASS__, 'fullName']])]
+ *     public string $full_name;
+ *
+ *     public DateTimeImmutable $registered;
+ *
+ *     #[Describe('last_name')]
+ *     public function lastName(?string $value, array $context): string
+ *     {
+ *         return strtoupper($value);
+ *     }
+ *
+ *     public static function fullName(null $value, array $context): string
+ *     {
+ *         return "{$context['first_name']} {$context['last_name']}";
+ *     }
+ *
+ *     public static function toDateTimeImmutable(string $value, array $context): DateTimeImmutable
+ *     {
+ *         return new DateTimeImmutable($value);
+ *     }
+ * }
  * ```
  */
 trait DataModel
 {
     /**
      * Create an instance from data, populating properties based on type declarations.
-     *
-     * Examples:
      * ```
+     * // Usage
+     * $user = User::from([
+     *     'first_name' => 'Jane',
+     *     'last_name' => 'Doe',
+     *     'registered' => '2015-10-04 17:24:43.000000'
+     * ]);
+     *
+     * $user->first_name;              // 'Jane'
+     * $user->last_name:               // 'DOE'
+     * $user->full_name:               // 'Jane Doe'
+     * $user->registered->format('l'); // 'Sunday'
+     *
+     * // Implementation
+     * #[Describe([
+     *  'cast' => [
+     *      DateTimeImmutable::class => [__CLASS__, 'toDateTimeImmutable'],
+     *  ]
+     * ])]
      * class User
      * {
      *     use DataModel;
      *
-     *     public string $name;
-     *     public int $age;
-     * }
+     *     public string $first_name;
      *
-     * $user = User::from(['name' => 'Alice', 'age' => 30]);
+     *     public string $last_name;
+     *
+     *     #[Describe(['cast' => [__CLASS__, 'fullName']])]
+     *     public string $full_name;
+     *
+     *     public DateTimeImmutable $registered;
+     *
+     *     #[Describe('last_name')]
+     *     public function lastName(?string $value, array $context): string
+     *     {
+     *         return strtoupper($value);
+     *     }
+     *
+     *     public static function fullName(null $value, array $context): string
+     *     {
+     *         return "{$context['first_name']} {$context['last_name']}";
+     *     }
+     *
+     *     public static function toDateTimeImmutable(string $value, array $context): DateTimeImmutable
+     *     {
+     *         return new DateTimeImmutable($value);
+     *     }
+     * }
      * ```
      *
      * @param  iterable|object|null  $context  Data to populate the instance.
@@ -75,6 +148,13 @@ trait DataModel
             if (!empty($ReflectionAttributes)) {
                 foreach ($ReflectionAttributes as $ReflectionAttribute) {
                     $property = $ReflectionAttribute->getArguments()[0];
+                    try {
+                        $filename = $ReflectionClass->getMethod($methods[$property])->getFileName();
+                        $start_line = $ReflectionClass->getMethod($methods[$property])->getStartLine();
+                    } catch (ReflectionException) {
+                        $filename = null;
+                        $start_line = null;
+                    }
                     $methods[$property] = isset($methods[$property])
                         ? throw new DuplicateDescribeAttributeException(
                             sprintf(
@@ -83,8 +163,8 @@ trait DataModel
                                 "%s() %s:%d",
                                 $property,
                                 $methods[$property],
-                                $ReflectionClass->getMethod($methods[$property])->getFileName(),
-                                $ReflectionClass->getMethod($methods[$property])->getStartLine(),
+                                $filename,
+                                $start_line,
                                 $ReflectionMethod->getName(),
                                 $ReflectionMethod->getFileName(),
                                 $ReflectionMethod->getStartLine()
@@ -96,21 +176,26 @@ trait DataModel
         }
 
         foreach ($ReflectionClass->getProperties() as $ReflectionProperty) {
+            /** @var Describe $Describe */
+            $Describe = ($ReflectionProperty->getAttributes(Describe::class)[0] ?? null)?->newInstance();
             $property_name = $ReflectionProperty->getName();
 
-            /** Call method from attribute */
-            if (isset($methods[$property_name])) {
-                $self->{$property_name} = $self->{$methods[$property_name]}($context[$property_name] ?? null, $context);
+            /** Property-level Cast */
+            if (isset($Describe->cast)) {
+                $self->{$property_name} = ($Describe->cast)($context[$property_name], $context);
                 continue;
             }
 
-            /** @var Describe $Describe */
-            $Describe = ($ReflectionProperty->getAttributes(Describe::class)[0] ?? null)?->newInstance();
+            /** Method-level Cast */
+            if (isset($methods[$property_name])) {
+                $self->{$property_name} = $self->{$methods[$property_name]}($context[$property_name], $context);
+                continue;
+            }
 
             /** When a property name does not match a key name  */
             if (!array_key_exists($property_name, $context)) {
                 if ($Describe->required ?? false) {
-                    throw new PropertyRequired("Property: $property_name is required");
+                    throw new PropertyRequiredException("Property: $property_name is required");
                 }
                 continue;
             }
@@ -122,30 +207,16 @@ trait DataModel
                 continue;
             }
 
-            if (isset($Describe->cast)) {
-                $args = [$context[$property_name]];
-                /** Pass the context as the second argument if not excluded. */
-                if (!($Describe->exclude_context ?? false)) {
-                    $args[] = $context;
-                }
-
-                /** Calls a function or a method */
-                $self->{$property_name} = ($Describe->cast)(...$args);
-                continue;
-            }
-
             $property_type = $ReflectionType->getName();
-            /** Invoke a method based on the type from the top level Describe. */
+            /** Class-level cast  */
             if ($ClassDescribe?->cast[$property_type] ?? false) {
-                $self->{$property_name} = ($ClassDescribe->cast[$property_type])($context[$property_name]);
+                $self->{$property_name} = $ClassDescribe->cast[$property_type]($context[$property_name], $context);
                 continue;
             }
 
-            /* Call the static method from(). */
+            /** Call the static method from(). */
             if (method_exists($property_type, 'from')) {
-                $self->{$property_name} = $context[$property_name] instanceof UnitEnum
-                    ? $context[$property_name]
-                    : $property_type::from($context[$property_name]);
+                $self->{$property_name} = $property_type::from($context[$property_name]->value ?? $context[$property_name]);
                 continue;
             }
 

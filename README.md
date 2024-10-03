@@ -15,10 +15,10 @@ Perfect for developers looking to simplify their Data Transfer Objects (DTOs);
 ## Features
 
 - [Easy Instantiation](#instantiating-from-data): Create class instances from arrays or objects with automatic type casting.
+- [Recursive Instantiation](#recursive-instantiation): Recursively instantiate classes based on their types.
 - [Type Casting](#recursive-instantiation): Supports primitives, custom classes, enums, and more.
-- Attribute Transformations: Describe how to resolve a value before instantiation.
-- Required Properties: Enforce required properties with descriptive exceptions.
-- Dynamic Property Setters: Define dynamic property setters for advanced use cases.
+- [Transformations](#transformations): Describe how to resolve a value before instantiation.
+- [Required Properties](#required-properties): Enforce required properties with descriptive exceptions.
 
 ## Installation
 
@@ -110,24 +110,67 @@ echo $user->address->city; // Outputs: Hometown
 
 The DataModel trait provides a variety of ways to transform data before the value is assigned to the class property.
 
-## Describing Behavior
-
-The `Describe` attribute provides a declarative way to transform and describe the behavior of properties at the time they are instantiated.
+The `Describe` attribute provides a declarative way describe the behavior of properties at the time their values are resolved.
 
 There is an order of precedence when resolving a value for a property.
 
-1. [Class Methods](#class-methods)
-2. [Union Types](#union-types)
-3. Property-level Casts
-4. Class-level Casts
-5. Types that have a callable static method `from()`.
+1. [Property-level Cast](#property-level-cast)
+2. [Method-level Cast](#method-level-cast)
+3. [Union Types](#union-types)
+4. [Class-level Casts](#class-level-cast)
+5. Types that have a **concrete** static method `from()`.
 6. Native Types
 
-### Class Methods
+### Property Level Cast
+The using the `Describe` attribute directly on the property takes the highest precedence.
+
+```php
+use Zerotoprod\DataModel\DataModel;
+use Zerotoprod\DataModel\Describe;
+readonly class User
+{
+    use DataModel;
+
+    #[Describe(['cast' => [__CLASS__, 'firstName']])]
+    public string $first_name;
+    
+    #[Describe(['cast' => 'uppercase'])]
+    public string $last_name;
+    
+    #[Describe(['cast' => [__CLASS__, 'fullName']])]
+    public string $full_name;
+
+    private static function firstName(mixed $value, array $context): string
+    {
+        return strtoupper($value);
+    }
+    
+    public static function fullName(null $value, array $context): string
+    {
+        return "{$context['first_name']} {$context['last_name']}";
+    }
+}
+
+function uppercase(mixed $value, array $context){
+    return strtoupper($value);
+}
+
+$user = User::from([
+    'first_name' => 'Jane',
+    'last_name' => 'Doe',
+]);
+
+$user->first_name;  // 'JANE'
+$user->last_name;   // 'DOE'
+$user->full_name;   // 'Jane Doe'
+```
+
+### Method-level Cast
 
 Use the `Describe` attribute to resolve values with class methods. Methods receive `$value` and `$context` as parameters.
 ```php
 use Zerotoprod\DataModel\DataModel;
+use Zerotoprod\DataModel\Describe;
 
 readonly class User
 {
@@ -136,15 +179,15 @@ readonly class User
     public string $first_name;
     public string $last_name;
     public string $fullName;
-    
+
     #[Describe('last_name')]
-    private function lastName(string $value, array $context): string
+    public function lastName(?string $value, array $context): string
     {
         return strtoupper($value);
     }
 
     #[Describe('fullName')]
-    private function fullName(null $value, array $context): string
+    public function fullName(null $value, array $context): string
     {
         return "{$context['first_name']} {$context['last_name']}";
     }
@@ -155,16 +198,56 @@ $user = User::from([
     'last_name' => 'Doe',
 ]);
 
-$user->first_name; // 'Jane'
-$user->last_name; // 'DOE'
-$user->fullName; // 'Jane Doe'
+$user->first_name;  // 'Jane'
+$user->last_name;   // 'DOE'
+$user->fullName;    // 'Jane Doe'
 ```
 
 ### Union Types
 A value passed to property with a union type is directly assigned to the property. 
-If you wish to resolve the value in a specific way, use a [class method](#class-methods).
+If you wish to resolve the value in a specific way, use a [class method](#method-level-cast).
 
-### Handling Required Properties
+### Class-level Cast
+You can define how to resolve different types at the class level.
+
+```php
+use DateTimeImmutable;
+use Zerotoprod\DataModel\DataModel;
+use Zerotoprod\DataModel\Describe;
+
+function uppercase(mixed $value, array $context){
+    return strtoupper($value);
+}
+
+#[Describe([
+    'cast' => [
+        'string' => 'uppercase',
+        DateTimeImmutable::class => [__CLASS__, 'toDateTimeImmutable'],
+    ]
+])]
+readonly class User
+{
+    use DataModel;
+
+    public string $first_name;
+    public DateTimeImmutable $registered;
+
+    public static function toDateTimeImmutable(string $value, array $context): DateTimeImmutable
+    {
+        return new DateTimeImmutable($value);
+    }
+}
+
+$user = User::from([
+    'first_name' => 'Jane',
+    'registered' => '2015-10-04 17:24:43.000000',
+]);
+
+$user->first_name;              // 'JANE'
+$user->registered->format('l'); // 'Sunday'
+```
+
+## Required Properties
 
 Enforce that certain properties are required using the Describe attribute:
 
@@ -182,34 +265,10 @@ readonly class User
 }
 
 $user = User::from(['email' => 'john@example.com']);
-// Throws PropertyRequired exception: Property: username is required
+// Throws PropertyRequiredException exception: Property: username is required
 ```
 
 ## Suggested Traits
-
-### `Zerotoprod\DataModel\FromJson`
-
-This will decode a valid json string and return the data model.
-
-#### Usage
-
-To use the `Zerotoprod\DataModel\FromJson` trait in your class.
-
-```php
-
-class User
-{
-    use \Zerotoprod\DataModel\DataModel;
-    use \Zerotoprod\DataModel\FromJson;
-
-    public $name;
-    public $email;
-}
-
-$user = User::fromJson('"name":"John", "email":"john@domain.com"');
-$user->name;  // 'John'
-$user->email; // 'john@domain.com'
-```
 
 ### `Zerotoprod\Transformable`
 

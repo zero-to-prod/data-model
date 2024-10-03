@@ -4,7 +4,7 @@ namespace Tests\Unit\DataModel\Bool;
 
 use Tests\TestCase;
 use Zerotoprod\DataModel\DataModel;
-use Zerotoprod\DataModel\PropertyRequired;
+use Zerotoprod\DataModel\PropertyRequiredException;
 
 class BoolTest extends TestCase
 {
@@ -36,7 +36,7 @@ class BoolTest extends TestCase
      */
     public function bool_required(): void
     {
-        $this->expectException(PropertyRequired::class);
+        $this->expectException(PropertyRequiredException::class);
         BaseClass::from(['bogus' => 'bogus']);
     }
 }
