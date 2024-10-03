@@ -270,30 +270,6 @@ $user = User::from(['email' => 'john@example.com']);
 
 ## Suggested Traits
 
-### `Zerotoprod\DataModel\FromJson`
-
-This will decode a valid json string and return the data model.
-
-#### Usage
-
-To use the `Zerotoprod\DataModel\FromJson` trait in your class.
-
-```php
-
-class User
-{
-    use \Zerotoprod\DataModel\DataModel;
-    use \Zerotoprod\DataModel\FromJson;
-
-    public $name;
-    public $email;
-}
-
-$user = User::fromJson('"name":"John", "email":"john@domain.com"');
-$user->name;  // 'John'
-$user->email; // 'john@domain.com'
-```
-
 ### `Zerotoprod\Transformable`
 
 The [Transformable](https://github.com/zero-to-prod/transformable) trait provides methods to convert an object’s properties into an array or a JSON
