@@ -5,6 +5,7 @@
   "keywords": [
     "zero-to-prod",
     "DataModel",
+    "Dto",
     "data-model",
     "data_model",
     "data model",
@@ -21,8 +22,7 @@
     }
   ],
   "require": {
-    "php": ">=8.2.0",
-    "ext-json": "*"
+    "php": ">=8.2.0"
   },
   "autoload": {
     "psr-4": {
