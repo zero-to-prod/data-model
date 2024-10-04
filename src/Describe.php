@@ -111,19 +111,18 @@ readonly class Describe
      *  {
      *      use DataModel;
      *
-     *      #[Describe(['cast' => [__CLASS__, 'firstName'], 'required' => true])]
+     *      #[Describe(['cast' => [__CLASS__, 'firstName'], 'function' => 'strtoupper'])]
      *      public string $first_name;
      *
      *      #[Describe(['cast' => 'uppercase'])]
      *      public string $last_name;
      *
-     *      #[Describe(['cast' => [__CLASS__, 'fullName']])]
+     *      #[Describe(['cast' => [__CLASS__, 'fullName'], 'required' => true])]
      *      public string $full_name;
      *
-     *
-     *      public static function firstName(mixed $value, array $context): string
+     *      private static function firstName(mixed $value, array $context, array $describe_args): string
      *      {
-     *          return strtoupper($value);
+     *          return $describe_args[0]['function']($value);
      *      }
      *
      *      public static function fullName(null $value, array $context): string
@@ -187,17 +186,14 @@ readonly class Describe
      *      }
      *  }
      *  ```
-     *
-     * @param  string|null|array{
-     *      cast?: array|string,
-     *      required?: bool,
-     * }  $attributes
      */
     public function __construct(string|null|array $attributes = null)
     {
         if ($attributes) {
             foreach ($attributes as $key => $value) {
-                $this->$key = $value;
+                if (property_exists($this, $key)) {
+                    $this->$key = $value;
+                }
             }
         }
     }

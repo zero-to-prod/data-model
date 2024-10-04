@@ -133,6 +133,7 @@ trait DataModel
         $self = new self();
         $ReflectionClass = new ReflectionClass($self);
         /** Get Describe Attribute on class. */
+        /** @var ReflectionAttribute $ClassAttribute */
         $ClassAttribute = current(
             array_filter(
                 $ReflectionClass->getAttributes(),
@@ -141,6 +142,7 @@ trait DataModel
         );
         /** @var Describe|null $ClassDescribe */
         $ClassDescribe = $ClassAttribute ? $ClassAttribute->newInstance() : null;
+        $ClassDescribeArguments = $ClassAttribute ? $ClassAttribute->getArguments() : null;
 
         $methods = [];
         foreach ($ReflectionClass->getMethods() as $ReflectionMethod) {
@@ -176,19 +178,20 @@ trait DataModel
         }
 
         foreach ($ReflectionClass->getProperties() as $ReflectionProperty) {
+            $Attribute = ($ReflectionProperty->getAttributes(Describe::class)[0] ?? null);
             /** @var Describe $Describe */
-            $Describe = ($ReflectionProperty->getAttributes(Describe::class)[0] ?? null)?->newInstance();
+            $Describe = $Attribute?->newInstance();
             $property_name = $ReflectionProperty->getName();
 
             /** Property-level Cast */
             if (isset($Describe->cast)) {
-                $self->{$property_name} = ($Describe->cast)($context[$property_name], $context);
+                $self->{$property_name} = ($Describe->cast)($context[$property_name], $context, $Attribute?->getArguments());
                 continue;
             }
 
             /** Method-level Cast */
             if (isset($methods[$property_name])) {
-                $self->{$property_name} = $self->{$methods[$property_name]}($context[$property_name], $context);
+                $self->{$property_name} = $self->{$methods[$property_name]}($context[$property_name], $context, $Attribute?->getArguments());
                 continue;
             }
 
@@ -210,7 +213,7 @@ trait DataModel
             $property_type = $ReflectionType->getName();
             /** Class-level cast  */
             if ($ClassDescribe?->cast[$property_type] ?? false) {
-                $self->{$property_name} = $ClassDescribe->cast[$property_type]($context[$property_name], $context);
+                $self->{$property_name} = $ClassDescribe->cast[$property_type]($context[$property_name], $context, $ClassDescribeArguments);
                 continue;
             }
 
