@@ -6,6 +6,7 @@ use ReflectionAttribute;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionUnionType;
+use UnitEnum;
 
 /**
  * Trait DataModel
@@ -213,13 +214,17 @@ trait DataModel
             $property_type = $ReflectionType->getName();
             /** Class-level cast  */
             if ($ClassDescribe?->cast[$property_type] ?? false) {
-                $self->{$property_name} = $ClassDescribe->cast[$property_type]($context[$property_name], $context, $ClassDescribeArguments);
+                $self->{$property_name} = $ClassDescribe?->cast[$property_type]($context[$property_name], $context, $ClassDescribeArguments);
                 continue;
             }
 
             /** Call the static method from(). */
             if (method_exists($property_type, 'from')) {
-                $self->{$property_name} = $property_type::from($context[$property_name]->value ?? $context[$property_name]);
+                $self->{$property_name} = $property_type::from(
+                    $context[$property_name] instanceof UnitEnum
+                        ? $context[$property_name]->value
+                        : $context[$property_name]
+                );
                 continue;
             }
 
