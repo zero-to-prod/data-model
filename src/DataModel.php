@@ -186,13 +186,13 @@ trait DataModel
 
             /** Property-level Cast */
             if (isset($Describe->cast)) {
-                $self->{$property_name} = ($Describe->cast)($context[$property_name], $context, $Attribute?->getArguments());
+                $self->{$property_name} = ($Describe->cast)($context[$property_name] ?? null, $context, $Attribute?->getArguments());
                 continue;
             }
 
             /** Method-level Cast */
             if (isset($methods[$property_name])) {
-                $self->{$property_name} = $self->{$methods[$property_name]}($context[$property_name], $context, $Attribute?->getArguments());
+                $self->{$property_name} = $self->{$methods[$property_name]}($context[$property_name] ?? null, $context, $Attribute?->getArguments());
                 continue;
             }
 
@@ -219,7 +219,7 @@ trait DataModel
             }
 
             /** Call the static method from(). */
-            if (method_exists($property_type, 'from')) {
+            if (is_callable([$property_type, 'from']) && method_exists($property_type, 'from')) {
                 $self->{$property_name} = $property_type::from(
                     $context[$property_name] instanceof UnitEnum
                         ? $context[$property_name]->value
