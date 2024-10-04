@@ -131,20 +131,20 @@ readonly class User
 {
     use DataModel;
 
-    #[Describe(['cast' => [__CLASS__, 'firstName']])]
+    #[Describe(['cast' => [__CLASS__, 'firstName'], 'function' => 'strtoupper'])]
     public string $first_name;
     
     #[Describe(['cast' => 'uppercase'])]
     public string $last_name;
-    
+
     #[Describe(['cast' => [__CLASS__, 'fullName']])]
     public string $full_name;
 
-    private static function firstName(mixed $value, array $context): string
+    private static function firstName(mixed $value, array $context, array $describe_args): string
     {
-        return strtoupper($value);
+        return $describe_args[0]['function']($value);
     }
-    
+
     public static function fullName(null $value, array $context): string
     {
         return "{$context['first_name']} {$context['last_name']}";
