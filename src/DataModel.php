@@ -6,6 +6,7 @@ use ReflectionAttribute;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionUnionType;
+use UnitEnum;
 
 /**
  * Trait DataModel
@@ -219,7 +220,11 @@ trait DataModel
 
             /** Call the static method from(). */
             if (is_callable([$property_type, 'from']) && method_exists($property_type, 'from')) {
-                $self->{$property_name} = $property_type::from($context[$property_name]->value ?? $context[$property_name]);
+                $self->{$property_name} = $property_type::from(
+                    $context[$property_name] instanceof UnitEnum
+                        ? $context[$property_name]->value
+                        : $context[$property_name]
+                );
                 continue;
             }
 
