@@ -2,8 +2,11 @@
 
 namespace Tests\Unit\Examples\PropertyLevelCast;
 
+use ReflectionAttribute;
+use ReflectionProperty;
 use Zerotoprod\DataModel\DataModel;
 use Zerotoprod\DataModel\Describe;
+
 readonly class User
 {
     use DataModel;
@@ -17,10 +20,13 @@ readonly class User
     #[Describe(['cast' => [__CLASS__, 'fullName']])]
     public string $full_name;
 
-
-    private static function firstName(mixed $value, array $context, array $args): string
-    {
-        return $args[0]['function']($value);
+    private static function firstName(
+        mixed $value,
+        array $context,
+        ?ReflectionAttribute $ReflectionAttribute,
+        ReflectionProperty $ReflectionProperty
+    ): string {
+        return $ReflectionAttribute->getArguments()[0]['function']($value);
     }
 
     public static function fullName(null $value, array $context): string

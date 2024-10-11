@@ -120,9 +120,9 @@ readonly class Describe
      *      #[Describe(['cast' => [__CLASS__, 'fullName'], 'required' => true])]
      *      public string $full_name;
      *
-     *      private static function firstName(mixed $value, array $context, array $describe_args): string
+     *      private static function firstName(mixed $value, array $context, mixed|null|ReflectionAttribute $ReflectionAttribute, ReflectionProperty $ReflectionProperty): string
      *      {
-     *          return $describe_args[0]['function']($value);
+     *          return $ReflectionAttribute->getArguments()[0]['function']($value);
      *      }
      *
      *      public static function fullName(null $value, array $context): string
