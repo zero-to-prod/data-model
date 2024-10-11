@@ -186,13 +186,13 @@ trait DataModel
 
             /** Property-level Cast */
             if (isset($Describe->cast)) {
-                $self->{$property_name} = ($Describe->cast)($context[$property_name] ?? null, $context, $Attribute?->getArguments());
+                $self->{$property_name} = ($Describe->cast)($context[$property_name] ?? null, $context, $Attribute, $ReflectionProperty);
                 continue;
             }
 
             /** Method-level Cast */
             if (isset($methods[$property_name])) {
-                $self->{$property_name} = $self->{$methods[$property_name]}($context[$property_name] ?? null, $context, $Attribute?->getArguments());
+                $self->{$property_name} = $self->{$methods[$property_name]}($context[$property_name] ?? null, $context, $Attribute, $ReflectionProperty);
                 continue;
             }
 
