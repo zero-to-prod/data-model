@@ -140,7 +140,7 @@ readonly class User
     #[Describe(['cast' => [__CLASS__, 'fullName']])]
     public string $full_name;
 
-    private static function firstName(mixed $value, array $context, mixed|null|ReflectionAttribute $ReflectionAttribute, \ReflectionProperty $ReflectionProperty): string
+    private static function firstName(mixed $value, array $context, ?\ReflectionAttribute $ReflectionAttribute, \ReflectionProperty $ReflectionProperty): string
     {
         return $ReflectionAttribute->getArguments()[0]['function']($value);
     }
