@@ -41,6 +41,7 @@
     "phpunit/phpunit": "^11.0"
   },
   "suggest": {
+    "zero-to-prod/data-model-helper": "Helpers for a DataModel.",
     "zero-to-prod/transformable": "Transform a class into different types."
   }
 }
