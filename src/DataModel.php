@@ -118,6 +118,11 @@ trait DataModel
      * }
      * ```
      *
+     * @link https://github.com/zero-to-prod/data-model
+     * @see  https://github.com/zero-to-prod/data-model-helper
+     * @see  https://github.com/zero-to-prod/data-model-factory
+     * @see  https://github.com/zero-to-prod/transformable
+     *
      * @param  iterable|object|null  $context  Data to populate the instance.
      */
     public static function from(iterable|object|null $context = null): self
@@ -192,7 +197,8 @@ trait DataModel
 
             /** Method-level Cast */
             if (isset($methods[$property_name])) {
-                $self->{$property_name} = $self->{$methods[$property_name]}($context[$property_name] ?? null, $context, $Attribute, $ReflectionProperty);
+                $self->{$property_name} =
+                    $self->{$methods[$property_name]}($context[$property_name] ?? null, $context, $Attribute, $ReflectionProperty);
                 continue;
             }
 
@@ -214,7 +220,8 @@ trait DataModel
             $property_type = $ReflectionType->getName();
             /** Class-level cast  */
             if ($ClassDescribe?->cast[$property_type] ?? false) {
-                $self->{$property_name} = $ClassDescribe?->cast[$property_type]($context[$property_name], $context, $ClassDescribeArguments);
+                $self->{$property_name} =
+                    $ClassDescribe?->cast[$property_type]($context[$property_name], $context, $ClassDescribeArguments);
                 continue;
             }
 

@@ -42,6 +42,7 @@
   },
   "suggest": {
     "zero-to-prod/data-model-helper": "Helpers for a DataModel.",
+    "zero-to-prod/data-model-factory": "Factoryies for a DataModel.",
     "zero-to-prod/transformable": "Transform a class into different types."
   }
 }

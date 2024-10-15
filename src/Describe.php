@@ -92,6 +92,12 @@ use Attribute;
  *     }
  * }
  * ```
+ *
+ * @link https://github.com/zero-to-prod/data-model
+ *
+ * @see  https://github.com/zero-to-prod/data-model-helper
+ * @see  https://github.com/zero-to-prod/data-model-factory
+ * @see  https://github.com/zero-to-prod/transformable
  */
 #[Attribute]
 readonly class Describe
@@ -186,6 +192,12 @@ readonly class Describe
      *      }
      *  }
      *  ```
+     *
+     * @link https://github.com/zero-to-prod/data-model
+     *
+     * @see  https://github.com/zero-to-prod/data-model-helper
+     * @see  https://github.com/zero-to-prod/data-model-factory
+     * @see  https://github.com/zero-to-prod/transformable
      */
     public function __construct(string|null|array $attributes = null)
     {

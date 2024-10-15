@@ -27,6 +27,10 @@ You can install the package via Composer:
 ```bash
 composer require zerotoprod/data-model
 ```
+### Additional Packages
+- [DataModelHelper](https://github.com/zero-to-prod/data-model-helper): Helpers for a `DataModel`.
+- [DataModelFactory](https://github.com/zero-to-prod/data-model-factory): A factory helper to set the value of your `DataModel`.
+- [Transformable](https://github.com/zero-to-prod/transformable): Transform a `DataModel` into different types.
 
 ## Usage
 
@@ -266,36 +270,4 @@ readonly class User
 
 $user = User::from(['email' => 'john@example.com']);
 // Throws PropertyRequiredException exception: Property: username is required
-```
-
-## Suggested Traits
-
-### `Zerotoprod\Transformable`
-
-The [Transformable](https://github.com/zero-to-prod/transformable) trait provides methods to convert an object’s properties into an array or a JSON
-string. This is particularly useful for serializing your data models.
-
-```bash
-composer require zerotoprod/transformable
-```
-
-#### Usage
-
-To use the `Zerotoprod\Transformable\Transformable` trait in your class.
-
-```php
-
-class YourDataModel
-{
-    use \Zerotoprod\DataModel\DataModel;
-    use \Zerotoprod\Transformable\Transformable;
-
-    public $name;
-    public $email;
-}
-
-$model = new YourDataModel();
-
-$array = $model->toArray();
-$json = $model->toJson();
 ```
