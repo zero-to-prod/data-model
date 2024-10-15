@@ -1,11 +1,11 @@
 # `Zerotoprod\DataModel`
 
 [![Repo](https://img.shields.io/badge/github-gray?logo=github)](https://github.com/zero-to-prod/data-model)
-![test](https://github.com/zero-to-prod/data-model/actions/workflows/phpunit.yml/badge.svg)
-![Downloads](https://img.shields.io/packagist/dt/zero-to-prod/data-model.svg?style=flat-square&#41;]&#40;https://packagist.org/packages/zero-to-prod/data-model&#41)
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/zero-to-prod/data-model.svg)](https://packagist.org/packages/zero-to-prod/data-model)
-![GitHub repo size](https://img.shields.io/github/repo-size/zero-to-prod/data-model?logo=github)
-![License](https://img.shields.io/packagist/l/zero-to-prod/data-model.svg?style=flat-square&#41;]&#40;https://packagist.org/packages/zero-to-prod/data-model&#41)
+[![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/zero-to-prod/data-model/phpunit.yml?label=tests)](https://github.com/zero-to-prod/data-model/actions)
+[![Packagist Downloads](https://img.shields.io/packagist/dt/zero-to-prod/data-model?color=blue)](https://packagist.org/packages/zero-to-prod/data-model/stats)
+[![Packagist Version](https://img.shields.io/packagist/v/zero-to-prod/data-model?color=f28d1a)](https://packagist.org/packages/zero-to-prod/data-model)
+[![GitHub repo size](https://img.shields.io/github/repo-size/zero-to-prod/data-model)](https://github.com/zero-to-prod/data-model)
+[![License](https://img.shields.io/packagist/l/zero-to-prod/data-model?color=red)](https://github.com/zero-to-prod/data-model/blob/main/LICENSE.md)
 
 The `Zerotoprod\DataModel` trait simplifies data handling by allowing developers to create class instances from arrays or JSON, dynamically
 assigning and casting property values based on [PHP Attributes](https://www.php.net/manual/en/language.attributes.overview.php).

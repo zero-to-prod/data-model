@@ -38,5 +38,5 @@ jobs:
       - name: Install Composer dependencies
         run: docker compose run --rm php82composer composer install --prefer-dist --no-progress --no-suggest
 
-      - name: Run PHPUnit tests
+      - name: Run tests
         run: docker compose run --rm php82 vendor/bin/phpunit
