@@ -7,20 +7,20 @@
 [![GitHub repo size](https://img.shields.io/github/repo-size/zero-to-prod/data-model)](https://github.com/zero-to-prod/data-model)
 [![License](https://img.shields.io/packagist/l/zero-to-prod/data-model?color=red)](https://github.com/zero-to-prod/data-model/blob/main/LICENSE.md)
 
-The `Zerotoprod\DataModel` trait simplifies data handling by allowing developers to create class instances from arrays or JSON, dynamically
-assigning and casting property values based on [PHP Attributes](https://www.php.net/manual/en/language.attributes.overview.php).
+Simplify deserialization for your DTOs. 
 
-Whether you’re managing simple strings or complex object types, this package ensures your data models are both flexible and reliable.
+This package uses [PHP Attributes](https://www.php.net/manual/en/language.attributes.overview.php) to resolve
+and map values to properties on a class.
 
-Perfect for developers looking to simplify their Data Transfer Objects (DTOs);
+Precisely transform raw data into fully hydrated objects by describing how to resolve a value before instantiation.
 
 ## Features
 
-- [Easy Instantiation](#instantiating-from-data): Create class instances from arrays or objects with automatic type casting.
-- [Recursive Instantiation](#recursive-instantiation): Recursively instantiate classes based on their types.
+- [Simple Interface](#instantiating-from-data): A single entry point to create class instances from associative arrays or objects.
+- [Recursive Instantiation](#recursive-instantiation): Recursively instantiate classes based on their type.
 - [Type Casting](#recursive-instantiation): Supports primitives, custom classes, enums, and more.
 - [Transformations](#transformations): Describe how to resolve a value before instantiation.
-- [Required Properties](#required-properties): Enforce required properties with descriptive exceptions.
+- [Required Properties](#required-properties): Throw an exception when a property is not set.
 
 ## Installation
 
@@ -29,7 +29,9 @@ You can install the package via Composer:
 ```bash
 composer require zerotoprod/data-model
 ```
+
 ### Additional Packages
+
 - [DataModelHelper](https://github.com/zero-to-prod/data-model-helper): Helpers for a `DataModel`.
 - [DataModelFactory](https://github.com/zero-to-prod/data-model-factory): A factory helper to set the value of your `DataModel`.
 - [Transformable](https://github.com/zero-to-prod/transformable): Transform a `DataModel` into different types.
@@ -128,6 +130,7 @@ There is an order of precedence when resolving a value for a property.
 6. Native Types
 
 ### Property Level Cast
+
 The using the `Describe` attribute directly on the property takes the highest precedence.
 
 ```php
@@ -174,6 +177,7 @@ $user->full_name;   // 'Jane Doe'
 ### Method-level Cast
 
 Use the `Describe` attribute to resolve values with class methods. Methods receive `$value` and `$context` as parameters.
+
 ```php
 use Zerotoprod\DataModel\DataModel;
 use Zerotoprod\DataModel\Describe;
@@ -210,10 +214,12 @@ $user->fullName;    // 'Jane Doe'
 ```
 
 ### Union Types
-A value passed to property with a union type is directly assigned to the property. 
+
+A value passed to property with a union type is directly assigned to the property.
 If you wish to resolve the value in a specific way, use a [class method](#method-level-cast).
 
 ### Class-level Cast
+
 You can define how to resolve different types at the class level.
 
 ```php
