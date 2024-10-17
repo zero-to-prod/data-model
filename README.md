@@ -157,7 +157,7 @@ class User
         return $ReflectionAttribute->getArguments()[0]['function']($value);
     }
 
-    public static function fullName(null $value, array $context): string
+    public static function fullName(null $value, array $context, ?\ReflectionAttribute $Attribute, \ReflectionProperty $Property): string
     {
         return "{$context['first_name']} {$context['last_name']}";
     }
