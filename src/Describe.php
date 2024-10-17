@@ -104,6 +104,7 @@ class Describe
 {
     public string|array $cast;
     public bool $required;
+    public mixed $default;
 
     /**
      *  Pass an associative array to the constructor to describe the behavior of a property when it is resolved.
