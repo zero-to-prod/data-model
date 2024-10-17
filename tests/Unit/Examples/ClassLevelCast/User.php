@@ -12,7 +12,7 @@ use Zerotoprod\DataModel\Describe;
         DateTimeImmutable::class => [__CLASS__, 'toDateTimeImmutable'],
     ]
 ])]
-readonly class User
+class User
 {
     use DataModel;
 

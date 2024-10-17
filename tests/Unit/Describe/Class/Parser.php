@@ -2,7 +2,7 @@
 
 namespace Tests\Unit\Describe\Class;
 
-readonly class Parser
+class Parser
 {
     public static function parse($value): string
     {

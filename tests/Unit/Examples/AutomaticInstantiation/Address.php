@@ -4,7 +4,7 @@ namespace Tests\Unit\Examples\AutomaticInstantiation;
 
 use Tests\Unit\Examples\ExtendsTrait\DataModel;
 
-readonly class Address
+class Address
 {
     use DataModel;
 

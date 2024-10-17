@@ -2,18 +2,13 @@
 
 namespace Tests\Unit\DataModel\FromStdClass;
 
+use PHPUnit\Framework\Attributes\Test;
 use stdClass;
 use Tests\TestCase;
-use Zerotoprod\DataModel\DataModel;
 
 class FromStdClassTest extends TestCase
 {
-    /**
-     * @test
-     *
-     * @see DataModel
-     */
-    public function passes_object(): void
+    #[Test] public function passes_object(): void
     {
         $Base = new stdClass();
         $Base->id = 1;
@@ -22,12 +17,7 @@ class FromStdClassTest extends TestCase
         $this->assertEquals(1, $BaseClass->id);
     }
 
-    /**
-     * @test
-     *
-     * @see DataModel
-     */
-    public function passes_object_to_child(): void
+    #[Test] public function passes_object_to_child(): void
     {
         $Child = new stdClass();
         $Child->id = 1;
@@ -38,12 +28,7 @@ class FromStdClassTest extends TestCase
         $this->assertEquals(1, $BaseClass->Child->id);
     }
 
-    /**
-     * @test
-     *
-     * @see DataModel
-     */
-    public function passes_stdClass(): void
+    #[Test] public function passes_stdClass(): void
     {
         $stdClass = new stdClass();
         $stdClass->id = 1;
@@ -54,12 +39,7 @@ class FromStdClassTest extends TestCase
         $this->assertEquals(1, $BaseClass->stdClass->id);
     }
 
-    /**
-     * @test
-     *
-     * @see DataModel
-     */
-    public function passes_stdClass_without_backslash(): void
+    #[Test] public function passes_stdClass_without_backslash(): void
     {
         $stdClass = new stdClass();
         $stdClass->id = 1;

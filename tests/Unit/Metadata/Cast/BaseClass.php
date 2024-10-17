@@ -12,7 +12,7 @@ use Zerotoprod\DataModel\Describe;
         'string' => [Helpers::class, 'setString'],
     ]
 ])]
-readonly class BaseClass
+class BaseClass
 {
     use DataModel;
 

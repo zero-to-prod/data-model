@@ -7,7 +7,7 @@ use Zerotoprod\DataModel\DataModel;
 use Zerotoprod\DataModel\Describe;
 
 #[Describe(describe)]
-readonly class BaseClass
+class BaseClass
 {
     use DataModel;
 

@@ -4,11 +4,11 @@ namespace Tests\Unit\Describe\NotReadonly;
 
 use DateTime;
 
-readonly class Parser
+class Parser
 {
     public static function arbitrary($value, $context = null): string
     {
-        return $context !== null ? $context['string'].'bar' : 'bar';
+        return $context !== null ? $context['string'] ?? null.'bar' : 'bar';
     }
 
     public static function parse($value, $context = null): string

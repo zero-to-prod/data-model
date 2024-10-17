@@ -5,7 +5,7 @@ namespace Tests\Unit\Metadata\CastFromConst;
 use DateMalformedStringException;
 use DateTimeImmutable;
 
-readonly class Helpers
+class Helpers
 {
     /**
      * @throws DateMalformedStringException

@@ -157,6 +157,9 @@ trait DataModel
                 foreach ($ReflectionAttributes as $ReflectionAttribute) {
                     $property = $ReflectionAttribute->getArguments()[0];
                     try {
+                        if (!isset($methods[$property])) {
+                            throw new ReflectionException();
+                        }
                         $filename = $ReflectionClass->getMethod($methods[$property])->getFileName();
                         $start_line = $ReflectionClass->getMethod($methods[$property])->getStartLine();
                     } catch (ReflectionException) {

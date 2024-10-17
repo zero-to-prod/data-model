@@ -2,7 +2,7 @@
 
 namespace Tests\Unit\Examples\ExtendsTrait;
 
-readonly class BaseClass
+class BaseClass
 {
     use DataModel;
 

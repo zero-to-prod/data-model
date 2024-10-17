@@ -2,17 +2,12 @@
 
 namespace Tests\Unit\DataModel\Enum;
 
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
-use Zerotoprod\DataModel\DataModel;
 
 class EnumTest extends TestCase
 {
-    /**
-     * @test
-     *
-     * @see DataModel
-     */
-    public function string(): void
+    #[Test] public function string(): void
     {
         $BaseClass = BaseClass::from([
             BaseClass::string => 1,

@@ -3,17 +3,13 @@
 namespace Tests\Unit\Metadata\CastFromConst;
 
 use DateTimeImmutable;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
-use Zerotoprod\DataModel\DataModel;
 
 class MetadataTest extends TestCase
 {
-    /**
-     * @test
-     *
-     * @see DataModel
-     */
-    public function from(): void
+
+    #[Test] public function from(): void
     {
         define('describe', [
             'cast' => [

@@ -2,17 +2,12 @@
 
 namespace Tests\Unit\DataModel\MissingProperty;
 
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
-use Zerotoprod\DataModel\DataModel;
 
 class MissingPropertyTest extends TestCase
 {
-    /**
-     * @test
-     *
-     * @see DataModel
-     */
-    public function handles_missing_property(): void
+    #[Test] public function handles_missing_property(): void
     {
         $BaseClass = BaseClass::from([
             BaseClass::id => 1,
@@ -20,6 +15,6 @@ class MissingPropertyTest extends TestCase
         ]);
 
         $this->assertEquals(1, $BaseClass->id);
-        $this->assertNull($BaseClass->name);
+        $this->assertFalse(isset($BaseClass->name));
     }
 }

@@ -2,18 +2,13 @@
 
 namespace Tests\Unit\DataModel\Recursion;
 
+use PHPUnit\Framework\Attributes\Test;
 use stdClass;
 use Tests\TestCase;
-use Zerotoprod\DataModel\DataModel;
 
 class InstanceRecursionTest extends TestCase
 {
-    /**
-     * @test
-     *
-     * @see DataModel
-     */
-    public function recursively_creates_instance_from_array(): void
+    #[Test] public function recursively_creates_instance_from_array(): void
     {
         $object = new stdClass;
         $object->id = 1;

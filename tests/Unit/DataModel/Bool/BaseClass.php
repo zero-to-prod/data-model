@@ -5,7 +5,7 @@ namespace Tests\Unit\DataModel\Bool;
 use Zerotoprod\DataModel\DataModel;
 use Zerotoprod\DataModel\Describe;
 
-readonly class BaseClass
+class BaseClass
 {
     use DataModel;
 

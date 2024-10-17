@@ -1,4 +1,27 @@
 services:
+  php81:
+    build:
+      context: docker/php81
+      target: base
+    volumes:
+      - ./:/app
+      - ./docker/php81:/usr/local/etc/php
+
+  php81debug:
+    build:
+      context: docker/php81
+      target: debug
+    volumes:
+      - ./:/app
+
+  php81composer:
+    build:
+      context: docker/php81
+      target: composer
+    volumes:
+      - ./:/app
+      - ./docker/php81:/usr/local/etc/php
+
   php82:
     build:
       context: docker/php82
@@ -22,25 +45,25 @@ services:
       - ./:/app
       - ./docker/php82:/usr/local/etc/php
 
-  php71:
+  php83:
     build:
-      context: docker/php71
+      context: docker/php83
       target: base
     volumes:
       - ./:/app
-      - ./docker/php71:/usr/local/etc/php
+      - ./docker/php83:/usr/local/etc/php
 
-  php71debug:
+  php83debug:
     build:
-      context: docker/php71
+      context: docker/php83
       target: debug
     volumes:
       - ./:/app
 
-  php71composer:
+  php83composer:
     build:
-      context: docker/php71
+      context: docker/php83
       target: composer
     volumes:
       - ./:/app
-      - ./docker/php71:/usr/local/etc/php
+      - ./docker/php83:/usr/local/etc/php

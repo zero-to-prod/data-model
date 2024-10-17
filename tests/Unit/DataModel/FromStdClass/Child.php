@@ -2,7 +2,7 @@
 
 namespace Tests\Unit\DataModel\FromStdClass;
 
-readonly class Child
+class Child
 {
     public const id = 'id';
     public int $id;

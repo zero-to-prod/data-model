@@ -2,17 +2,12 @@
 
 namespace Tests\Unit\DataModel\DynamicSet;
 
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
-use Zerotoprod\DataModel\DataModel;
 
 class ClassDynamicTest extends TestCase
 {
-    /**
-     * @test
-     *
-     * @see DataModel
-     */
-    public function fromDynamic(): void
+    #[Test] public function fromDynamic(): void
     {
         $BaseClass = BaseClass::from([
             BaseClass::foo => 'foo',
