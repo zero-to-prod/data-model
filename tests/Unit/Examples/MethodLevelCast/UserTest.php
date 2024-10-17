@@ -2,17 +2,13 @@
 
 namespace Tests\Unit\Examples\MethodLevelCast;
 
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
-use Zerotoprod\DataModel\DataModel;
 
 class UserTest extends TestCase
 {
-    /**
-     * @test
-     *
-     * @see DataModel
-     */
-    public function from(): void
+
+    #[Test] public function from(): void
     {
         $user = User::from([
             'first_name' => 'Jane',
@@ -24,12 +20,7 @@ class UserTest extends TestCase
         $this->assertEquals('Jane Doe', $user->fullName);
     }
 
-    /**
-     * @test
-     *
-     * @see DataModel
-     */
-    public function without_value(): void
+    #[Test] public function without_value(): void
     {
         $user = User::from([
             'last_name' => 'Doe',
@@ -39,12 +30,7 @@ class UserTest extends TestCase
         $this->assertEquals(' Doe', $user->fullName);
     }
 
-    /**
-     * @test
-     *
-     * @see DataModel
-     */
-    public function without_matching_value(): void
+    #[Test] public function without_matching_value(): void
     {
         $user = User::from([
             'first_name' => 'Jane',

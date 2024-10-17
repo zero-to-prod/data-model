@@ -2,17 +2,13 @@
 
 namespace Tests\Unit\DataModel\Instance;
 
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
-use Zerotoprod\DataModel\DataModel;
 
 class InstanceTest extends TestCase
 {
-    /**
-     * @test
-     *
-     * @see DataModel
-     */
-    public function creates_instance_from_array(): void
+
+    #[Test] public function creates_instance_from_array(): void
     {
         $BaseClass = BaseClass::from([
             BaseClass::id => 1,

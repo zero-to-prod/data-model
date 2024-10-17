@@ -3,17 +3,12 @@
 namespace Tests\Unit\Metadata\Cast;
 
 use DateTimeImmutable;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
-use Zerotoprod\DataModel\DataModel;
 
 class MetadataTest extends TestCase
 {
-    /**
-     * @test
-     *
-     * @see DataModel
-     */
-    public function from(): void
+    #[Test] public function from(): void
     {
         $BaseClass = BaseClass::from([
             BaseClass::DateTimeImmutable => '2015-10-04 17:24:43.000000',

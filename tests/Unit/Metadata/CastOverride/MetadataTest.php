@@ -2,20 +2,14 @@
 
 namespace Tests\Unit\Metadata\CastOverride;
 
-use DateTimeImmutable;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
-use Zerotoprod\DataModel\DataModel;
 
 class MetadataTest extends TestCase
 {
-    /**
-     * @test
-     *
-     * @see DataModel
-     */
-    public function foo(): void
+    #[Test] public function foo(): void
     {
-        define('describe', [
+        define('describe_override', [
             'cast' => [
                 'string' => [Helpers::class, 'setBarString'],
             ]

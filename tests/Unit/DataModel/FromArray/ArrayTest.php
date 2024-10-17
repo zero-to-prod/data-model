@@ -2,18 +2,12 @@
 
 namespace Tests\Unit\DataModel\FromArray;
 
-use stdClass;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
-use Zerotoprod\DataModel\DataModel;
 
 class ArrayTest extends TestCase
 {
-    /**
-     * @test
-     *
-     * @see DataModel
-     */
-    public function array(): void
+    #[Test] public function array(): void
     {
         $BaseClass = BaseClass::from([
             BaseClass::array => [1],

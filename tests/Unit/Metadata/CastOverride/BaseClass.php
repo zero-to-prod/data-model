@@ -5,8 +5,8 @@ namespace Tests\Unit\Metadata\CastOverride;
 use Zerotoprod\DataModel\DataModel;
 use Zerotoprod\DataModel\Describe;
 
-#[Describe(describe)]
-readonly class BaseClass
+#[Describe(describe_override)]
+class BaseClass
 {
     use DataModel;
 

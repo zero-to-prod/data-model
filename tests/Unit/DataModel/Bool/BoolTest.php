@@ -2,18 +2,13 @@
 
 namespace Tests\Unit\DataModel\Bool;
 
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
-use Zerotoprod\DataModel\DataModel;
 use Zerotoprod\DataModel\PropertyRequiredException;
 
 class BoolTest extends TestCase
 {
-    /**
-     * @test
-     *
-     * @see DataModel
-     */
-    public function bool(): void
+    #[Test] public function bool(): void
     {
         $BaseClass = BaseClass::from([
             BaseClass::bool => 0,
@@ -29,12 +24,7 @@ class BoolTest extends TestCase
         $this->assertTrue($BaseClass->Child->bool);
     }
 
-    /**
-     * @test
-     *
-     * @see DataModel
-     */
-    public function bool_required(): void
+    #[Test] public function bool_required(): void
     {
         $this->expectException(PropertyRequiredException::class);
         BaseClass::from(['bogus' => 'bogus']);

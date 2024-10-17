@@ -5,7 +5,7 @@ namespace Tests\Unit\Examples\MethodLevelCast;
 use Zerotoprod\DataModel\DataModel;
 use Zerotoprod\DataModel\Describe;
 
-readonly class User
+class User
 {
     use DataModel;
 
@@ -16,12 +16,15 @@ readonly class User
     #[Describe('last_name')]
     public function lastName(?string $value, array $context): string
     {
-        return strtoupper($value);
+        return strtoupper($value ?? '');
     }
 
     #[Describe('fullName')]
-    public function fullName(null $value, array $context): string
+    public function fullName($value, array $context): string
     {
-        return "{$context['first_name']} {$context['last_name']}";
+        $last_name = $context['last_name'] ?? null;
+        $first_name = $context['first_name'] ?? null;
+
+        return "$first_name $last_name";
     }
 }

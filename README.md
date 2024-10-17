@@ -7,7 +7,7 @@
 [![GitHub repo size](https://img.shields.io/github/repo-size/zero-to-prod/data-model)](https://github.com/zero-to-prod/data-model)
 [![License](https://img.shields.io/packagist/l/zero-to-prod/data-model?color=red)](https://github.com/zero-to-prod/data-model/blob/main/LICENSE.md)
 
-Simplify deserialization for your DTOs. 
+Simplify deserialization for your DTOs.
 
 This package uses [PHP Attributes](https://www.php.net/manual/en/language.attributes.overview.php) to resolve
 and map values to properties on a class.
@@ -54,7 +54,7 @@ trait DataModel
 Include the DataModel trait in your class.
 
 ```php
-readonly class User
+class User
 {
     use DataModel;
 
@@ -87,7 +87,7 @@ In this example, the address array is automatically converted into an Address ob
 allowing direct access to its properties like `$user->address->city`.
 
 ```php
-readonly class Address
+class Address
 {
     use DataModel;
 
@@ -95,7 +95,7 @@ readonly class Address
     public string $city;
 }
 
-readonly class User
+class User
 {
     use DataModel;
 
@@ -136,7 +136,7 @@ The using the `Describe` attribute directly on the property takes the highest pr
 ```php
 use Zerotoprod\DataModel\DataModel;
 use Zerotoprod\DataModel\Describe;
-readonly class User
+class User
 {
     use DataModel;
 
@@ -182,7 +182,7 @@ Use the `Describe` attribute to resolve values with class methods. Methods recei
 use Zerotoprod\DataModel\DataModel;
 use Zerotoprod\DataModel\Describe;
 
-readonly class User
+class User
 {
     use DataModel;
 
@@ -237,7 +237,7 @@ function uppercase(mixed $value, array $context){
         DateTimeImmutable::class => [__CLASS__, 'toDateTimeImmutable'],
     ]
 ])]
-readonly class User
+class User
 {
     use DataModel;
 
@@ -266,7 +266,7 @@ Enforce that certain properties are required using the Describe attribute:
 ```php
 use Zerotoprod\DataModel\Describe;
 
-readonly class User
+class User
 {
     use DataModel;
 

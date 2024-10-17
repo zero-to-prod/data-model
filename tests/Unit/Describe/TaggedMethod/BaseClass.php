@@ -5,7 +5,7 @@ namespace Tests\Unit\Describe\TaggedMethod;
 use Zerotoprod\DataModel\DataModel;
 use Zerotoprod\DataModel\Describe;
 
-readonly class BaseClass
+class BaseClass
 {
     use DataModel;
 
@@ -18,7 +18,7 @@ readonly class BaseClass
     }
 
     #[Describe(self::override)]
-    #[Bogus(self::override)]
+    #[Bogus()]
     public function altOverride(): string
     {
         return 'bar';

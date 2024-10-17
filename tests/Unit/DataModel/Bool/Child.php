@@ -4,7 +4,7 @@ namespace Tests\Unit\DataModel\Bool;
 
 use Zerotoprod\DataModel\DataModel;
 
-readonly class Child
+class Child
 {
     use DataModel;
 

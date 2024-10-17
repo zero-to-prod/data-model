@@ -5,7 +5,7 @@ namespace Tests\Unit\DataModel\FromStdClass;
 use stdClass;
 use Zerotoprod\DataModel\DataModel;
 
-readonly class BaseClass
+class BaseClass
 {
     use DataModel;
 

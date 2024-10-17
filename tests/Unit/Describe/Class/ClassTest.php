@@ -2,17 +2,12 @@
 
 namespace Tests\Unit\Describe\Class;
 
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
-use Zerotoprod\DataModel\DataModel;
 
 class ClassTest extends TestCase
 {
-    /**
-     * @test
-     *
-     * @see DataModel
-     */
-    public function from(): void
+    #[Test] public function from(): void
     {
         $BaseClass = BaseClass::from([
             BaseClass::string => 'foo',

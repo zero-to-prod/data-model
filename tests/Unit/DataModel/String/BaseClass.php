@@ -4,7 +4,7 @@ namespace Tests\Unit\DataModel\String;
 
 use Zerotoprod\DataModel\DataModel;
 
-readonly class BaseClass
+class BaseClass
 {
     use DataModel;
 

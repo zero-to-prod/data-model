@@ -2,17 +2,13 @@
 
 namespace Tests\Unit\DataModel\Int;
 
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
-use Zerotoprod\DataModel\DataModel;
 
 class IntTest extends TestCase
 {
-    /**
-     * @test
-     *
-     * @see DataModel
-     */
-    public function int(): void
+
+    #[Test] public function int(): void
     {
         $BaseClass = BaseClass::from([
             BaseClass::int => '1',

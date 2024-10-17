@@ -2,17 +2,13 @@
 
 namespace Tests\Unit\Describe\TaggedMethod;
 
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
-use Zerotoprod\DataModel\DataModel;
 
 class TaggedMethodTest extends TestCase
 {
-    /**
-     * @test
-     *
-     * @see DataModel
-     */
-    public function taggedMethod(): void
+
+    #[Test] public function taggedMethod(): void
     {
         $BaseClass = BaseClass::from([
             BaseClass::override => 'foo',

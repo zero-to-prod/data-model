@@ -5,7 +5,7 @@ namespace Tests\Unit\DataModel\Recursion;
 use stdClass;
 use Zerotoprod\DataModel\DataModel;
 
-readonly class BaseClass
+class BaseClass
 {
     use DataModel;
 

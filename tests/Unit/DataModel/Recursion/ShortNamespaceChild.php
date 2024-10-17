@@ -4,7 +4,7 @@ namespace Tests\Unit\DataModel\Recursion;
 
 use Zerotoprod\DataModel\DataModel;
 
-readonly class ShortNamespaceChild
+class ShortNamespaceChild
 {
     use DataModel;
 

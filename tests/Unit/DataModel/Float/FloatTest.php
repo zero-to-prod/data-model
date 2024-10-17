@@ -2,17 +2,12 @@
 
 namespace Tests\Unit\DataModel\Float;
 
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
-use Zerotoprod\DataModel\DataModel;
 
 class FloatTest extends TestCase
 {
-    /**
-     * @test
-     *
-     * @see DataModel
-     */
-    public function float(): void
+    #[Test] public function float(): void
     {
         $BaseClass = BaseClass::from([
             BaseClass::float => '1.1',

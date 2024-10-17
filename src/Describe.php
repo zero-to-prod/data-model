@@ -12,7 +12,7 @@ use Attribute;
  * use Zerotoprod\DataModel\DataModel;
  * use Zerotoprod\DataModel\Describe;
  *
- * readonly class User
+ * class User
  * {
  *     use DataModel;
  *
@@ -42,7 +42,7 @@ use Attribute;
  * use Zerotoprod\DataModel\DataModel;
  * use Zerotoprod\DataModel\Describe;
  *
- * readonly class User
+ * class User
  * {
  *     use DataModel;
  *
@@ -79,7 +79,7 @@ use Attribute;
  *      DateTimeImmutable::class => [__CLASS__, 'toDateTimeImmutable'],
  *  ]
  * ])]
- * readonly class User
+ * class User
  * {
  *     use DataModel;
  *
@@ -100,7 +100,7 @@ use Attribute;
  * @see  https://github.com/zero-to-prod/transformable
  */
 #[Attribute]
-readonly class Describe
+class Describe
 {
     public string|array $cast;
     public bool $required;
@@ -113,7 +113,7 @@ readonly class Describe
      *  use Zerotoprod\DataModel\DataModel;
      *  use Zerotoprod\DataModel\Describe;
      *
-     *  readonly class User
+     *  class User
      *  {
      *      use DataModel;
      *
@@ -142,7 +142,7 @@ readonly class Describe
      *  use Zerotoprod\DataModel\DataModel;
      *  use Zerotoprod\DataModel\Describe;
      *
-     *  readonly class User
+     *  class User
      *  {
      *      use DataModel;
      *
@@ -179,7 +179,7 @@ readonly class Describe
      *       DateTimeImmutable::class => [__CLASS__, 'toDateTimeImmutable'],
      *   ]
      *  ])]
-     *  readonly class User
+     *  class User
      *  {
      *      use DataModel;
      *
@@ -201,7 +201,7 @@ readonly class Describe
      */
     public function __construct(string|null|array $attributes = null)
     {
-        if ($attributes) {
+        if (is_countable($attributes)) {
             foreach ($attributes as $key => $value) {
                 if (property_exists($this, $key)) {
                     $this->$key = $value;

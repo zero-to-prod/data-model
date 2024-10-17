@@ -1,4 +1,4 @@
-FROM php:7.1-cli AS base
+FROM php:8.1-cli AS base
 WORKDIR /app
 RUN apt-get update && apt-get install -y \
     git \
@@ -10,9 +10,9 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 
 FROM base AS debug
 RUN pecl channel-update pecl.php.net && \
-    pecl install xdebug-2.9.8 && \
+    pecl install xdebug && \
     docker-php-ext-enable xdebug && \
-    echo "xdebug.mode=coverage" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
+    echo "xdebug.mode=coverage" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 WORKDIR /app
 
 CMD ["bash"]

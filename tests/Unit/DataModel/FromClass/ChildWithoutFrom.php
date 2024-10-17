@@ -2,7 +2,7 @@
 
 namespace Tests\Unit\DataModel\FromClass;
 
-readonly class ChildWithoutFrom
+class ChildWithoutFrom
 {
     public const id = 'id';
 

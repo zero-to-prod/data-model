@@ -2,17 +2,13 @@
 
 namespace Tests\Unit\Examples\AutomaticInstantiation;
 
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
-use Zerotoprod\DataModel\DataModel;
 
 class AutomaticInstantiationTest extends TestCase
 {
-    /**
-     * @test
-     *
-     * @see DataModel
-     */
-    public function from(): void
+
+    #[Test] public function from(): void
     {
         $user = User::from([
             'name' => 'John Doe',

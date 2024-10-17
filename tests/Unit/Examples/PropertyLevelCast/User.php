@@ -7,7 +7,7 @@ use ReflectionProperty;
 use Zerotoprod\DataModel\DataModel;
 use Zerotoprod\DataModel\Describe;
 
-readonly class User
+class User
 {
     use DataModel;
 
@@ -29,7 +29,7 @@ readonly class User
         return $ReflectionAttribute->getArguments()[0]['function']($value);
     }
 
-    public static function fullName(null $value, array $context): string
+    public static function fullName($value, array $context): string
     {
         return "{$context['first_name']} {$context['last_name']}";
     }
