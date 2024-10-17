@@ -21,7 +21,7 @@ Transform data into hydrated objects by [describing](#property-level-cast) how t
 - [Type Casting](#property-level-cast): Supports primitives, custom classes, enums, and more.
 - [Transformations](#transformations): Describe how to resolve a value before instantiation.
 - [Required Properties](#required-properties): Throw an exception when a property is not set.
-
+- [Default Values](#default-values): Set a default property value.
 ## Installation
 
 You can install the package via Composer:
@@ -122,7 +122,8 @@ The `Describe` attribute can accept these arguments.
     'cast' => [MyClass::class, 'methodName'], 
  // alternately target a function
  // 'cast' => 'strtoupper', 
-    'required' => true
+    'required' => true,
+    'default' => 'value'
 ])]
 ```
 
@@ -283,6 +284,26 @@ class User
 
 $user = User::from(['email' => 'john@example.com']);
 // Throws PropertyRequiredException exception: Property: username is required
+```
+
+## Default Values
+
+You can set a default value for a property like this:
+
+```php
+use Zerotoprod\DataModel\Describe;
+
+class User
+{
+    use \Zerotoprod\DataModel\DataModel;
+
+    #[Describe(['default' => 'N/A'])]
+    public string $username;
+}
+
+$user = User::from();
+
+echo $user->username // 'N/A'
 ```
 
 ## Examples

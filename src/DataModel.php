@@ -125,12 +125,8 @@ trait DataModel
      *
      * @param  iterable|object|null  $context  Data to populate the instance.
      */
-    public static function from(iterable|object|null $context = null): self
+    public static function from(iterable|object|null $context = []): self
     {
-        if (!$context) {
-            return new self();
-        }
-
         if ($context instanceof self) {
             return $context;
         }
@@ -207,6 +203,10 @@ trait DataModel
 
             /** When a property name does not match a key name  */
             if (!array_key_exists($property_name, $context)) {
+                if ($Describe->default ?? false) {
+                    $self->{$property_name} = $Describe->default;
+                    continue;
+                }
                 if ($Describe->required ?? false) {
                     throw new PropertyRequiredException("Property: $property_name is required");
                 }
