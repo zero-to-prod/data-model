@@ -30,6 +30,11 @@ You can install the package via Composer:
 composer require zerotoprod/data-model
 ```
 
+### Examples
+
+- [Array of DataModels](#array-of-datamodels)
+- [Collection of DataModels](#collection-of-datamodels)
+
 ### Additional Packages
 
 - [DataModelHelper](https://github.com/zero-to-prod/data-model-helper): Helpers for a `DataModel`.
@@ -281,4 +286,87 @@ class User
 
 $user = User::from(['email' => 'john@example.com']);
 // Throws PropertyRequiredException exception: Property: username is required
+```
+
+## Examples
+
+### Array of DataModels
+
+This examples uses the [DataModelHelper](https://github.com/zero-to-prod/data-model-helper).
+
+```bash
+composer require zero-to-prod/data-model-helper
+```
+
+```php
+class User
+{
+    use \Zerotoprod\DataModel\DataModel;
+    use \Zerotoprod\DataModelHelper\DataModelHelper;
+    
+    /** @var Alias[] $Aliases */
+    #[Describe([
+        'cast' => [self::class, 'mapOf'],   // Use the mapOf helper method
+        'type' => Alias::class,             // Target type for each item
+    ])]
+    public array $Aliases;
+}
+
+class Alias
+{
+    use \Zerotoprod\DataModel\DataModel;
+    
+    public string $name;
+}
+
+$User = User::from([
+    'Aliases' => [
+        ['name' => 'John Doe'],
+        ['name' => 'John Smith'],
+    ]
+]);
+
+echo $User->Aliases[0]->name; // Outputs: John Doe
+echo $User->Aliases[1]->name; // Outputs: John Smith
+```
+
+### Collection of DataModels
+
+This examples uses the [DataModelHelper](https://github.com/zero-to-prod/data-model-helper)
+and [Laravel Collections](https://github.com/illuminate/collections).
+
+```bash
+composer require zero-to-prod/data-model-helper
+composer require illuminate/collections
+```
+
+```php
+class User
+{
+    use \Zerotoprod\DataModel\DataModel;
+    use \Zerotoprod\DataModelHelper\DataModelHelper;
+    
+    /** @var Collection<int, Alias> $Aliases */
+    #[Describe([
+        'cast' => [self::class, 'mapOf'],
+        'type' => Alias::class,
+    ])]
+    public \Illuminate\Support\Collection $Aliases;
+}
+
+class Alias
+{
+    use \Zerotoprod\DataModel\DataModel;
+    
+    public string $name;
+}
+
+$User = User::from([
+    'Aliases' => [
+        ['name' => 'John Doe'],
+        ['name' => 'John Smith'],
+    ]
+]);
+
+echo $User->Aliases->first()->name; // Outputs: John Doe
 ```
