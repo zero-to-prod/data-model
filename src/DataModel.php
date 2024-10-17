@@ -131,7 +131,6 @@ trait DataModel
             return $context;
         }
 
-        $context = is_object($context) ? (array)$context : $context;
         $self = new self();
         $ReflectionClass = new ReflectionClass($self);
         /** Get Describe Attribute on class. */
@@ -182,6 +181,8 @@ trait DataModel
             }
         }
 
+        $context = is_object($context) ? (array)$context : $context ?? [];
+
         foreach ($ReflectionClass->getProperties() as $ReflectionProperty) {
             $Attribute = ($ReflectionProperty->getAttributes(Describe::class)[0] ?? null);
             /** @var Describe $Describe */
@@ -189,13 +190,13 @@ trait DataModel
             $property_name = $ReflectionProperty->getName();
 
             /** Property-level Cast */
-            if (isset($Describe->cast)) {
-                $self->{$property_name} = ($Describe->cast)($context[$property_name] ?? null, $context, $Attribute, $ReflectionProperty);
+            if (isset($Describe->cast) && $context) {
+                $self->{$property_name} = ($Describe->cast)($context[$property_name] ?? [], $context, $Attribute, $ReflectionProperty);
                 continue;
             }
 
             /** Method-level Cast */
-            if (isset($methods[$property_name])) {
+            if (isset($methods[$property_name]) && $context) {
                 $self->{$property_name} =
                     $self->{$methods[$property_name]}($context[$property_name] ?? null, $context, $Attribute, $ReflectionProperty);
                 continue;
