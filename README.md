@@ -9,16 +9,16 @@
 
 Simplify deserialization for your DTOs.
 
-This package uses [PHP Attributes](https://www.php.net/manual/en/language.attributes.overview.php) to resolve
+Use [PHP Attributes](https://www.php.net/manual/en/language.attributes.overview.php) to resolve
 and map values to properties on a class.
 
-Precisely transform raw data into fully hydrated objects by describing how to resolve a value before instantiation.
+Transform data into hydrated objects by [describing](#property-level-cast) how to resolve values.
 
 ## Features
 
-- [Simple Interface](#instantiating-from-data): A single entry point to create class instances from associative arrays or objects.
-- [Recursive Instantiation](#recursive-instantiation): Recursively instantiate classes based on their type.
-- [Type Casting](#recursive-instantiation): Supports primitives, custom classes, enums, and more.
+- [Simple Interface](#hydrating-from-data): A single entry point to create class instances from associative arrays or objects.
+- [Recursive Instantiation](#recursive-hydration): Recursively instantiate classes based on their type.
+- [Type Casting](#property-level-cast): Supports primitives, custom classes, enums, and more.
 - [Transformations](#transformations): Describe how to resolve a value before instantiation.
 - [Required Properties](#required-properties): Throw an exception when a property is not set.
 
@@ -38,36 +38,21 @@ composer require zerotoprod/data-model
 
 ## Usage
 
-Import the `Zerotoprod\DataModel\DataModel` trait in your class.
-
-It is recommended to use the `DataModel` trait in your own trait.
-
-```php
-trait DataModel
-{
-    use \Zerotoprod\DataModel\DataModel;
-}
-```
-
-### Defining a Data Model
-
-Include the DataModel trait in your class.
+Use the `DataModel` trait in a class.
 
 ```php
 class User
 {
-    use DataModel;
+    use \Zerotoprod\DataModel\DataModel;
 
     public string $name;
     public int $age;
 }
 ```
 
-### Instantiating from Data
+### Hydrating from Data
 
-Use the `from` method to instantiate your class, passing an array or object.
-
-Notice the native type coercion.
+Use the `from` method to instantiate your class, passing an associative array or object.
 
 ```php
 $user = User::from([
@@ -78,13 +63,13 @@ echo $user->name; // 'John Doe'
 echo $user->age; // 30
 ```
 
-### Recursive Instantiation
+### Recursive Hydration
 
-The DataModel trait recursively instantiates property values based on their type declarations.
+The `DataModel` trait recursively instantiates classes based on their type declarations.
 If a property’s type hint is a class, its value is passed to that class’s `from()` method.
 
-In this example, the address array is automatically converted into an Address object,
-allowing direct access to its properties like `$user->address->city`.
+In this example, the `address` element is automatically converted into an `Address` object,
+allowing direct access to its properties: `$user->address->city`.
 
 ```php
 class Address
@@ -116,9 +101,27 @@ echo $user->address->city; // Outputs: Hometown
 
 ## Transformations
 
-The DataModel trait provides a variety of ways to transform data before the value is assigned to the class property.
+The `DataModel` trait provides a variety of ways to transform data before the value is assigned to a property.
 
-The `Describe` attribute provides a declarative way describe the behavior of properties at the time their values are resolved.
+The `Describe` attribute provides a declarative way describe how property values are resolved.
+
+### Describe Attribute
+
+Resolve a value by adding the `Describe` attribute to a property.
+
+The `Describe` attribute can accept these arguments.
+
+```php
+#[\Zerotoprod\DataModel\Describe([
+ // Targets the static method: `MyClass::methodName()`
+    'cast' => [MyClass::class, 'methodName'], 
+ // alternately target a function
+ // 'cast' => 'strtoupper', 
+    'required' => true
+])]
+```
+
+### Order of Precedence
 
 There is an order of precedence when resolving a value for a property.
 
@@ -140,13 +143,13 @@ class User
 {
     use DataModel;
 
-    #[Describe(['cast' => [__CLASS__, 'firstName'], 'function' => 'strtoupper'])]
+    #[Describe(['cast' => [self::class, 'firstName'], 'function' => 'strtoupper'])]
     public string $first_name;
     
     #[Describe(['cast' => 'uppercase'])]
     public string $last_name;
 
-    #[Describe(['cast' => [__CLASS__, 'fullName']])]
+    #[Describe(['cast' => [self::class, 'fullName']])]
     public string $full_name;
 
     private static function firstName(mixed $value, array $context, ?\ReflectionAttribute $ReflectionAttribute, \ReflectionProperty $ReflectionProperty): string
@@ -191,13 +194,13 @@ class User
     public string $fullName;
 
     #[Describe('last_name')]
-    public function lastName(?string $value, array $context): string
+    public function lastName(?string $value, array $context, ?\ReflectionAttribute $Attribute, \ReflectionProperty $Property): string
     {
         return strtoupper($value);
     }
 
     #[Describe('fullName')]
-    public function fullName(null $value, array $context): string
+    public function fullName($value, array $context, ?\ReflectionAttribute $Attribute, \ReflectionProperty $Property): string
     {
         return "{$context['first_name']} {$context['last_name']}";
     }
@@ -234,7 +237,7 @@ function uppercase(mixed $value, array $context){
 #[Describe([
     'cast' => [
         'string' => 'uppercase',
-        DateTimeImmutable::class => [__CLASS__, 'toDateTimeImmutable'],
+        DateTimeImmutable::class => [self::class, 'toDateTimeImmutable'],
     ]
 ])]
 class User

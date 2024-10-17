@@ -14,13 +14,13 @@ class User
     public string $fullName;
 
     #[Describe('last_name')]
-    public function lastName(?string $value, array $context): string
+    public function lastName(?string $value, array $context, ?\ReflectionAttribute $Attribute, \ReflectionProperty $Property): string
     {
         return strtoupper($value ?? '');
     }
 
     #[Describe('fullName')]
-    public function fullName($value, array $context): string
+    public function fullName($value, array $context, ?\ReflectionAttribute $Attribute, \ReflectionProperty $Property): string
     {
         $last_name = $context['last_name'] ?? null;
         $first_name = $context['first_name'] ?? null;
