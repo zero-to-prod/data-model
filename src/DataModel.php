@@ -189,9 +189,27 @@ trait DataModel
             $Describe = $Attribute?->newInstance();
             $property_name = $ReflectionProperty->getName();
 
+            /** Property-level Pre Hook */
+            if (isset($Describe->pre)) {
+                ($Describe->pre)($context[$property_name] ?? [], $context, $Attribute, $ReflectionProperty);
+            }
+
             /** Property-level Cast */
             if (isset($Describe->cast) && $context) {
                 $self->{$property_name} = ($Describe->cast)($context[$property_name] ?? [], $context, $Attribute, $ReflectionProperty);
+
+                /** Property-level Post Hook */
+                if (isset($Describe->post)) {
+                    ($Describe->post)($self->{$property_name}, $context, $Attribute, $ReflectionProperty);
+                }
+
+                continue;
+            }
+
+            /** Property-level Post Hook */
+            if (isset($Describe->post)) {
+                $self->{$property_name} = $context[$property_name];
+                ($Describe->post)($self->{$property_name}, $context, $Attribute, $ReflectionProperty);
                 continue;
             }
 

@@ -105,6 +105,8 @@ class Describe
     public string|array $cast;
     public bool $required;
     public mixed $default;
+    public mixed $pre;
+    public mixed $post;
 
     /**
      *  Pass an associative array to the constructor to describe the behavior of a property when it is resolved.
@@ -193,6 +195,8 @@ class Describe
      *      }
      *  }
      *  ```
+     *
+     * @param  string|array{'pre': string|string[], 'cast': string|string[], 'post': string|string[], 'required': bool, 'default': mixed, ...}|null|  $attributes
      *
      * @link https://github.com/zero-to-prod/data-model
      *
