@@ -79,7 +79,7 @@ allowing direct access to its properties: `$user->address->city`.
 ```php
 class Address
 {
-    use DataModel;
+    use \Zerotoprod\DataModel\DataModel;
 
     public string $street;
     public string $city;
@@ -87,7 +87,7 @@ class Address
 
 class User
 {
-    use DataModel;
+    use \Zerotoprod\DataModel\DataModel;
 
     public string $username;
     public Address $address;
@@ -142,11 +142,11 @@ There is an order of precedence when resolving a value for a property.
 The using the `Describe` attribute directly on the property takes the highest precedence.
 
 ```php
-use Zerotoprod\DataModel\DataModel;
 use Zerotoprod\DataModel\Describe;
+
 class User
 {
-    use DataModel;
+    use \Zerotoprod\DataModel\DataModel;
 
     #[Describe(['cast' => [self::class, 'firstName'], 'function' => 'strtoupper'])]
     public string $first_name;
@@ -187,12 +187,11 @@ $user->full_name;   // 'Jane Doe'
 Use the `Describe` attribute to resolve values with class methods. Methods receive `$value` and `$context` as parameters.
 
 ```php
-use Zerotoprod\DataModel\DataModel;
 use Zerotoprod\DataModel\Describe;
 
 class User
 {
-    use DataModel;
+    use \Zerotoprod\DataModel\DataModel;
 
     public string $first_name;
     public string $last_name;
@@ -231,8 +230,6 @@ If you wish to resolve the value in a specific way, use a [class method](#method
 You can define how to resolve different types at the class level.
 
 ```php
-use DateTimeImmutable;
-use Zerotoprod\DataModel\DataModel;
 use Zerotoprod\DataModel\Describe;
 
 function uppercase(mixed $value, array $context){
@@ -242,12 +239,12 @@ function uppercase(mixed $value, array $context){
 #[Describe([
     'cast' => [
         'string' => 'uppercase',
-        DateTimeImmutable::class => [self::class, 'toDateTimeImmutable'],
+        \DateTimeImmutable::class => [self::class, 'toDateTimeImmutable'],
     ]
 ])]
 class User
 {
-    use DataModel;
+    use \Zerotoprod\DataModel\DataModel;
 
     public string $first_name;
     public DateTimeImmutable $registered;
@@ -276,7 +273,7 @@ use Zerotoprod\DataModel\Describe;
 
 class User
 {
-    use DataModel;
+    use \Zerotoprod\DataModel\DataModel;
 
     #[Describe(['required' => true])]
     public string $username;
@@ -299,6 +296,8 @@ composer require zero-to-prod/data-model-helper
 ```
 
 ```php
+use Zerotoprod\DataModel\Describe;
+
 class User
 {
     use \Zerotoprod\DataModel\DataModel;
