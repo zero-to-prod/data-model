@@ -19,9 +19,11 @@ Transform data into hydrated objects by [describing](#property-level-cast) how t
 - [Simple Interface](#hydrating-from-data): A single entry point to create class instances from associative arrays or objects.
 - [Recursive Instantiation](#recursive-hydration): Recursively instantiate classes based on their type.
 - [Type Casting](#property-level-cast): Supports primitives, custom classes, enums, and more.
+- [Life-Cycle Hooks](#life-cycle-hooks): Run methods before and after a value is resolved with [pre](#pre-hook) and [post](#post-hook).
 - [Transformations](#transformations): Describe how to resolve a value before instantiation.
 - [Required Properties](#required-properties): Throw an exception when a property is not set.
 - [Default Values](#default-values): Set a default property value.
+
 ## Installation
 
 You can install the package via Composer:
@@ -118,11 +120,19 @@ The `Describe` attribute can accept these arguments.
 
 ```php
 #[\Zerotoprod\DataModel\Describe([
- // Targets the static method: `MyClass::methodName()`
-    'cast' => [MyClass::class, 'methodName'], 
- // alternately target a function
- // 'cast' => 'strtoupper', 
+    // Runs before 'cast'
+    'pre' => [MyClass::class, 'preHook']
+    
+    // Targets the static method: `MyClass::methodName()`
+    'cast' => [MyClass::class, 'castMethod'], 
+    
+     // Runs after 'cast' passing the resolved value as `$value`
+    'post' => [MyClass::class, 'postHook']
+    
+    // alternately target a function
+    // 'cast' => 'strtoupper', 
     'required' => true,
+    
     'default' => 'value'
 ])]
 ```
@@ -181,6 +191,58 @@ $user = User::from([
 $user->first_name;  // 'JANE'
 $user->last_name;   // 'DOE'
 $user->full_name;   // 'Jane Doe'
+```
+
+#### Life-Cycle Hooks
+
+You can run methods before and after a value is resolved.
+
+#### `pre` Hook
+
+You can use `pre` to run a `void` method before the value is resolved.
+
+```php
+use Zerotoprod\DataModel\Describe;
+
+class BaseClass
+{
+    use \Zerotoprod\DataModel\DataModel;
+
+    #[Describe(['pre' => [self::class, 'pre'], 'message' => 'Value too large.'])]
+    public int $int;
+
+    public static function pre($value, array $context, ?\ReflectionAttribute $Attribute, \ReflectionProperty $Property): void
+    {
+        if ($value > 10) {
+            throw new \RuntimeException($Attribute->getArguments()[0]['message']);
+        }
+    }
+}
+```
+
+#### `post` Hook
+
+You can use `post` to run a `void` method after the value is resolved.
+
+```php
+use Zerotoprod\DataModel\Describe;
+
+class BaseClass
+{
+    use \Zerotoprod\DataModel\DataModel;
+
+    public const int = 'int';
+
+    #[Describe(['post' => [self::class, 'post'], 'message' => 'Value too large.'])]
+    public int $int;
+
+    public static function post($value, array $context, ?\ReflectionAttribute $Attribute, \ReflectionProperty $Property): void
+    {
+        if ($value > 10) {
+            throw new \RuntimeException($value.$Attribute->getArguments()[0]['message']);
+        }
+    }
+}
 ```
 
 ### Method-level Cast
