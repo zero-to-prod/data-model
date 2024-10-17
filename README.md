@@ -36,6 +36,7 @@ composer require zerotoprod/data-model
 
 - [Array of DataModels](#array-of-datamodels)
 - [Collection of DataModels](#collection-of-datamodels)
+- [Laravel Validation](#laravel-validation)
 
 ### Additional Packages
 
@@ -451,4 +452,32 @@ $User = User::from([
 ]);
 
 echo $User->Aliases->first()->name; // Outputs: John Doe
+```
+
+### Laravel Validation
+
+By leveraging the `pre` life-cycle hook, you run a validator before a value is resolved.
+
+```php
+use Illuminate\Support\Facades\Validator;
+use Zerotoprod\DataModel\Describe;
+
+readonly class FullName
+{
+    use \Zerotoprod\DataModel\DataModel;
+
+    #[Describe([
+        'pre' => [self::class, 'validate'],
+        'rule' => 'min:2'
+    ])]
+    public string $first_name;
+
+    public static function validate(?string $value, array $context, ?\ReflectionAttribute $Attribute): void
+    {
+        $validator = Validator::make(['value' => $value], ['value' => $Attribute?->getArguments()[0]['rule']]);
+        if ($validator->fails()) {
+            throw new \RuntimeException($validator->errors()->toJson());
+        }
+    }
+}
 ```
