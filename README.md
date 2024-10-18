@@ -4,7 +4,6 @@
 [![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/zero-to-prod/data-model/test.yml?label=tests)](https://github.com/zero-to-prod/data-model/actions)
 [![Packagist Downloads](https://img.shields.io/packagist/dt/zero-to-prod/data-model?color=blue)](https://packagist.org/packages/zero-to-prod/data-model/stats)
 [![Packagist Version](https://img.shields.io/packagist/v/zero-to-prod/data-model?color=f28d1a)](https://packagist.org/packages/zero-to-prod/data-model)
-[![GitHub repo size](https://img.shields.io/github/repo-size/zero-to-prod/data-model)](https://github.com/zero-to-prod/data-model)
 [![License](https://img.shields.io/packagist/l/zero-to-prod/data-model?color=red)](https://github.com/zero-to-prod/data-model/blob/main/LICENSE.md)
 
 Simplify deserialization for your DTOs.
@@ -123,17 +122,13 @@ The `Describe` attribute can accept these arguments.
 #[\Zerotoprod\DataModel\Describe([
     // Runs before 'cast'
     'pre' => [MyClass::class, 'preHook']
-    
     // Targets the static method: `MyClass::methodName()`
     'cast' => [MyClass::class, 'castMethod'], 
-    
-     // Runs after 'cast' passing the resolved value as `$value`
-    'post' => [MyClass::class, 'postHook']
-    
     // alternately target a function
-    // 'cast' => 'strtoupper', 
+    // 'cast' => 'my_func', 
+    // Runs after 'cast' passing the resolved value as `$value`
+    'post' => [MyClass::class, 'postHook']
     'required' => true,
-    
     'default' => 'value'
 ])]
 ```
@@ -149,7 +144,7 @@ There is an order of precedence when resolving a value for a property.
 5. Types that have a **concrete** static method `from()`.
 6. Native Types
 
-### Property Level Cast
+### Property-Level Cast
 
 The using the `Describe` attribute directly on the property takes the highest precedence.
 
@@ -174,7 +169,7 @@ class User
         return $ReflectionAttribute->getArguments()[0]['function']($value);
     }
 
-    public static function fullName(null $value, array $context, ?\ReflectionAttribute $Attribute, \ReflectionProperty $Property): string
+    public static function fullName(mixed $value, array $context, ?\ReflectionAttribute $Attribute, \ReflectionProperty $Property): string
     {
         return "{$context['first_name']} {$context['last_name']}";
     }
@@ -212,7 +207,7 @@ class BaseClass
     #[Describe(['pre' => [self::class, 'pre'], 'message' => 'Value too large.'])]
     public int $int;
 
-    public static function pre($value, array $context, ?\ReflectionAttribute $Attribute, \ReflectionProperty $Property): void
+    public static function pre(mixed $value, array $context, ?\ReflectionAttribute $Attribute, \ReflectionProperty $Property): void
     {
         if ($value > 10) {
             throw new \RuntimeException($Attribute->getArguments()[0]['message']);
@@ -237,7 +232,7 @@ class BaseClass
     #[Describe(['post' => [self::class, 'post'], 'message' => 'Value too large.'])]
     public int $int;
 
-    public static function post($value, array $context, ?\ReflectionAttribute $Attribute, \ReflectionProperty $Property): void
+    public static function post(mixed $value, array $context, ?\ReflectionAttribute $Attribute, \ReflectionProperty $Property): void
     {
         if ($value > 10) {
             throw new \RuntimeException($value.$Attribute->getArguments()[0]['message']);
@@ -262,13 +257,13 @@ class User
     public string $fullName;
 
     #[Describe('last_name')]
-    public function lastName(?string $value, array $context, ?\ReflectionAttribute $Attribute, \ReflectionProperty $Property): string
+    public function lastName(mixed $value, array $context, ?\ReflectionAttribute $Attribute, \ReflectionProperty $Property): string
     {
         return strtoupper($value);
     }
 
     #[Describe('fullName')]
-    public function fullName($value, array $context, ?\ReflectionAttribute $Attribute, \ReflectionProperty $Property): string
+    public function fullName(mixed $value, array $context, ?\ReflectionAttribute $Attribute, \ReflectionProperty $Property): string
     {
         return "{$context['first_name']} {$context['last_name']}";
     }
@@ -289,7 +284,7 @@ $user->fullName;    // 'Jane Doe'
 A value passed to property with a union type is directly assigned to the property.
 If you wish to resolve the value in a specific way, use a [class method](#method-level-cast).
 
-### Class-level Cast
+### Class-Level Cast
 
 You can define how to resolve different types at the class level.
 
@@ -313,7 +308,7 @@ class User
     public string $first_name;
     public DateTimeImmutable $registered;
 
-    public static function toDateTimeImmutable(string $value, array $context): DateTimeImmutable
+    public static function toDateTimeImmutable(mixed $value, array $context): DateTimeImmutable
     {
         return new DateTimeImmutable($value);
     }
@@ -459,8 +454,7 @@ echo $User->Aliases->first()->name; // Outputs: John Doe
 By leveraging the `pre` life-cycle hook, you run a validator before a value is resolved.
 
 ```php
-use Illuminate\Support\Facades\Validator;
-use Zerotoprod\DataModel\Describe;
+use Illuminate\Support\Facades\Validator;use Zerotoprod\DataModel\Describe;
 
 readonly class FullName
 {
@@ -472,7 +466,7 @@ readonly class FullName
     ])]
     public string $first_name;
 
-    public static function validate(?string $value, array $context, ?\ReflectionAttribute $Attribute): void
+    public static function validate(mixed $value, array $context, ?\ReflectionAttribute $Attribute): void
     {
         $validator = Validator::make(['value' => $value], ['value' => $Attribute?->getArguments()[0]['rule']]);
         if ($validator->fails()) {
@@ -480,4 +474,10 @@ readonly class FullName
         }
     }
 }
+```
+
+## Testing
+
+```shell
+./vendor/bin/phpunit
 ```
