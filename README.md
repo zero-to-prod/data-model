@@ -419,6 +419,8 @@ composer require illuminate/collections
 ```
 
 ```php
+use Zerotoprod\DataModel\Describe;
+
 class User
 {
     use \Zerotoprod\DataModel\DataModel;
