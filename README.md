@@ -454,7 +454,8 @@ echo $User->Aliases->first()->name; // Outputs: John Doe
 By leveraging the `pre` life-cycle hook, you run a validator before a value is resolved.
 
 ```php
-use Illuminate\Support\Facades\Validator;use Zerotoprod\DataModel\Describe;
+use Illuminate\Support\Facades\Validator;
+use Zerotoprod\DataModel\Describe;
 
 readonly class FullName
 {
