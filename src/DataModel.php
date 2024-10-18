@@ -9,13 +9,13 @@ use ReflectionUnionType;
 use UnitEnum;
 
 /**
- * Trait DataModel
- *
  * Enables classes to instantiate themselves from arrays or objects, auto-populating properties based on type hints and attributes.
  * Supports primitives, custom classes, enums, and allows for custom casting logic.
  *
+ * Create an instance from data, populating properties based on type declarations.
+ *
+ * Usage
  * ```
- * // Usage
  * $user = User::from([
  *     'first_name' => 'Jane',
  *     'last_name' => 'Doe',
@@ -26,50 +26,64 @@ use UnitEnum;
  * $user->last_name:               // 'DOE'
  * $user->full_name:               // 'Jane Doe'
  * $user->registered->format('l'); // 'Sunday'
+ * ```
+ * Property-Level
+ * ```
+ * #[\Zerotoprod\DataModel\Describe([
+ *  // Runs before 'cast'
+ *  'pre' => [MyClass::class, 'preHook']
+ *  // Targets the static method: `MyClass::methodName()`
+ *  'cast' => [MyClass::class, 'castMethod'],
+ *  // alternately target a function
+ *  // 'cast' => 'my_func',
+ *  // Runs after 'cast' passing the resolved value as `$value`
+ *  'post' => [MyClass::class, 'postHook']
+ *  'required' => true,
+ *  'default' => 'value'
+ * ])]
+ * public string $property;
+ * ```
+ * Method-Level
+ * ```
+ *  public string $last_name;
  *
- * // Implementation
+ *  #[Describe('last_name')]
+ *  public function lastName(
+ *      $value,
+ *      array $context,
+ *      ?\ReflectionAttribute $Attribute,
+ *      \ReflectionProperty $Property
+ *  ): string
+ *  {
+ *      return strtoupper($value);
+ *  }
+ * ```
+ * Class-Level
+ * ```
  * #[Describe([
- *  'cast' => [
- *      DateTimeImmutable::class => [__CLASS__, 'toDateTimeImmutable'],
+ *      'cast' => [
+ *      'string' => 'uppercase',
+ *      \DateTimeImmutable::class => [self::class, 'toDateTimeImmutable'],
  *  ]
  * ])]
- * class User
- * {
- *     use DataModel;
- *
- *     public string $first_name;
- *
- *     public string $last_name;
- *
- *     #[Describe(['cast' => [__CLASS__, 'fullName']])]
- *     public string $full_name;
- *
- *     public DateTimeImmutable $registered;
- *
- *     #[Describe('last_name')]
- *     public function lastName(?string $value, array $context): string
- *     {
- *         return strtoupper($value);
- *     }
- *
- *     public static function fullName(null $value, array $context): string
- *     {
- *         return "{$context['first_name']} {$context['last_name']}";
- *     }
- *
- *     public static function toDateTimeImmutable(string $value, array $context): DateTimeImmutable
- *     {
- *         return new DateTimeImmutable($value);
- *     }
- * }
+ * class User {}
  * ```
+ *
+ * @link https://github.com/zero-to-prod/data-model
+ * @see  https://github.com/zero-to-prod/data-model-helper
+ * @see  https://github.com/zero-to-prod/data-model-factory
+ * @see  https://github.com/zero-to-prod/transformable
  */
 trait DataModel
 {
     /**
+     * Enables classes to instantiate themselves from arrays or objects, auto-populating properties based on type hints and attributes.
+     * Supports primitives, custom classes, enums, and allows for custom casting logic.
+     *
      * Create an instance from data, populating properties based on type declarations.
+     *
+     * Usage
      * ```
-     * // Usage
      * $user = User::from([
      *     'first_name' => 'Jane',
      *     'last_name' => 'Doe',
@@ -80,42 +94,47 @@ trait DataModel
      * $user->last_name:               // 'DOE'
      * $user->full_name:               // 'Jane Doe'
      * $user->registered->format('l'); // 'Sunday'
+     * ```
+     * Property-Level
+     * ```
+     * #[\Zerotoprod\DataModel\Describe([
+     *  // Runs before 'cast'
+     *  'pre' => [MyClass::class, 'preHook']
+     *  // Targets the static method: `MyClass::methodName()`
+     *  'cast' => [MyClass::class, 'castMethod'],
+     *  // alternately target a function
+     *  // 'cast' => 'my_func',
+     *  // Runs after 'cast' passing the resolved value as `$value`
+     *  'post' => [MyClass::class, 'postHook']
+     *  'required' => true,
+     *  'default' => 'value'
+     * ])]
+     * public string $property;
+     * ```
+     * Method-Level
+     * ```
+     *  public string $last_name;
      *
-     * // Implementation
+     *  #[Describe('last_name')]
+     *  public function lastName(
+     *      $value,
+     *      array $context,
+     *      ?\ReflectionAttribute $Attribute,
+     *      \ReflectionProperty $Property
+     *  ): string
+     *  {
+     *      return strtoupper($value);
+     *  }
+     * ```
+     * Class-Level
+     * ```
      * #[Describe([
-     *  'cast' => [
-     *      DateTimeImmutable::class => [__CLASS__, 'toDateTimeImmutable'],
+     *      'cast' => [
+     *      'string' => 'uppercase',
+     *      \DateTimeImmutable::class => [self::class, 'toDateTimeImmutable'],
      *  ]
      * ])]
-     * class User
-     * {
-     *     use DataModel;
-     *
-     *     public string $first_name;
-     *
-     *     public string $last_name;
-     *
-     *     #[Describe(['cast' => [__CLASS__, 'fullName']])]
-     *     public string $full_name;
-     *
-     *     public DateTimeImmutable $registered;
-     *
-     *     #[Describe('last_name')]
-     *     public function lastName(?string $value, array $context): string
-     *     {
-     *         return strtoupper($value);
-     *     }
-     *
-     *     public static function fullName(null $value, array $context): string
-     *     {
-     *         return "{$context['first_name']} {$context['last_name']}";
-     *     }
-     *
-     *     public static function toDateTimeImmutable(string $value, array $context): DateTimeImmutable
-     *     {
-     *         return new DateTimeImmutable($value);
-     *     }
-     * }
+     * class User {}
      * ```
      *
      * @link https://github.com/zero-to-prod/data-model
