@@ -23,6 +23,7 @@ Transform data into hydrated objects by [describing](#property-level-cast) how t
 - [Required Properties](#required-properties): Throw an exception when a property is not set.
 - [Default Values](#default-values): Set a default property value.
 - [Nullable Missing Values](#nullable-missing-values): Resolve a missing value as null.
+- [Remapping](#re-mapping): Re-map a key to a property of a different name.
 
 ## Installation
 
@@ -121,6 +122,8 @@ The `Describe` attribute can accept these arguments.
 
 ```php
 #[\Zerotoprod\DataModel\Describe([
+    // Re-map a key to a property of a different name
+    'from' => 'key', 
     // Runs before 'cast'
     'pre' => [MyClass::class, 'preHook']
     // Targets the static method: `MyClass::methodName()`
@@ -390,6 +393,28 @@ $User = User::from();
 
 echo $User->name; // null
 echo $User->age;  // null
+```
+
+## Re-Mapping
+
+You can map a key to a property of a different name like this:
+
+```php
+use Zerotoprod\DataModel\Describe;
+
+class User
+{
+    use \Zerotoprod\DataModel\DataModel;
+
+    #[Describe(['from' => 'firstName'])]
+    public string $first_name;
+}
+
+$User = User::from([
+    'firstName' => 'John',
+]);
+
+echo $User->first_name; // John
 ```
 
 ## Examples
