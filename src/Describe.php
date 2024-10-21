@@ -102,6 +102,7 @@ use Attribute;
 #[Attribute]
 class Describe
 {
+    public string $from;
     public string|array $cast;
     public bool $required;
     public mixed $default;
@@ -197,7 +198,7 @@ class Describe
      *  }
      *  ```
      *
-     * @param  string|array{'pre': string|string[], 'cast': string|string[], 'post': string|string[], 'required': bool, 'default': mixed, 'missing_as_null': bool}|null|  $attributes
+     * @param  string|array{'from': string,'pre': string|string[], 'cast': string|string[], 'post': string|string[], 'required': bool, 'default': mixed, 'missing_as_null': bool}|null|  $attributes
      *
      * @link https://github.com/zero-to-prod/data-model
      *
