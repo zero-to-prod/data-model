@@ -229,6 +229,10 @@ trait DataModel
                 if ($Describe->required ?? false) {
                     throw new PropertyRequiredException("Property: $property_name is required");
                 }
+                if (($ClassDescribe->missing_as_null ?? false) || ($Describe->missing_as_null ?? false)) {
+                    $self->{$property_name} = null;
+                    continue;
+                }
                 continue;
             }
 
