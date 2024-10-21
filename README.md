@@ -22,6 +22,7 @@ Transform data into hydrated objects by [describing](#property-level-cast) how t
 - [Transformations](#transformations): Describe how to resolve a value before instantiation.
 - [Required Properties](#required-properties): Throw an exception when a property is not set.
 - [Default Values](#default-values): Set a default property value.
+- [Nullable Missing Values](#nullable-missing-values): Resolve a missing value as null.
 
 ## Installation
 
@@ -124,12 +125,12 @@ The `Describe` attribute can accept these arguments.
     'pre' => [MyClass::class, 'preHook']
     // Targets the static method: `MyClass::methodName()`
     'cast' => [MyClass::class, 'castMethod'], 
-    // alternately target a function
-    // 'cast' => 'my_func', 
+    // 'cast' => 'my_func', // alternately target a function
     // Runs after 'cast' passing the resolved value as `$value`
     'post' => [MyClass::class, 'postHook']
     'required' => true,
-    'default' => 'value'
+    'default' => 'value',
+    'missing_as_null' => true,
 ])]
 ```
 
@@ -362,6 +363,33 @@ class User
 $user = User::from();
 
 echo $user->username // 'N/A'
+```
+
+## Nullable Missing Values
+
+Set missing values to null by setting `missing_as_null => true`. This can be placed at the class or property level.
+
+This prevents an Error when attempting to assess a property that has not been initialized.
+> Error: Typed property User::$age must not be accessed before initialization
+
+```php
+use Zerotoprod\DataModel\Describe;
+
+#[Describe(['missing_as_null' => true])]
+class User
+{
+    use \Zerotoprod\DataModel\DataModel;
+
+    public ?string $name;
+    
+    #[Describe(['missing_as_null' => true])]
+    public ?int $age;
+}
+
+$User = User::from();
+
+echo $User->name; // null
+echo $User->age;  // null
 ```
 
 ## Examples
