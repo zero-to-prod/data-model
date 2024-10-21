@@ -206,16 +206,18 @@ trait DataModel
             $Attribute = ($ReflectionProperty->getAttributes(Describe::class)[0] ?? null);
             /** @var Describe $Describe */
             $Describe = $Attribute?->newInstance();
-            $property_name = $ReflectionProperty->getName();
+            $context_key = $Describe->from ?? $ReflectionProperty->getName();
 
             /** Property-level Pre Hook */
             if (isset($Describe->pre)) {
-                ($Describe->pre)($context[$property_name] ?? [], $context, $Attribute, $ReflectionProperty);
+                ($Describe->pre)($context[$context_key] ?? [], $context, $Attribute, $ReflectionProperty);
             }
+
+            $property_name = $ReflectionProperty->getName();
 
             /** Property-level Cast */
             if (isset($Describe->cast) && $context) {
-                $self->{$property_name} = ($Describe->cast)($context[$property_name] ?? [], $context, $Attribute, $ReflectionProperty);
+                $self->{$property_name} = ($Describe->cast)($context[$context_key] ?? [], $context, $Attribute, $ReflectionProperty);
 
                 /** Property-level Post Hook */
                 if (isset($Describe->post)) {
@@ -227,7 +229,7 @@ trait DataModel
 
             /** Property-level Post Hook */
             if (isset($Describe->post)) {
-                $self->{$property_name} = $context[$property_name];
+                $self->{$property_name} = $context[$context_key];
                 ($Describe->post)($self->{$property_name}, $context, $Attribute, $ReflectionProperty);
                 continue;
             }
@@ -235,12 +237,12 @@ trait DataModel
             /** Method-level Cast */
             if (isset($methods[$property_name]) && $context) {
                 $self->{$property_name} =
-                    $self->{$methods[$property_name]}($context[$property_name] ?? null, $context, $Attribute, $ReflectionProperty);
+                    $self->{$methods[$property_name]}($context[$context_key] ?? null, $context, $Attribute, $ReflectionProperty);
                 continue;
             }
 
             /** When a property name does not match a key name  */
-            if (!array_key_exists($property_name, $context)) {
+            if (!array_key_exists($context_key, $context)) {
                 if ($Describe->default ?? false) {
                     $self->{$property_name} = $Describe->default;
                     continue;
@@ -258,7 +260,7 @@ trait DataModel
             $ReflectionType = $ReflectionProperty->getType();
             /** Assigns value when no type or union type is defined. */
             if (!$ReflectionType || $ReflectionType instanceof ReflectionUnionType) {
-                $self->{$property_name} = $context[$property_name];
+                $self->{$property_name} = $context[$context_key];
                 continue;
             }
 
@@ -266,21 +268,21 @@ trait DataModel
             /** Class-level cast  */
             if ($ClassDescribe?->cast[$property_type] ?? false) {
                 $self->{$property_name} =
-                    $ClassDescribe?->cast[$property_type]($context[$property_name], $context, $ClassDescribeArguments);
+                    $ClassDescribe?->cast[$property_type]($context[$context_key], $context, $ClassDescribeArguments);
                 continue;
             }
 
             /** Call the static method from(). */
             if (is_callable([$property_type, 'from']) && method_exists($property_type, 'from')) {
                 $self->{$property_name} = $property_type::from(
-                    $context[$property_name] instanceof UnitEnum
-                        ? $context[$property_name]->value
-                        : $context[$property_name]
+                    $context[$context_key] instanceof UnitEnum
+                        ? $context[$context_key]->value
+                        : $context[$context_key]
                 );
                 continue;
             }
 
-            $self->{$property_name} = $context[$property_name];
+            $self->{$property_name} = $context[$context_key];
         }
 
         return $self;
