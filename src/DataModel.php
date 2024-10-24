@@ -243,14 +243,14 @@ trait DataModel
 
             /** When a property name does not match a key name  */
             if (!array_key_exists($context_key, $context)) {
-                if ($Describe->default ?? false) {
+                if (isset($Describe->default)) {
                     $self->{$property_name} = $Describe->default;
                     continue;
                 }
-                if ($Describe->required ?? false) {
+                if (isset($Describe->required) && $Describe->required) {
                     throw new PropertyRequiredException("Property: $property_name is required");
                 }
-                if (($ClassDescribe->missing_as_null ?? false) || ($Describe->missing_as_null ?? false)) {
+                if (isset($ClassDescribe->missing_as_null) && $ClassDescribe?->missing_as_null) {
                     $self->{$property_name} = null;
                     continue;
                 }
