@@ -240,7 +240,6 @@ trait DataModel
                     $self->{$methods[$property_name]}($context[$context_key] ?? null, $context, $Attribute, $ReflectionProperty);
                 continue;
             }
-
             /** When a property name does not match a key name  */
             if (!array_key_exists($context_key, $context)) {
                 if (isset($Describe->default)) {
@@ -249,6 +248,10 @@ trait DataModel
                 }
                 if (isset($Describe->required) && $Describe->required) {
                     throw new PropertyRequiredException("Property: $property_name is required");
+                }
+                if (isset($Describe->missing_as_null) && $Describe?->missing_as_null) {
+                    $self->{$property_name} = null;
+                    continue;
                 }
                 if (isset($ClassDescribe->missing_as_null) && $ClassDescribe?->missing_as_null) {
                     $self->{$property_name} = null;

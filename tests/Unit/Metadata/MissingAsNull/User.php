@@ -2,12 +2,13 @@
 
 namespace Tests\Unit\Metadata\MissingAsNull;
 
+use Zerotoprod\DataModel\DataModel;
 use Zerotoprod\DataModel\Describe;
 
 #[Describe(['missing_as_null' => true])]
 class User
 {
-    use \Zerotoprod\DataModel\DataModel;
+    use DataModel;
 
     public ?string $name;
 
