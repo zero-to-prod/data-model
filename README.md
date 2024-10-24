@@ -369,7 +369,7 @@ echo $user->username // 'N/A'
 ```
 
 ### Limitations
-Note that using null as a default will not work: `#[Describe(['default' => null])]`.
+Note that using `null` as a default will not work: `#[Describe(['default' => null])]`.
 
 Use `#[Describe(['missing_as_null' => true])]` to set a null value.
 
@@ -400,7 +400,7 @@ echo $User->name; // null
 echo $User->age;  // null
 ```
 ### Limitations
-Note that using null as a default will not work: `#[Describe(['default' => null])]`.
+Note that using `null` as a default will not work: `#[Describe(['default' => null])]`.
 
 Use `#[Describe(['missing_as_null' => true])]` to set a null value.
 
