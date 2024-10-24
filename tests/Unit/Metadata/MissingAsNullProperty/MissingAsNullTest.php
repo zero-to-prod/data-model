@@ -12,6 +12,7 @@ class MissingAsNullTest extends TestCase
         $User = User::from();
 
         $this->assertNull($User->name);
+        $this->assertEmpty($User->last_name);
         $this->assertEquals(2, $User->age);
     }
 }

@@ -368,6 +368,11 @@ $user = User::from();
 echo $user->username // 'N/A'
 ```
 
+### Limitations
+Note that using null as a default will not work: `#[Describe(['default' => null])]`.
+
+Use `#[Describe(['missing_as_null' => true])]` to set a null value.
+
 ## Nullable Missing Values
 
 Set missing values to null by setting `missing_as_null => true`. This can be placed at the class or property level.
@@ -394,6 +399,10 @@ $User = User::from();
 echo $User->name; // null
 echo $User->age;  // null
 ```
+### Limitations
+Note that using null as a default will not work: `#[Describe(['default' => null])]`.
+
+Use `#[Describe(['missing_as_null' => true])]` to set a null value.
 
 ## Re-Mapping
 
