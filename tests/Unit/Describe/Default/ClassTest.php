@@ -13,4 +13,11 @@ class ClassTest extends TestCase
 
         $this->assertEquals('1', $BaseClass->string);
     }
+
+    #[Test] public function from_boolean(): void
+    {
+        $BaseClass = BaseClass::from();
+
+        $this->assertFalse($BaseClass->bool);
+    }
 }
