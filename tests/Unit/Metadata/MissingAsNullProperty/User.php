@@ -12,6 +12,9 @@ class User
     #[Describe(['missing_as_null' => true])]
     public ?string $name;
 
+    #[Describe(['default' => ''])]
+    public string $last_name;
+
     #[Describe(['default' => 2])]
     public ?int $age;
 }
