@@ -206,6 +206,11 @@ trait DataModel
             $Attribute = ($ReflectionProperty->getAttributes(Describe::class)[0] ?? null);
             /** @var Describe $Describe */
             $Describe = $Attribute?->newInstance();
+
+            if(isset($Describe->ignore) && $Describe->ignore){
+                continue;
+            }
+
             $context_key = $Describe->from ?? $ReflectionProperty->getName();
 
             /** Property-level Pre Hook */
