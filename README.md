@@ -18,7 +18,7 @@ Transform data into hydrated objects by [describing](#property-level-cast) how t
 
 ## Features
 
-- [Simple Interface](#hydrating-from-data): A single entry point to create class instances from associative arrays or objects.
+- [Non-Invasive](#hydrating-from-data): Simply add the DataModel trait to a class. No need to extend, implement, or construct.
 - [Recursive Instantiation](#recursive-hydration): Recursively instantiate classes based on their type.
 - [Type Casting](#property-level-cast): Supports primitives, custom classes, enums, and more.
 - [Life-Cycle Hooks](#life-cycle-hooks): Run methods before and after a value is resolved with [pre](#pre-hook) and [post](#post-hook).
@@ -67,12 +67,12 @@ class User
 Use the `from` method to instantiate your class, passing an associative array or object.
 
 ```php
-$user = User::from([
+$User = User::from([
     'name' => 'John Doe',
     'age' => '30',
 ]);
-echo $user->name; // 'John Doe'
-echo $user->age; // 30
+echo $User->name; // 'John Doe'
+echo $User->age; // 30
 ```
 
 ### Recursive Hydration
@@ -81,7 +81,7 @@ The `DataModel` trait recursively instantiates classes based on their type decla
 If a property’s type hint is a class, its value is passed to that class’s `from()` method.
 
 In this example, the `address` element is automatically converted into an `Address` object,
-allowing direct access to its properties: `$user->address->city`.
+allowing direct access to its properties: `$User->address->city`.
 
 ```php
 class Address
@@ -100,7 +100,7 @@ class User
     public Address $address;
 }
 
-$user = User::from([
+$User = User::from([
     'username' => 'John Doe',
     'address' => [
         'street' => '123 Main St',
@@ -108,7 +108,7 @@ $user = User::from([
     ],
 ]);
 
-echo $user->address->city; // Outputs: Hometown
+echo $User->address->city; // Outputs: Hometown
 ```
 
 ## Transformations
@@ -125,6 +125,7 @@ The `Describe` attribute can accept these arguments.
 
 ```php
 #[\Zerotoprod\DataModel\Describe([
+    'ignore' => true
     // Re-map a key to a property of a different name
     'from' => 'key', 
     // Runs before 'cast'
@@ -186,14 +187,14 @@ function uppercase(mixed $value, array $context){
     return strtoupper($value);
 }
 
-$user = User::from([
+$User = User::from([
     'first_name' => 'Jane',
     'last_name' => 'Doe',
 ]);
 
-$user->first_name;  // 'JANE'
-$user->last_name;   // 'DOE'
-$user->full_name;   // 'Jane Doe'
+$User->first_name;  // 'JANE'
+$User->last_name;   // 'DOE'
+$User->full_name;   // 'Jane Doe'
 ```
 
 #### Life-Cycle Hooks
@@ -276,14 +277,14 @@ class User
     }
 }
 
-$user = User::from([
+$User = User::from([
     'first_name' => 'Jane',
     'last_name' => 'Doe',
 ]);
 
-$user->first_name;  // 'Jane'
-$user->last_name;   // 'DOE'
-$user->fullName;    // 'Jane Doe'
+$User->first_name;  // 'Jane'
+$User->last_name;   // 'DOE'
+$User->fullName;    // 'Jane Doe'
 ```
 
 ### Union Types
@@ -321,13 +322,13 @@ class User
     }
 }
 
-$user = User::from([
+$User = User::from([
     'first_name' => 'Jane',
     'registered' => '2015-10-04 17:24:43.000000',
 ]);
 
-$user->first_name;              // 'JANE'
-$user->registered->format('l'); // 'Sunday'
+$User->first_name;              // 'JANE'
+$User->registered->format('l'); // 'Sunday'
 ```
 
 ## Required Properties
@@ -347,7 +348,7 @@ class User
     public string $email;
 }
 
-$user = User::from(['email' => 'john@example.com']);
+User::from(['email' => 'john@example.com']);
 // Throws PropertyRequiredException exception: Property: username is required
 ```
 
@@ -366,9 +367,9 @@ class User
     public string $username;
 }
 
-$user = User::from();
+$User = User::from();
 
-echo $user->username // 'N/A'
+echo $User->username // 'N/A'
 ```
 
 ### Limitations
@@ -430,6 +431,43 @@ $User = User::from([
 ]);
 
 echo $User->first_name; // John
+```
+
+## Ignoring Properties
+
+You can ignore a property like this:
+
+```php
+use Zerotoprod\DataModel\Describe;
+
+class User
+{
+    use \Zerotoprod\DataModel\DataModel;
+
+    public string $name;
+
+    #[Describe(['ignore' => true])]
+    public int $age;
+}
+```
+
+```php
+use Zerotoprod\DataModel\Describe;
+
+class User
+{
+    use \Zerotoprod\DataModel\DataModel;
+
+    #[Describe(['from' => 'firstName'])]
+    public string $first_name;
+}
+
+$User = User::from([
+    'name' => 'John Doe',
+    'age' => '30',
+]);
+
+isset($User->age); // false
 ```
 
 ## Examples
