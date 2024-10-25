@@ -247,7 +247,23 @@ trait DataModel
                     continue;
                 }
                 if (isset($Describe->required) && $Describe->required) {
-                    throw new PropertyRequiredException("Property: $property_name is required");
+                    $lineNumber = static function (string $filename, string $property_name): ?int {
+                        foreach (file($filename) as $line_number => $content) {
+                            if (preg_match("/\\$$property_name/", $content)) {
+                                return $line_number + 1;
+                            }
+                        }
+
+                        return null;
+                    };
+                    throw new PropertyRequiredException(
+                        sprintf(
+                            "Property `$%s` is required.\n%s:%d",
+                            $property_name,
+                            $ReflectionClass->getFileName(),
+                            $lineNumber($ReflectionClass->getFileName(), $property_name),
+                        )
+                    );
                 }
                 if (isset($Describe->missing_as_null) && $Describe?->missing_as_null) {
                     $self->{$property_name} = null;
