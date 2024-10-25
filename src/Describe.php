@@ -109,6 +109,7 @@ class Describe
     public mixed $pre;
     public mixed $post;
     public bool $missing_as_null;
+    public bool $ignore;
 
     /**
      *  Pass an associative array to the constructor to describe the behavior of a property when it is resolved.
@@ -198,7 +199,7 @@ class Describe
      *  }
      *  ```
      *
-     * @param  string|array{'from': string,'pre': string|string[], 'cast': string|string[], 'post': string|string[], 'required': bool, 'default': mixed, 'missing_as_null': bool}|null|  $attributes
+     * @param  string|array{'from': string,'pre': string|string[], 'cast': string|string[], 'post': string|string[], 'required': bool, 'default': mixed, 'missing_as_null': bool, 'ignore': bool}|null  $attributes
      *
      * @link https://github.com/zero-to-prod/data-model
      *
