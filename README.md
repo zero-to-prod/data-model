@@ -27,6 +27,7 @@ Transform data into hydrated objects by [describing](#property-level-cast) how t
 - [Default Values](#default-values): Set a default property value.
 - [Nullable Missing Values](#nullable-missing-values): Resolve a missing value as null.
 - [Remapping](#re-mapping): Re-map a key to a property of a different name.
+- [Ignoring Properties](#ignoring-properties): Ignore a resolving a property.
 
 ## Installation
 
