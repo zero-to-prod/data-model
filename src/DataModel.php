@@ -207,7 +207,7 @@ trait DataModel
             /** @var Describe $Describe */
             $Describe = $Attribute?->newInstance();
 
-            if(isset($Describe->ignore) && $Describe->ignore){
+            if (isset($Describe->ignore) && $Describe->ignore) {
                 continue;
             }
 
@@ -219,6 +219,16 @@ trait DataModel
             }
 
             $property_name = $ReflectionProperty->getName();
+
+            if (isset($Describe->default) && !isset($context[$context_key])) {
+                $self->{$property_name} = $Describe->default;
+
+                if (isset($Describe->post)) {
+                    ($Describe->post)($self->{$property_name}, $context, $Attribute, $ReflectionProperty);
+                }
+
+                continue;
+            }
 
             /** Property-level Cast */
             if (isset($Describe->cast) && $context) {
@@ -245,12 +255,9 @@ trait DataModel
                     $self->{$methods[$property_name]}($context[$context_key] ?? null, $context, $Attribute, $ReflectionProperty);
                 continue;
             }
+
             /** When a property name does not match a key name  */
-            if (!array_key_exists($context_key, $context)) {
-                if (isset($Describe->default)) {
-                    $self->{$property_name} = $Describe->default;
-                    continue;
-                }
+            if (!isset($context[$context_key])) {
                 if (isset($Describe->required) && $Describe->required) {
                     $lineNumber = static function (string $filename, string $property_name): ?int {
                         foreach (file($filename) as $line_number => $content) {
@@ -258,8 +265,9 @@ trait DataModel
                                 return $line_number + 1;
                             }
                         }
-
+                        // @codeCoverageIgnoreStart
                         return null;
+                        // @codeCoverageIgnoreEnd
                     };
                     throw new PropertyRequiredException(
                         sprintf(
