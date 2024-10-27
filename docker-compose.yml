@@ -13,6 +13,7 @@ services:
       target: debug
     volumes:
       - ./:/app
+      - ./docker/php81:/usr/local/etc/php
 
   php81composer:
     build:
@@ -20,7 +21,6 @@ services:
       target: composer
     volumes:
       - ./:/app
-      - ./docker/php81:/usr/local/etc/php
 
   php82:
     build:
@@ -36,6 +36,7 @@ services:
       target: debug
     volumes:
       - ./:/app
+      - ./docker/php82:/usr/local/etc/php
 
   php82composer:
     build:
@@ -43,7 +44,6 @@ services:
       target: composer
     volumes:
       - ./:/app
-      - ./docker/php82:/usr/local/etc/php
 
   php83:
     build:
@@ -59,6 +59,7 @@ services:
       target: debug
     volumes:
       - ./:/app
+      - ./docker/php82:/usr/local/etc/php
 
   php83composer:
     build:
@@ -66,4 +67,3 @@ services:
       target: composer
     volumes:
       - ./:/app
-      - ./docker/php83:/usr/local/etc/php

@@ -105,9 +105,9 @@ class Describe
     public string $from;
     public string|array $cast;
     public bool $required;
-    public mixed $default;
-    public mixed $pre;
-    public mixed $post;
+    public $default;
+    public $pre;
+    public $post;
     public bool $missing_as_null;
     public bool $ignore;
 
