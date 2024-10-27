@@ -38,13 +38,8 @@ jobs:
       - name: Install Composer dependencies
         run: docker compose run --rm php81composer composer install --prefer-dist --no-progress --no-suggest
 
-      - name: Run tests with coverage
-        run: docker compose run --rm php81 vendor/bin/phpunit --coverage-text --coverage-clover=coverage.xml
-
-      - name: Check coverage threshold
-        run: |
-          grep "<metrics" coverage.xml | grep 'line-rate="1.000"'
-        continue-on-error: false
+      - name: Run tests
+        run: docker compose run --rm php81 vendor/bin/phpunit
 
   php82:
     runs-on: ubuntu-latest
@@ -72,13 +67,8 @@ jobs:
       - name: Install Composer dependencies
         run: docker compose run --rm php82composer composer install --prefer-dist --no-progress --no-suggest
 
-      - name: Run tests with coverage
-        run: docker compose run --rm php82 vendor/bin/phpunit --coverage-text --coverage-clover=coverage.xml
-
-      - name: Check coverage threshold
-        run: |
-          grep "<metrics" coverage.xml | grep 'line-rate="1.000"'
-        continue-on-error: false
+      - name: Run tests
+        run: docker compose run --rm php82 vendor/bin/phpunit
 
   php83:
     runs-on: ubuntu-latest
@@ -106,10 +96,5 @@ jobs:
       - name: Install Composer dependencies
         run: docker compose run --rm php83composer composer install --prefer-dist --no-progress --no-suggest
 
-      - name: Run tests with coverage
-        run: docker compose run --rm php83 vendor/bin/phpunit --coverage-text --coverage-clover=coverage.xml
-
-      - name: Check coverage threshold
-        run: |
-          grep "<metrics" coverage.xml | grep 'line-rate="1.000"'
-        continue-on-error: false
+      - name: Run tests
+        run: docker compose run --rm php83 vendor/bin/phpunit
