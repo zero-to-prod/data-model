@@ -9,15 +9,15 @@
 [![Packagist Version](https://img.shields.io/packagist/v/zero-to-prod/data-model?color=f28d1a)](https://packagist.org/packages/zero-to-prod/data-model)
 [![License](https://img.shields.io/packagist/l/zero-to-prod/data-model?color=pink)](https://github.com/zero-to-prod/data-model/blob/main/LICENSE.md)
 
-Simplify deserialization for your DTOs.
+Simplify deserialization using type-safe DTOs.
 
-Use [PHP Attributes](https://www.php.net/manual/en/language.attributes.overview.php) to resolve
-and map values to properties on a class.
+Use [PHP Attributes](https://www.php.net/manual/en/language.attributes.overview.php) to resolve and map values to properties on a class.
 
 Transform data into hydrated objects by [describing](#property-level-cast) how to resolve values.
 
 ## Features
 
+- [Type-Safe](#recursive-hydration): Type-safety is enforced by the PHP language itself. No need to validate a type.
 - [Non-Invasive](#hydrating-from-data): Simply add the DataModel trait to a class. No need to extend, implement, or construct.
 - [Recursive Instantiation](#recursive-hydration): Recursively instantiate classes based on their type.
 - [Type Casting](#property-level-cast): Supports primitives, custom classes, enums, and more.
