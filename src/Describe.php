@@ -102,6 +102,7 @@ use Attribute;
 #[Attribute]
 class Describe
 {
+    public const missing_as_null = 'missing_as_null';
     public string $from;
     public string|array $cast;
     public bool $required;
@@ -212,6 +213,9 @@ class Describe
         if (is_countable($attributes)) {
             foreach ($attributes as $key => $value) {
                 if (property_exists($this, $key)) {
+                    if($key === self::missing_as_null && !is_bool($value)) {
+                        throw new InvalidValue(sprintf("Invalid value: `%s` should be a boolean.", self::missing_as_null));
+                    }
                     $this->$key = $value;
                 }
             }
