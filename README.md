@@ -15,13 +15,13 @@ A `DataModel` provides a lightweight, non-invasive way to hydrate type-safe PHP 
 
 - **Simplify Object Hydration**: No more manual assignment of properties or repetitive boilerplate code. A `DataModel` automates the process, 
 ensuring your objects are populated correctly based on their type declarations.
-- **Enhance Type Safety**: Type safety is enforced by PHP itself. With a `DataModel`, you can trust that your objects contain the expected types without 
+- **Ensure Type Safety**: Type safety is enforced by PHP itself. With a `DataModel`, you can trust that your objects contain the expected types without 
 extra validation.
-- **Reduce Defensive Programming**: Instead of writing defensive code to check and sanitize inputs, a `DataModel` allows you to define how each property 
-should be resolved using the `#[Describe()]` attribute. This leads to more predictable and reliable code.
+- **Reduce Defensive Programming**: Instead of writing defensive code to check and sanitize your data, a `DataModel` allows you to define how each property 
+should be resolved before the object is hydrated.
 - **Flexible Value Resolution**: With the `#[Describe()]` attribute, you control how values are resolved for each property, including transformations, 
 default values, and custom casting. This ensures that your data model behaves exactly as you intend.
-- **Non-Invasive Integration**: Simply add the DataModel trait to your classes. There’s no need to extend base classes or implement interfaces, keeping 
+- **Non-Invasive Integration**: Simply add the `DataModel` trait to your classes. There’s no need to extend base classes or implement interfaces, keeping 
 your class hierarchy clean.
 
 ### How It Works
