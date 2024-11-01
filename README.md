@@ -9,11 +9,45 @@
 [![Packagist Version](https://img.shields.io/packagist/v/zero-to-prod/data-model?color=f28d1a)](https://packagist.org/packages/zero-to-prod/data-model)
 [![License](https://img.shields.io/packagist/l/zero-to-prod/data-model?color=pink)](https://github.com/zero-to-prod/data-model/blob/main/LICENSE.md)
 
-Simplify deserialization using type-safe DTOs.
+## Introduction
 
-Use [PHP Attributes](https://www.php.net/manual/en/language.attributes.overview.php) to resolve and map values to properties on a class.
+A `DataModel` provides a lightweight, non-invasive way to hydrate PHP objects recursively. 
+By leveraging PHP’s type system and attributes, it enables developers to instantiate type-safe objects effortlessly by resolving values at runtime.
 
-Transform data into hydrated objects by [describing](#property-level-cast) how to resolve values.
+### Why Use DataModel?
+
+- **Simplify Object Hydration**: No more manual assignment of properties or repetitive boilerplate code. A `DataModel` automates the process, 
+ensuring your objects are populated correctly based on their type declarations.
+- **Enhance Type Safety**: Type safety is enforced by PHP itself. With a `DataModel`, you can trust that your objects contain the expected types without 
+extra validation.
+- **Reduce Defensive Programming**: Instead of writing defensive code to check and sanitize inputs, a `DataModel` allows you to define how each property 
+should be resolved using the `#[Describe()]` attribute. This leads to more predictable and reliable code.
+- **Flexible Value Resolution**: With the `#[Describe()]` attribute, you control how values are resolved for each property, including transformations, 
+default values, and custom casting. This ensures that your data model behaves exactly as you intend.
+- **Non-Invasive Integration**: Simply add the DataModel trait to your classes. There’s no need to extend base classes or implement interfaces, keeping 
+your class hierarchy clean.
+
+### How It Works
+
+At its core, a `DataModel` uses reflection and PHP attributes to hydrate your objects. When you use the `from()` method, it recursively instantiates 
+classes based on their type hints, resolving values according to the rules you define.
+
+By using the `#[Describe()]` attribute, you can specify:
+
+- **Transformations**: Define how to convert input data before assigning it to a property.
+- **Life-Cycle Hooks**: Run methods before and after a value is resolved.
+- **Default Values** and Required Properties: Ensure properties have sensible defaults or enforce their presence.
+- **Type Casting**: Handle primitives, custom classes, enums, and more.
+
+This approach leads to code that’s easier to maintain and less prone to errors, as it centralizes value resolution logic within your data models.
+
+### Better Than Defensive Programming
+
+Traditional defensive programming requires you to scatter validation and type-checking throughout your code, leading to verbosity and potential
+oversights. With a **DataModel**, you define value resolution logic once, using the `#[Describe()]` attribute, and let the trait handle the rest.
+
+This method reduces boilerplate, minimizes the risk of missing checks, and results in cleaner, more readable code. It shifts the focus from defensive
+checks to declarative definitions, improving both development speed and code quality.
 
 ## Features
 
@@ -78,7 +112,7 @@ echo $User->age; // 30
 
 ### Recursive Hydration
 
-The `DataModel` trait recursively instantiates classes based on their type declarations.
+A `DataModel` recursively instantiates classes based on their type declarations.
 If a property’s type hint is a class, its value is passed to that class’s `from()` method.
 
 In this example, the `address` element is automatically converted into an `Address` object,
@@ -114,7 +148,7 @@ echo $User->address->city; // Outputs: Hometown
 
 ## Transformations
 
-The `DataModel` trait provides a variety of ways to transform data before the value is assigned to a property.
+A `DataModel` provides a variety of ways to transform data before the value is assigned to a property.
 
 The `Describe` attribute provides a declarative way describe how property values are resolved.
 
