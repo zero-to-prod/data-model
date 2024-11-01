@@ -9,8 +9,7 @@
 [![Packagist Version](https://img.shields.io/packagist/v/zero-to-prod/data-model?color=f28d1a)](https://packagist.org/packages/zero-to-prod/data-model)
 [![License](https://img.shields.io/packagist/l/zero-to-prod/data-model?color=pink)](https://github.com/zero-to-prod/data-model/blob/main/LICENSE.md)
 
-A `DataModel` provides a lightweight, non-invasive way to hydrate PHP objects recursively. 
-By leveraging PHP’s type system and attributes, you can instantiate type-safe objects effortlessly by resolving values at runtime.
+A `DataModel` provides a lightweight, non-invasive way to hydrate type-safe PHP objects recursively.
 
 ### Why Use DataModel?
 
