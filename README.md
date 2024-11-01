@@ -36,12 +36,12 @@ By using the `#[Describe()]` attribute, you can specify:
 - **Default Values** and Required Properties: Ensure properties have sensible defaults or enforce their presence.
 - **Type Casting**: Handle primitives, custom classes, enums, and more.
 
-This approach leads to code that’s easier to maintain and less prone to errors, as it centralizes value resolution logic within your data models.
+This approach allows you to centralize value resolution upstream of your business logic, drastically reducing downstream checks.
 
 ### Better Than Defensive Programming
 
 Traditional defensive programming requires you to scatter validation and type-checking throughout your code, leading to verbosity and potential
-oversights. With a **DataModel**, you define value resolution logic once, using the `#[Describe()]` attribute, and let the trait handle the rest.
+oversights. With a **DataModel**, you define value resolution logic once, using the `#[Describe()]` attribute.
 
 This method reduces boilerplate, minimizes the risk of missing checks, and results in cleaner, more readable code. It shifts the focus from defensive
 checks to declarative definitions, improving both development speed and code quality.
