@@ -19,4 +19,11 @@ class StringTest extends TestCase
         $this->assertEquals('1', $BaseClass->string);
         $this->assertEquals('1.1', $BaseClass->Child->string);
     }
+
+    #[Test] public function passes_string(): void
+    {
+        $BaseClass = BaseClass::from('user');
+
+        $this->assertInstanceOf(BaseClass::class, $BaseClass);
+    }
 }

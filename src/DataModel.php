@@ -142,15 +142,20 @@ trait DataModel
      * @see  https://github.com/zero-to-prod/data-model-factory
      * @see  https://github.com/zero-to-prod/transformable
      *
-     * @param  iterable|object|null  $context  Data to populate the instance.
+     * @param  iterable|object|null|string  $context  Data to populate the instance.
      */
-    public static function from(iterable|object|null $context = []): self
+    public static function from(iterable|object|null|string $context = []): self
     {
         if ($context instanceof self) {
             return $context;
         }
 
         $self = new self();
+
+        if (is_string($context)) {
+            return $self;
+        }
+
         $ReflectionClass = new ReflectionClass($self);
         /** Get Describe Attribute on class. */
         /** @var ReflectionAttribute $ClassAttribute */
@@ -265,6 +270,7 @@ trait DataModel
                                 return $line_number + 1;
                             }
                         }
+
                         // @codeCoverageIgnoreStart
                         return null;
                         // @codeCoverageIgnoreEnd
