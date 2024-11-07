@@ -157,7 +157,7 @@ The `Describe` attribute can accept these arguments.
 
 ```php
 #[\Zerotoprod\DataModel\Describe([
-    'ignore' => true
+    'ignore' // ignores a property
     // Re-map a key to a property of a different name
     'from' => 'key', 
     // Runs before 'cast'
@@ -167,9 +167,9 @@ The `Describe` attribute can accept these arguments.
     // 'cast' => 'my_func', // alternately target a function
     // Runs after 'cast' passing the resolved value as `$value`
     'post' => [MyClass::class, 'postHook']
-    'required' => true,
     'default' => 'value',
-    'missing_as_null' => true,
+    'required', // Throws an exception if the element is missing
+    'missing_as_null', // sets the value to null if the element is missing
 ])]
 ```
 
