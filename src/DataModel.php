@@ -30,16 +30,19 @@ use UnitEnum;
  * Property-Level
  * ```
  * #[\Zerotoprod\DataModel\Describe([
+ *  'ignore' // ignores a property
+ *  // Re-map a key to a property of a different name
+ *  'from' => 'key',
  *  // Runs before 'cast'
  *  'pre' => [MyClass::class, 'preHook']
  *  // Targets the static method: `MyClass::methodName()`
  *  'cast' => [MyClass::class, 'castMethod'],
- *  // alternately target a function
- *  // 'cast' => 'my_func',
+ *  // 'cast' => 'my_func', // alternately target a function
  *  // Runs after 'cast' passing the resolved value as `$value`
  *  'post' => [MyClass::class, 'postHook']
- *  'required' => true,
- *  'default' => 'value'
+ *  'default' => 'value',
+ *  'required', // Throws an exception if the element is missing
+ *  'missing_as_null', // sets the value to null if the element is missing
  * ])]
  * public string $property;
  * ```
@@ -98,16 +101,19 @@ trait DataModel
      * Property-Level
      * ```
      * #[\Zerotoprod\DataModel\Describe([
+     *  'ignore' // ignores a property
+     *  // Re-map a key to a property of a different name
+     *  'from' => 'key',
      *  // Runs before 'cast'
      *  'pre' => [MyClass::class, 'preHook']
      *  // Targets the static method: `MyClass::methodName()`
      *  'cast' => [MyClass::class, 'castMethod'],
-     *  // alternately target a function
-     *  // 'cast' => 'my_func',
+     *  // 'cast' => 'my_func', // alternately target a function
      *  // Runs after 'cast' passing the resolved value as `$value`
      *  'post' => [MyClass::class, 'postHook']
-     *  'required' => true,
-     *  'default' => 'value'
+     *  'default' => 'value',
+     *  'required', // Throws an exception if the element is missing
+     *  'missing_as_null', // sets the value to null if the element is missing
      * ])]
      * public string $property;
      * ```

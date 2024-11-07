@@ -12,7 +12,7 @@ class BaseClass
     public const true = 'true';
     public const false = 'false';
 
-    #[Describe(['missing_as_null' => true])]
+    #[Describe(['missing_as_null'])]
     public ?string $true;
 
     #[Describe(['missing_as_null' => false])]
