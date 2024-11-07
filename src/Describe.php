@@ -103,13 +103,23 @@ use Attribute;
 class Describe
 {
     public const missing_as_null = 'missing_as_null';
+    public const required = 'required';
+    public const ignore = 'ignore';
+
     public string $from;
+
     public string|array $cast;
+
     public bool $required;
+
     public $default;
+
     public $pre;
+
     public $post;
+
     public bool $missing_as_null;
+
     public bool $ignore;
 
     /**
@@ -200,7 +210,8 @@ class Describe
      *  }
      *  ```
      *
-     * @param  string|array{'from': string,'pre': string|string[], 'cast': string|string[], 'post': string|string[], 'required': bool, 'default': mixed, 'missing_as_null': bool, 'ignore': bool}|null  $attributes
+     * @param  string|array{'from': string,'pre': string|string[], 'cast': string|string[], 'post': string|string[], 'required': bool, 'default': mixed, 'missing_as_null': bool,
+     *                                            'ignore': bool}|null  $attributes
      *
      * @link https://github.com/zero-to-prod/data-model
      *
@@ -213,10 +224,33 @@ class Describe
         if (is_countable($attributes)) {
             foreach ($attributes as $key => $value) {
                 if (property_exists($this, $key)) {
-                    if($key === self::missing_as_null && !is_bool($value)) {
+                    if ($key === self::missing_as_null && !is_bool($value)) {
                         throw new InvalidValue(sprintf("Invalid value: `%s` should be a boolean.", self::missing_as_null));
                     }
+
+                    if ($key === self::required && !is_bool($value)) {
+                        throw new InvalidValue(sprintf("Invalid value: `%s` should be a boolean.", self::required));
+                    }
+
+                    if ($key === self::ignore && !is_bool($value)) {
+                        throw new InvalidValue(sprintf("Invalid value: `%s` should be a boolean.", self::ignore));
+                    }
+
                     $this->$key = $value;
+                    continue;
+                }
+                if (property_exists($this, $value) && $key === 0) {
+                    if ($value === self::required) {
+                        $this->$value = true;
+                    }
+
+                    if ($value === self::missing_as_null) {
+                        $this->$value = true;
+                    }
+
+                    if ($value === self::ignore) {
+                        $this->$value = true;
+                    }
                 }
             }
         }
