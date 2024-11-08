@@ -24,6 +24,26 @@ default values, and custom casting. This ensures that your data model behaves ex
 - **Non-Invasive Integration**: Simply add the `DataModel` trait to your classes. There’s no need to extend base classes or implement interfaces, keeping 
 your class hierarchy clean.
 
+## Features
+
+- [Type-Safe](#recursive-hydration): Type-safety is enforced by the PHP language itself. No need to validate a type.
+- [Non-Invasive](#hydrating-from-data): Simply add the DataModel trait to a class. No need to extend, implement, or construct.
+- [Recursive Instantiation](#recursive-hydration): Recursively instantiate classes based on their type.
+- [Type Casting](#property-level-cast): Supports primitives, custom classes, enums, and more.
+- [Life-Cycle Hooks](#life-cycle-hooks): Run methods before and after a value is resolved with [pre](#pre-hook) and [post](#post-hook).
+- [Transformations](#transformations): Describe how to resolve a value before instantiation.
+- [Required Properties](#required-properties): Throw an exception when a property is not set.
+- [Default Values](#default-values): Set a default property value.
+- [Nullable Missing Values](#nullable-missing-values): Resolve a missing value as null.
+- [Remapping](#re-mapping): Re-map a key to a property of a different name.
+- [Ignoring Properties](#ignoring-properties): Ignore a resolving a property.
+
+## Examples
+
+- [Array of DataModels](#array-of-datamodels)
+- [Collection of DataModels](#collection-of-datamodels)
+- [Laravel Validation](#laravel-validation)
+
 ### How It Works
 
 At its core, a `DataModel` uses reflection and PHP attributes to hydrate your objects. When you use the `from()` method, it recursively instantiates 
@@ -46,20 +66,6 @@ oversights. With a **DataModel**, you define value resolution logic once, using 
 This method reduces boilerplate, minimizes the risk of missing checks, and results in cleaner, more readable code. It shifts the focus from defensive
 checks to declarative definitions, improving both development speed and code quality.
 
-## Features
-
-- [Type-Safe](#recursive-hydration): Type-safety is enforced by the PHP language itself. No need to validate a type.
-- [Non-Invasive](#hydrating-from-data): Simply add the DataModel trait to a class. No need to extend, implement, or construct.
-- [Recursive Instantiation](#recursive-hydration): Recursively instantiate classes based on their type.
-- [Type Casting](#property-level-cast): Supports primitives, custom classes, enums, and more.
-- [Life-Cycle Hooks](#life-cycle-hooks): Run methods before and after a value is resolved with [pre](#pre-hook) and [post](#post-hook).
-- [Transformations](#transformations): Describe how to resolve a value before instantiation.
-- [Required Properties](#required-properties): Throw an exception when a property is not set.
-- [Default Values](#default-values): Set a default property value.
-- [Nullable Missing Values](#nullable-missing-values): Resolve a missing value as null.
-- [Remapping](#re-mapping): Re-map a key to a property of a different name.
-- [Ignoring Properties](#ignoring-properties): Ignore a resolving a property.
-
 ## Installation
 
 You can install the package via Composer:
@@ -67,12 +73,6 @@ You can install the package via Composer:
 ```bash
 composer require zero-to-prod/data-model
 ```
-
-### Examples
-
-- [Array of DataModels](#array-of-datamodels)
-- [Collection of DataModels](#collection-of-datamodels)
-- [Laravel Validation](#laravel-validation)
 
 ### Additional Packages
 
