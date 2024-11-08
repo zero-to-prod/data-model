@@ -239,7 +239,7 @@ class Describe
                     $this->$key = $value;
                     continue;
                 }
-                if (property_exists($this, $value) && $key === 0) {
+                if (is_string($value) && property_exists($this, $value) && $key === 0) {
                     if ($value === self::required) {
                         $this->$value = true;
                     }
