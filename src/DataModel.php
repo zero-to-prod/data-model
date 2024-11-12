@@ -242,7 +242,7 @@ trait DataModel
             }
 
             /** Property-level Cast */
-            if (isset($Describe->cast) && $context) {
+            if (isset($Describe->cast)) {
                 $self->{$property_name} = ($Describe->cast)($context[$context_key] ?? [], $context, $Attribute, $ReflectionProperty);
 
                 /** Property-level Post Hook */
