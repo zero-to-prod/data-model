@@ -68,6 +68,7 @@ checks to declarative definitions, improving both development speed and code qua
 
 ## Showcase
 Projects that use DataModels:
+- [DataModels for OpenAPI 3.0.*](https://github.com/zero-to-prod/data-model-openapi30)
 - [DataModels for the Envoyer API.](https://github.com/zero-to-prod/data-model-envoyer)
 
 ## Installation
