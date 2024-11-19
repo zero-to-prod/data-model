@@ -66,6 +66,10 @@ oversights. With a **DataModel**, you define value resolution logic once, using 
 This method reduces boilerplate, minimizes the risk of missing checks, and results in cleaner, more readable code. It shifts the focus from defensive
 checks to declarative definitions, improving both development speed and code quality.
 
+## Showcase
+Projects that use DataModels:
+- [DataModels for the Envoyer API.](https://github.com/zero-to-prod/data-model-envoyer)
+
 ## Installation
 
 You can install the package via Composer:
