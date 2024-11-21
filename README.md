@@ -21,8 +21,7 @@ A `DataModel` provides a lightweight, non-invasive way to hydrate type-safe PHP 
   before the object is hydrated. This eliminates the need for downstream defensive programming.
 - **Flexible Value Resolution**: With the `#[Describe()]`
   [attribute](https://www.php.net/manual/en/language.attributes.overview.php), you control how values are
-  resolved for each property, including transformations, default values, and custom casting. This ensures
-  that your data model behaves exactly as you intend.
+  resolved for each property, including transformations, default values, and custom casting.
 - **Non-Invasive Integration**: Simply add the `DataModel` trait to your classes. There’s no need to
   extend base classes or implement interfaces, keeping your class hierarchy clean.
 
