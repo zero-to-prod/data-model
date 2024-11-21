@@ -13,21 +13,23 @@ A `DataModel` provides a lightweight, non-invasive way to hydrate type-safe PHP 
 
 ### Why Use DataModel?
 
-- **Simplify Object Hydration**: No more manual assignment of properties or repetitive boilerplate code. A `DataModel` automates the process, 
-ensuring your objects are populated correctly based on their type declarations.
-- **Ensure Type Safety**: Type safety is enforced by PHP itself. With a `DataModel`, you can trust that your objects contain the expected types without 
-extra validation.
-- **Reduce Defensive Programming**: Instead of writing defensive code to check and sanitize your data, a `DataModel` allows you to define how each property 
-should be resolved before the object is hydrated.
-- **Flexible Value Resolution**: With the `#[Describe()]` attribute, you control how values are resolved for each property, including transformations, 
-default values, and custom casting. This ensures that your data model behaves exactly as you intend.
-- **Non-Invasive Integration**: Simply add the `DataModel` trait to your classes. There’s no need to extend base classes or implement interfaces, keeping 
-your class hierarchy clean.
+- **Simplify Object Hydration**: A `DataModel` automates the process of resolving and assigning values to
+  properties, ensuring your objects are populated correctly based on their type declarations.
+- **Ensure Type Safety**: Type safety is enforced by PHP itself. With a `DataModel`, you can trust that
+  your objects contain the expected types without extra validation.
+- **Reduce Defensive Programming**: a `DataModel` allows you to define how each property should be resolved 
+  before the object is hydrated. This eliminates the need for downstream defensive programming.
+- **Flexible Value Resolution**: With the `#[Describe()]`
+  [attribute](https://www.php.net/manual/en/language.attributes.overview.php), you control how values are
+  resolved for each property, including transformations, default values, and custom casting. This ensures
+  that your data model behaves exactly as you intend.
+- **Non-Invasive Integration**: Simply add the `DataModel` trait to your classes. There’s no need to
+  extend base classes or implement interfaces, keeping your class hierarchy clean.
 
 ## Features
 
-- [Type-Safe](#recursive-hydration): Type-safety is enforced by the PHP language itself. No need to validate a type.
-- [Non-Invasive](#hydrating-from-data): Simply add the DataModel trait to a class. No need to extend, implement, or construct.
+- [Type-Safe](#recursive-hydration): Type-safety is enforced by the PHP language itself.
+- [Non-Invasive](#hydrating-from-data): Simply add the `DataModel` trait to a class. No need to extend, implement, or construct.
 - [Recursive Instantiation](#recursive-hydration): Recursively instantiate classes based on their type.
 - [Type Casting](#property-level-cast): Supports primitives, custom classes, enums, and more.
 - [Life-Cycle Hooks](#life-cycle-hooks): Run methods before and after a value is resolved with [pre](#pre-hook) and [post](#post-hook).
@@ -46,7 +48,7 @@ your class hierarchy clean.
 
 ### How It Works
 
-At its core, a `DataModel` uses reflection and PHP attributes to hydrate your objects. When you use the `from()` method, it recursively instantiates 
+At its core, a `DataModel` uses reflection and PHP attributes to hydrate your objects. When you use the `from()` method, it recursively instantiates
 classes based on their type hints, resolving values according to the rules you define.
 
 By using the `#[Describe()]` attribute, you can specify:
@@ -61,13 +63,15 @@ This approach allows you to centralize value resolution upstream of your busines
 ### Better Than Defensive Programming
 
 Traditional defensive programming requires you to scatter validation and type-checking throughout your code, leading to verbosity and potential
-oversights. With a **DataModel**, you define value resolution logic once, using the `#[Describe()]` attribute.
+oversights. With a `DataModel`, you define value resolution logic once, using the `#[Describe()]` attribute.
 
 This method reduces boilerplate, minimizes the risk of missing checks, and results in cleaner, more readable code. It shifts the focus from defensive
 checks to declarative definitions, improving both development speed and code quality.
 
 ## Showcase
+
 Projects that use DataModels:
+
 - [DataModels for OpenAPI 3.0.*](https://github.com/zero-to-prod/data-model-openapi30)
 - [DataModels for the Envoyer API.](https://github.com/zero-to-prod/data-model-envoyer)
 
