@@ -4,12 +4,12 @@ namespace Tests\Unit\Metadata\MissingAsNullProperty;
 
 use Zerotoprod\DataModel\Describe;
 
-//#[Describe(['missing_as_null' => true])]
+//#[Describe(['nullable' => true])]
 class User
 {
     use \Zerotoprod\DataModel\DataModel;
 
-    #[Describe(['missing_as_null' => true])]
+    #[Describe(['nullable' => true])]
     public ?string $name;
 
     #[Describe(['default' => ''])]

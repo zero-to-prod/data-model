@@ -42,7 +42,7 @@ use UnitEnum;
  *  'post' => [MyClass::class, 'postHook']
  *  'default' => 'value',
  *  'required', // Throws an exception if the element is missing
- *  'missing_as_null', // sets the value to null if the element is missing
+ *  'nullable', // sets the value to null if the element is missing
  * ])]
  * public string $property;
  * ```
@@ -113,7 +113,7 @@ trait DataModel
      *  'post' => [MyClass::class, 'postHook']
      *  'default' => 'value',
      *  'required', // Throws an exception if the element is missing
-     *  'missing_as_null', // sets the value to null if the element is missing
+     *  'nullable', // sets the value to null if the element is missing
      * ])]
      * public string $property;
      * ```
@@ -290,11 +290,11 @@ trait DataModel
                         )
                     );
                 }
-                if (isset($Describe->missing_as_null) && $Describe?->missing_as_null) {
+                if (isset($Describe->nullable) && $Describe?->nullable) {
                     $self->{$property_name} = null;
                     continue;
                 }
-                if (isset($ClassDescribe->missing_as_null) && $ClassDescribe?->missing_as_null) {
+                if (isset($ClassDescribe->nullable) && $ClassDescribe?->nullable) {
                     $self->{$property_name} = null;
                     continue;
                 }

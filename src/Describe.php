@@ -103,6 +103,7 @@ use Attribute;
 class Describe
 {
     public const missing_as_null = 'missing_as_null';
+    public const nullable = 'nullable';
     public const required = 'required';
     public const ignore = 'ignore';
 
@@ -118,7 +119,7 @@ class Describe
 
     public $post;
 
-    public bool $missing_as_null;
+    public bool $nullable;
 
     public bool $ignore;
 
@@ -210,7 +211,7 @@ class Describe
      *  }
      *  ```
      *
-     * @param  string|array{'from': string,'pre': string|string[], 'cast': string|string[], 'post': string|string[], 'required': bool, 'default': mixed, 'missing_as_null': bool,
+     * @param  string|array{'from': string,'pre': string|string[], 'cast': string|string[], 'post': string|string[], 'required': bool, 'default': mixed, 'nullable': bool,
      *                                            'ignore': bool}|null  $attributes
      *
      * @link https://github.com/zero-to-prod/data-model
@@ -224,8 +225,8 @@ class Describe
         if (is_countable($attributes)) {
             foreach ($attributes as $key => $value) {
                 if (property_exists($this, $key)) {
-                    if ($key === self::missing_as_null && !is_bool($value)) {
-                        throw new InvalidValue(sprintf("Invalid value: `%s` should be a boolean.", self::missing_as_null));
+                    if ($key === self::nullable && !is_bool($value)) {
+                        throw new InvalidValue(sprintf("Invalid value: `%s` should be a boolean.", self::nullable));
                     }
 
                     if ($key === self::required && !is_bool($value)) {
@@ -244,13 +245,27 @@ class Describe
                         $this->$value = true;
                     }
 
-                    if ($value === self::missing_as_null) {
+                    if ($value === self::nullable) {
                         $this->$value = true;
                     }
 
                     if ($value === self::ignore) {
                         $this->$value = true;
                     }
+                }
+                /**
+                 * Aliases
+                 */
+
+                if ($key === self::missing_as_null) {
+                    if (!is_bool($value)) {
+                        throw new InvalidValue(sprintf("Invalid value: `%s` should be a boolean.", self::missing_as_null));
+                    }
+                    $this->nullable = $value;
+                    continue;
+                }
+                if ($value === self::missing_as_null) {
+                    $this->nullable = true;
                 }
             }
         }
