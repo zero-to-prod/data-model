@@ -177,7 +177,7 @@ The `Describe` attribute can accept these arguments.
     'post' => [MyClass::class, 'postHook']
     'default' => 'value',
     'required', // Throws an exception if the element is missing
-    'missing_as_null', // sets the value to null if the element is missing
+    'nullable', // sets the value to null if the element is missing
 ])]
 ```
 
@@ -416,11 +416,11 @@ echo $User->username // 'N/A'
 
 Note that using `null` as a default will not work: `#[Describe(['default' => null])]`.
 
-Use `#[Describe(['missing_as_null' => true])]` to set a null value.
+Use `#[Describe(['nullable' => true])]` to set a null value.
 
 ## Nullable Missing Values
 
-Set missing values to null by setting `missing_as_null => true`. This can be placed at the class or property level.
+Set missing values to null by setting `['nullable' => true]`. This can be placed at the class or property level.
 
 This prevents an Error when attempting to assess a property that has not been initialized.
 > Error: Typed property User::$age must not be accessed before initialization
@@ -428,14 +428,14 @@ This prevents an Error when attempting to assess a property that has not been in
 ```php
 use Zerotoprod\DataModel\Describe;
 
-#[Describe(['missing_as_null' => true])]
+#[Describe(['nullable' => true])]
 class User
 {
     use \Zerotoprod\DataModel\DataModel;
 
     public ?string $name;
     
-    #[Describe(['missing_as_null' => true])]
+    #[Describe(['nullable' => true])]
     public ?int $age;
 }
 
@@ -449,7 +449,7 @@ echo $User->age;  // null
 
 Note that using `null` as a default will not work: `#[Describe(['default' => null])]`.
 
-Use `#[Describe(['missing_as_null' => true])]` to set a null value.
+Use `#[Describe(['nullable' => true])]` to set a null value.
 
 ## Re-Mapping
 
