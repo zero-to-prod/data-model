@@ -1,16 +1,13 @@
 <?php
 
-namespace Tests\Unit\DataModel\Instance;
+namespace Tests\Unit\Examples\Instance;
 
 use Zerotoprod\DataModel\DataModel;
 
-class BaseClass
+class User
 {
     use DataModel;
 
-    public const id = 'id';
-    public const name = 'name';
-    public int $id;
     public string $name;
 
     public function __construct(array $data = [])
