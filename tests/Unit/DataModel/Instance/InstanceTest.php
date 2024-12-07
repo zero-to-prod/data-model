@@ -18,4 +18,15 @@ class InstanceTest extends TestCase
         $this->assertEquals(1, $BaseClass->id);
         $this->assertEquals('name', $BaseClass->name);
     }
+
+    #[Test] public function creates_instance_from_constructor(): void
+    {
+        $BaseClass = new BaseClass([
+            BaseClass::id => 1,
+            BaseClass::name => 'name'
+        ]);
+
+        $this->assertEquals(1, $BaseClass->id);
+        $this->assertEquals('name', $BaseClass->name);
+    }
 }

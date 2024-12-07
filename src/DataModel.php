@@ -6,6 +6,12 @@ use ReflectionAttribute;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionUnionType;
+use Tests\Unit\DataModel\Bool\Child;
+use Tests\Unit\DataModel\Enum\IntEnum;
+use Tests\Unit\DataModel\Recursion\ShortNamespaceChild;
+use Tests\Unit\Describe\ClassDynamic\BaseClass;
+use Tests\Unit\Describe\DefaultPost\User;
+use Tests\Unit\Examples\AutomaticInstantiation\Address;
 use UnitEnum;
 
 /**
@@ -149,14 +155,15 @@ trait DataModel
      * @see  https://github.com/zero-to-prod/transformable
      *
      * @param  iterable|object|null|string  $context  Data to populate the instance.
+     * @param  mixed|null                   $instance
      */
-    public static function from(iterable|object|null|string $context = []): self
+    public static function from(iterable|object|null|string $context = [], mixed $instance = null): self
     {
         if ($context instanceof self) {
             return $context;
         }
 
-        $self = new self();
+        $self = $instance ?? new self();
 
         if (is_string($context)) {
             return $self;
