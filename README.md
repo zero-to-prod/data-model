@@ -510,6 +510,29 @@ $User = User::from([
 isset($User->age); // false
 ```
 
+## Using the Constructor
+
+You can use the constructor to instantiate a DataModel like this:
+```php
+class User
+{
+    use \Zerotoprod\DataModel\DataModel;
+
+    public string $name;
+
+    public function __construct(array $data = [])
+    {
+        self::from($data, $this);
+    }
+}
+
+$User = new User([
+    'name' => 'Jane Doe',
+]);
+
+echo $User->name; // 'Jane Doe'; 
+```
+
 ## Examples
 
 ### Array of DataModels
