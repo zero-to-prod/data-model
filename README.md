@@ -9,70 +9,73 @@
 [![Packagist Version](https://img.shields.io/packagist/v/zero-to-prod/data-model?color=f28d1a)](https://packagist.org/packages/zero-to-prod/data-model)
 [![License](https://img.shields.io/packagist/l/zero-to-prod/data-model?color=pink)](https://github.com/zero-to-prod/data-model/blob/main/LICENSE.md)
 
-A `DataModel` provides a lightweight, non-invasive way to hydrate type-safe PHP objects recursively.
+## Contents
 
-### Why Use DataModel?
+- [Introduction](#introduction)
+    - [Why Use DataModel?](#why-use-datamodel)
+- [Installation](#installation)
+    - [Additional Packages](#additional-packages)
+- [Features](#features)
+    - [Type-Safe](#recursive-hydration)
+    - [Recursive Instantiation](#recursive-hydration)
+    - [Type Casting](#property-level-cast)
+    - [Life-Cycle Hooks](#life-cycle-hooks)
+    - [Transformations](#transformations)
+    - [Required Properties](#required-properties)
+    - [Default Values](#default-values)
+    - [Nullable Missing Values](#nullable-missing-values)
+    - [Remapping](#re-mapping)
+    - [Ignoring Properties](#ignoring-properties)
+- [Examples](#examples)
+    - [Array of DataModels](#array-of-datamodels)
+    - [Collection of DataModels](#collection-of-datamodels)
+    - [Laravel Validation](#laravel-validation)
+- [How It Works](#how-it-works)
+- [Why It Works](#why-it-works)
+    - [Eliminate Defensive Programming](#eliminate-defensive-programming)
+    - [Increase the Static Analysis Surface](#increase-the-static-analysis-surface)
+    - [Self-Documentation](#self-documentation)
+- [Showcase](#showcase)
+- [Usage](#usage)
+    - [Hydrating from Data](#hydrating-from-data)
+    - [Recursive Hydration](#recursive-hydration)
+- [Transformations](#transformations)
+    - [Describe Attribute](#describe-attribute)
+    - [Order of Precedence](#order-of-precedence)
+    - [Property-Level Cast](#property-level-cast)
+    - [Life-Cycle Hooks](#life-cycle-hooks)
+        - [`pre` Hook](#pre-hook)
+        - [`post` Hook](#post-hook)
+    - [Method-Level Cast](#method-level-cast)
+    - [Union Types](#union-types)
+    - [Class-Level Cast](#class-level-cast)
+- [Required Properties](#required-properties)
+- [Default Values](#default-values)
+    - [Limitations](#limitations)
+- [Nullable Missing Values](#nullable-missing-values)
+    - [Limitations](#limitations-1)
+- [Re-Mapping](#re-mapping)
+- [Ignoring Properties](#ignoring-properties)
+- [Using the Constructor](#using-the-constructor)
+- [Examples](#examples)
+    - [Array of DataModels](#array-of-datamodels)
+    - [Collection of DataModels](#collection-of-datamodels)
+    - [Laravel Validation](#laravel-validation)
+- [Testing](#testing)
 
-- **Simplify Object Hydration**: A `DataModel` automates the process of resolving and assigning values to
-  properties, ensuring your objects are populated correctly based on their type declarations.
-- **Ensure Type Safety**: Type safety is enforced by PHP itself. With a `DataModel`, you can trust that
-  your objects contain the expected types without extra validation.
-- **Reduce Defensive Programming**: a `DataModel` allows you to define how each property should be resolved 
-  before the object is hydrated. This eliminates the need for downstream defensive programming.
-- **Flexible Value Resolution**: With the `#[Describe()]`
-  [attribute](https://www.php.net/manual/en/language.attributes.overview.php), you control how values are
-  resolved for each property, including transformations, default values, and custom casting.
-- **Non-Invasive Integration**: Simply add the `DataModel` trait to your classes. There’s no need to
-  extend base classes or implement interfaces, keeping your class hierarchy clean.
+## Introduction
 
-## Features
+A lightweight, trait-based approach to **type-safe** object hydration.
 
-- [Type-Safe](#recursive-hydration): Type-safety is enforced by the PHP language itself.
-- [Non-Invasive](#hydrating-from-data): Simply add the `DataModel` trait to a class. No need to extend, implement, or construct.
-- [Recursive Instantiation](#recursive-hydration): Recursively instantiate classes based on their type.
-- [Type Casting](#property-level-cast): Supports primitives, custom classes, enums, and more.
-- [Life-Cycle Hooks](#life-cycle-hooks): Run methods before and after a value is resolved with [pre](#pre-hook) and [post](#post-hook).
-- [Transformations](#transformations): Describe how to resolve a value before instantiation.
-- [Required Properties](#required-properties): Throw an exception when a property is not set.
-- [Default Values](#default-values): Set a default property value.
-- [Nullable Missing Values](#nullable-missing-values): Resolve a missing value as null.
-- [Remapping](#re-mapping): Re-map a key to a property of a different name.
-- [Ignoring Properties](#ignoring-properties): Ignore a resolving a property.
+Define your data resolution logic in one place. No more scattered checks, no
+inheritance hassles—just straightforward, type-safe PHP objects.
 
-## Examples
-
-- [Array of DataModels](#array-of-datamodels)
-- [Collection of DataModels](#collection-of-datamodels)
-- [Laravel Validation](#laravel-validation)
-
-### How It Works
-
-At its core, a `DataModel` uses reflection and PHP attributes to hydrate your objects. When you use the `from()` method, it recursively instantiates
-classes based on their type hints, resolving values according to the rules you define.
-
-By using the `#[Describe()]` attribute, you can specify:
-
-- **Transformations**: Define how to convert input data before assigning it to a property.
-- **Life-Cycle Hooks**: Run methods before and after a value is resolved.
-- **Default Values** and Required Properties: Ensure properties have sensible defaults or enforce their presence.
-- **Type Casting**: Handle primitives, custom classes, enums, and more.
-
-This approach allows you to centralize value resolution upstream of your business logic, drastically reducing downstream checks.
-
-### Better Than Defensive Programming
-
-Traditional defensive programming requires you to scatter validation and type-checking throughout your code, leading to verbosity and potential
-oversights. With a `DataModel`, you define value resolution logic once, using the `#[Describe()]` attribute.
-
-This method reduces boilerplate, minimizes the risk of missing checks, and results in cleaner, more readable code. It shifts the focus from defensive
-checks to declarative definitions, improving both development speed and code quality.
-
-## Showcase
-
-Projects that use DataModels:
-
-- [DataModels for OpenAPI 3.0.*](https://github.com/zero-to-prod/data-model-openapi30)
-- [DataModels for the Envoyer API.](https://github.com/zero-to-prod/data-model-envoyer)
+> **Why you’ll love it**:
+> - **Simplify object hydration** with recursive instantiation
+> - **Enforce type safety** so your objects are always correct
+> - **Reduce boilerplate** by eliminating repetitive validation checks
+> - **Use transformations** with PHP attributes for flexible value resolution
+> - **Stay non-invasive**: just use the `DataModel` trait—no base classes or interfaces required
 
 ## Installation
 
@@ -87,6 +90,83 @@ composer require zero-to-prod/data-model
 - [DataModelHelper](https://github.com/zero-to-prod/data-model-helper): Helpers for a `DataModel`.
 - [DataModelFactory](https://github.com/zero-to-prod/data-model-factory): A factory helper to set the value of your `DataModel`.
 - [Transformable](https://github.com/zero-to-prod/transformable): Transform a `DataModel` into different types.
+
+### Why Use DataModel?
+
+- **Automated Hydration**: Let the package handle mapping and casting data into your objects.
+- **Type Safety**: PHP enforces your declared property types automatically.
+- **Less Boilerplate**: Centralize your validation and defaults—stop scattering checks all over your code.
+- **Flexible Customization**: Tap into transformations, re-mapping, and lifecycle hooks.
+- **No Overhead**: Use a trait—no extending or complicated class hierarchy.
+
+## Features
+
+- [Type-Safe](#recursive-hydration): Type-safety is enforced by the PHP language itself.
+- [Non-Invasive](#hydrating-from-data): Simply add the `DataModel` trait to a class. No need to extend, implement, or construct.
+- [Recursive Instantiation](#recursive-hydration): Recursively instantiate classes based on their type.
+- [Type Casting](#property-level-cast): Supports primitives, custom classes, enums, and more.
+- [Life-Cycle Hooks](#life-cycle-hooks): Run code before/after property assignment with [pre](#pre-hook) and [post](#post-hook).
+- [Transformations](#transformations): Describe how to resolve a value before instantiation.
+- [Required Properties](#required-properties): Throw an exception when a property is not set.
+- [Default Values](#default-values): Set a default property value.
+- [Nullable Missing Values](#nullable-missing-values): Resolve a missing value as null.
+- [Remapping](#re-mapping): Re-map a key to a property of a different name.
+- [Ignoring Properties](#ignoring-properties): Skip properties as needed
+
+## How It Works
+
+DataModel uses:
+
+- Reflection to find property types
+- PHP attributes (the `#[Describe()]`) to define transformations and rules
+- Recursive Instantiation for nested objects
+- Hooks before and after assignment
+
+Just call `YourClass::from($data)` and let it handle the rest.
+
+## Why it Works
+
+A DataModel removes guesswork by centralizing how values get resolved. You define resolution logic up front, then trust the rest of your code to
+operate with correct, typed data. Less repetition, fewer checks, more clarity.
+
+### Eliminate Defensive Programming
+
+Traditional defensive programming forces you to layer checks everywhere:
+
+- Verbose: sprinkled validations and type checks
+- Error-prone: easy to miss something
+
+With DataModel, a single #[Describe()] attribute declaration handles it all. This:
+
+- Reduces boilerplate: define once, use everywhere
+- Minimizes risk: fewer places to forget checks
+- Improves clarity: your code focuses on logic, not defensive guardrails
+
+### Increase the Static Analysis Surface
+
+DataModel uses native PHP type mechanics. Language servers and LLMs can:
+
+- Understand your properties and rules
+- Warn on mismatches
+- Optimize code suggestions
+
+The #[Describe] attribute is explicit, boosting readability and tooling compatibility.
+
+### Self-Documentation
+
+DataModel bakes critical info—types, defaults, transforms—into actual PHP attributes:
+
+- No buried docs or sidecar validations
+- The properties practically document themselves
+- Anyone reading the code sees clearly how data is resolved
+
+## Showcase
+
+Projects that use DataModels:
+
+- [DataModels for OpenAPI 3.0.*](https://github.com/zero-to-prod/data-model-openapi30)
+- [Open Movie Database Api](https://github.com/zero-to-prod/omdb)
+- [DataModels for the Envoyer API.](https://github.com/zero-to-prod/data-model-envoyer)
 
 ## Usage
 
@@ -513,6 +593,7 @@ isset($User->age); // false
 ## Using the Constructor
 
 You can use the constructor to instantiate a DataModel like this:
+
 ```php
 class User
 {
