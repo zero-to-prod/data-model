@@ -70,7 +70,7 @@ A lightweight, trait-based approach to **type-safe** object hydration.
 Define your data resolution logic in one place. No more scattered checks, no
 inheritance hassles—just straightforward, type-safe PHP objects.
 
-> **Why you’ll love it**:
+**Why you’ll love it**:
 > - **Simplify object hydration** with recursive instantiation
 > - **Enforce type safety** so your objects are always correct
 > - **Reduce boilerplate** by eliminating repetitive validation checks
