@@ -316,6 +316,9 @@ trait DataModel
             }
 
             $property_type = $ReflectionType->getName();
+            if($property_type === 'self') {
+                $property_type = self::class;
+            }
             /** Class-level cast  */
             if ($ClassDescribe?->cast[$property_type] ?? false) {
                 $self->{$property_name} =

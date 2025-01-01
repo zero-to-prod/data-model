@@ -19,6 +19,7 @@ class BaseClass
     public const mixed = 'mixed';
     public const Child = 'Child';
     public const ShortNamespaceChild = 'ShortNamespaceChild';
+    public const self = 'self';
 
     public int $id;
     public string $name;
@@ -30,4 +31,5 @@ class BaseClass
     public mixed $mixed;
     public \Tests\Unit\DataModel\Recursion\Child $Child;
     public ShortNamespaceChild $ShortNamespaceChild;
+    public self $self;
 }

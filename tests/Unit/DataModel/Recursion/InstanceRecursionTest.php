@@ -28,6 +28,9 @@ class InstanceRecursionTest extends TestCase
             BaseClass::ShortNamespaceChild => [
                 ShortNamespaceChild::id => 1,
                 ShortNamespaceChild::name => 'name',
+            ],
+            BaseClass::self => [
+                BaseClass::id => 1
             ]
         ]);
 
@@ -43,5 +46,6 @@ class InstanceRecursionTest extends TestCase
         $this->assertEquals('name', $BaseClass->Child->name);
         $this->assertEquals(1, $BaseClass->ShortNamespaceChild->id);
         $this->assertEquals('name', $BaseClass->ShortNamespaceChild->name);
+        $this->assertEquals(1, $BaseClass->self->id);
     }
 }
