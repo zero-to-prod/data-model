@@ -8,6 +8,7 @@
 [![php](https://img.shields.io/packagist/php-v/zero-to-prod/data-model.svg?color=purple)](https://packagist.org/packages/zero-to-prod/data-model/stats)
 [![Packagist Version](https://img.shields.io/packagist/v/zero-to-prod/data-model?color=f28d1a)](https://packagist.org/packages/zero-to-prod/data-model)
 [![License](https://img.shields.io/packagist/l/zero-to-prod/data-model?color=pink)](https://github.com/zero-to-prod/data-model/blob/main/LICENSE.md)
+[![wakatime](https://wakatime.com/badge/github/zero-to-prod/data-model.svg)](https://wakatime.com/badge/github/zero-to-prod/data-model)
 
 ## Contents
 
