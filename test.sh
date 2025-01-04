@@ -1,21 +1,18 @@
-# run-tests.sh
+#!/bin/bash
 set -e
 
 php_versions=("php83" "php82" "php81")
 
 for version in "${php_versions[@]}"; do
-  if [ -f composer.lock ]; then
-    echo "removing composer.lock"
-    rm composer.lock
+  vendor_dir="./vendor-${version}"
+
+  if [ ! -d "$vendor_dir" ] || [ -z "$(ls -A "$vendor_dir")" ]; then
+    echo "Dependencies not found or vendor directory is empty for $version. Installing dependencies..."
+    docker compose run --rm "${version}composer" composer install --no-cache
   fi
 
-  docker compose run --rm "$version"composer composer install
-
-  echo "Running tests on $version..."
   if ! docker compose run --rm "$version" vendor/bin/phpunit; then
     echo "Tests failed on $version."
     exit 1
   fi
 done
-
-echo "All tests passed!"

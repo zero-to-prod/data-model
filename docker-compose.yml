@@ -5,6 +5,7 @@ services:
       target: base
     volumes:
       - ./:/app
+      - ./vendor-php81:/app/vendor
 
   php81debug:
     build:
@@ -13,6 +14,7 @@ services:
     volumes:
       - ./:/app
       - ./docker/php81:/usr/local/etc/php
+      - ./vendor-php81:/app/vendor
 
   php81composer:
     build:
@@ -20,6 +22,7 @@ services:
       target: composer
     volumes:
       - ./:/app
+      - ./vendor-php81:/app/vendor
 
   php82:
     build:
@@ -27,6 +30,7 @@ services:
       target: base
     volumes:
       - ./:/app
+      - ./vendor-php82:/app/vendor
 
   php82debug:
     build:
@@ -35,6 +39,7 @@ services:
     volumes:
       - ./:/app
       - ./docker/php82:/usr/local/etc/php
+      - ./vendor-php82:/app/vendor
 
   php82composer:
     build:
@@ -42,6 +47,7 @@ services:
       target: composer
     volumes:
       - ./:/app
+      - ./vendor-php82:/app/vendor
 
   php83:
     build:
@@ -49,6 +55,7 @@ services:
       target: base
     volumes:
       - ./:/app
+      - ./vendor-php83:/app/vendor
 
   php83debug:
     build:
@@ -56,7 +63,8 @@ services:
       target: debug
     volumes:
       - ./:/app
-      - ./docker/php82:/usr/local/etc/php
+      - ./docker/php83:/usr/local/etc/php
+      - ./vendor-php83:/app/vendor
 
   php83composer:
     build:
@@ -64,3 +72,4 @@ services:
       target: composer
     volumes:
       - ./:/app
+      - ./vendor-php83:/app/vendor
