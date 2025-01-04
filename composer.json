@@ -1,7 +1,8 @@
 {
-  "type": "library",
   "name": "zero-to-prod/data-model",
   "description": "Transforms Data into Type-Safe DTOs.",
+  "license": "MIT",
+  "type": "library",
   "keywords": [
     "zero-to-prod",
     "DataModel",
@@ -13,16 +14,40 @@
     "Data_Model",
     "Data Model"
   ],
-  "homepage": "https://github.com/zero-to-prod/data-model",
-  "license": "MIT",
+  "readme": "./README.md",
+  "time": "2024-09-04",
   "authors": [
     {
       "name": "David Smith",
-      "email": "dave0016@gmail.com"
+      "email": "dave0016@gmail.com",
+      "homepage": "https://davidsmith.blog/",
+      "role": "maintainer"
+    }
+  ],
+  "homepage": "https://github.com/zero-to-prod/data-model",
+  "support": {
+    "email": "dave0016@gmail.com",
+    "issues": "https://github.com/zero-to-prod/data-model/issues",
+    "source": "https://github.com/zero-to-prod/data-model",
+    "docs": "https://zero-to-prod.github.io/data-model/",
+    "security": "https://github.com/zero-to-prod/data-model/blob/main/SECURITY.md"
+  },
+  "funding": [
+    {
+      "type": "GitHub",
+      "url": "https://github.com/sponsors/zero-to-prod"
     }
   ],
   "require": {
     "php": ">=8.1.0"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^10.0"
+  },
+  "suggest": {
+    "zero-to-prod/data-model-helper": "Helpers for a DataModel.",
+    "zero-to-prod/data-model-factory": "Factoryies for a DataModel.",
+    "zero-to-prod/transformable": "Transform a class into different types."
   },
   "autoload": {
     "psr-4": {
@@ -37,12 +62,20 @@
       "./tests/functions.php"
     ]
   },
-  "require-dev": {
-    "phpunit/phpunit": "^10.0"
+  "scripts": {
+    "test": [
+      "docker compose run --rm php81 ./vendor/bin/phpunit"
+    ],
+    "test-all": [
+      "sh test.sh"
+    ],
+    "docker": [
+      "docker compose run --rm php81composer"
+    ]
   },
-  "suggest": {
-    "zero-to-prod/data-model-helper": "Helpers for a DataModel.",
-    "zero-to-prod/data-model-factory": "Factoryies for a DataModel.",
-    "zero-to-prod/transformable": "Transform a class into different types."
+  "scripts-descriptions": {
+    "test": "runs tests in the container",
+    "test-all": "tests all php versions",
+    "docker": "runs the composer container"
   }
 }
