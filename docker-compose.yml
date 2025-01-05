@@ -98,3 +98,9 @@ services:
     volumes:
       - ./:/app
       - ./vendor-php84:/app/vendor
+
+networks:
+  default:
+    driver: bridge
+    labels:
+      auto-remove: "true"
