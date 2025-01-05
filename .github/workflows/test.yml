@@ -2,9 +2,9 @@ name: tests
 
 on:
   push:
-    branches: [main]
+    branches: [ main ]
   pull_request:
-    branches: [main]
+    branches: [ main ]
 
 jobs:
   test:
@@ -16,7 +16,7 @@ jobs:
 
     strategy:
       matrix:
-        php-version: [php81, php82, php83, php84]
+        php-version: [ php84, php83, php82, php81 ]
 
     steps:
       - uses: actions/checkout@v4
@@ -27,18 +27,12 @@ jobs:
       - name: Cache Composer dependencies
         uses: actions/cache@v4
         with:
-          path: ./vendor-${{ matrix.php-version }}
+          path: vendor
           key: ${{ runner.os }}-php-${{ matrix.php-version }}-${{ hashFiles('**/composer.lock') }}
           restore-keys: ${{ runner.os }}-php-${{ matrix.php-version }}-
 
-      - name: Install dependencies (if needed)
-        run: |
-          if [ ! -d ./vendor-${{ matrix.php-version }} ] || [ -z "$(ls -A ./vendor-${{ matrix.php-version }})" ]; then
-            echo "Dependencies not found or vendor directory is empty. Installing dependencies..."
-            docker compose run --rm -v ${{ github.workspace }}/vendor-${{ matrix.php-version }}:/app/vendor ${{ matrix.php-version }}composer composer install --prefer-dist
-          else
-            echo "Dependencies already installed for ${{ matrix.php-version }}. Skipping composer install."
-          fi
+      - name: Install dependencies
+        run: docker compose run --rm -v ${{ github.workspace }}/test-output:/app/test-output ${{ matrix.php-version }}composer composer install --prefer-dist
 
       - name: Run tests
-        run: docker compose run --rm -v ${{ github.workspace }}/vendor-${{ matrix.php-version }}:/app/vendor ${{ matrix.php-version }} vendor/bin/phpunit
+        run: docker compose run --rm -v ${{ github.workspace }}/test-output:/app/test-output ${{ matrix.php-version }} vendor/bin/phpunit
