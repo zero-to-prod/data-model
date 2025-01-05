@@ -16,7 +16,7 @@ jobs:
 
     strategy:
       matrix:
-        php-version: [php81, php82, php83]
+        php-version: [php81, php82, php83, php84]
 
     steps:
       - uses: actions/checkout@v4
