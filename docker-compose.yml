@@ -73,3 +73,28 @@ services:
     volumes:
       - ./:/app
       - ./vendor-php83:/app/vendor
+
+  php84:
+    build:
+      context: docker/php84
+      target: base
+    volumes:
+      - ./:/app
+      - ./vendor-php84:/app/vendor
+
+  php84debug:
+    build:
+      context: docker/php84
+      target: debug
+    volumes:
+      - ./:/app
+      - ./docker/php84:/usr/local/etc/php
+      - ./vendor-php84:/app/vendor
+
+  php84composer:
+    build:
+      context: docker/php84
+      target: composer
+    volumes:
+      - ./:/app
+      - ./vendor-php84:/app/vendor
