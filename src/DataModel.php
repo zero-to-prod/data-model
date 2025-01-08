@@ -6,12 +6,6 @@ use ReflectionAttribute;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionUnionType;
-use Tests\Unit\DataModel\Bool\Child;
-use Tests\Unit\DataModel\Enum\IntEnum;
-use Tests\Unit\DataModel\Recursion\ShortNamespaceChild;
-use Tests\Unit\Describe\ClassDynamic\BaseClass;
-use Tests\Unit\Describe\DefaultPost\User;
-use Tests\Unit\Examples\AutomaticInstantiation\Address;
 use UnitEnum;
 
 /**
@@ -239,7 +233,9 @@ trait DataModel
             $property_name = $ReflectionProperty->getName();
 
             if (isset($Describe->default) && !isset($context[$context_key])) {
-                $self->{$property_name} = $Describe->default;
+                $self->{$property_name} = is_callable($Describe->default)
+                    ? ($Describe->default)([], $context, $Attribute, $ReflectionProperty)
+                    : $Describe->default;
 
                 if (isset($Describe->post)) {
                     ($Describe->post)($self->{$property_name}, $context, $Attribute, $ReflectionProperty);
@@ -316,7 +312,7 @@ trait DataModel
             }
 
             $property_type = $ReflectionType->getName();
-            if($property_type === 'self') {
+            if ($property_type === 'self') {
                 $property_type = self::class;
             }
             /** Class-level cast  */
