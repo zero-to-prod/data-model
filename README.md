@@ -487,6 +487,14 @@ class User
 
     #[Describe(['default' => 'N/A'])]
     public string $username;
+    
+    #[Describe(['default' => [self::class, 'newCollection']])]
+    public Collection $username;
+    
+    public static function newCollection(): Collection
+    {
+        return new Collection();
+    }
 }
 
 $User = User::from();
@@ -498,11 +506,11 @@ echo $User->username // 'N/A'
 
 Note that using `null` as a default will not work: `#[Describe(['default' => null])]`.
 
-Use `#[Describe(['nullable' => true])]` to set a null value.
+Use `#[Describe(['nullable' => true])]` or `#[Describe(['nullable'])]` to set a null value.
 
 ## Nullable Missing Values
 
-Set missing values to null by setting `['nullable' => true]`. This can be placed at the class or property level.
+Set missing values to null by setting `['nullable' => true]` or `['nullable']`. This can be placed at the class or property level.
 
 This prevents an Error when attempting to assess a property that has not been initialized.
 > Error: Typed property User::$age must not be accessed before initialization
