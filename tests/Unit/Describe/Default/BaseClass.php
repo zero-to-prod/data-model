@@ -17,4 +17,12 @@ class BaseClass
 
     #[Describe(['default' => false])]
     public bool $bool;
+
+    #[Describe(['default' => [self::class, 'baseClass']])]
+    public BaseClass $BaseClass;
+
+    public static function baseClass(): BaseClass
+    {
+        return new self();
+    }
 }
