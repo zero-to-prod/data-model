@@ -20,4 +20,11 @@ class ClassTest extends TestCase
 
         $this->assertFalse($BaseClass->bool);
     }
+
+    #[Test] public function from_reference(): void
+    {
+        $BaseClass = BaseClass::from();
+
+        $this->assertInstanceOf(BaseClass::class, $BaseClass->BaseClass);
+    }
 }
