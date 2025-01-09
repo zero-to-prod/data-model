@@ -2,37 +2,31 @@ name: tests
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   test:
     runs-on: ubuntu-latest
-    services:
-      docker:
-        image: docker:20.10.7
-        options: --privileged
 
     strategy:
       matrix:
-        php-version: [ php84, php83, php82, php81 ]
+        php-version: ["8.4", "8.3", "8.2", "8.1"]
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Validate composer files
-        run: composer validate --strict
+      - name: Create .env
+        run: touch .env
 
-      - name: Cache Composer dependencies
-        uses: actions/cache@v4
-        with:
-          path: vendor
-          key: ${{ runner.os }}-php-${{ matrix.php-version }}-${{ hashFiles('**/composer.lock') }}
-          restore-keys: ${{ runner.os }}-php-${{ matrix.php-version }}-
+      - name: Set PHP version in .env
+        run: |
+          echo "PHP_COMPOSER=${{ matrix.php-version }}" >> .env
+          echo "PHP_VERSION=${{ matrix.php-version }}" >> .env
 
-      - name: Install dependencies
-        run: docker compose run --rm -v ${{ github.workspace }}/test-output:/app/test-output ${{ matrix.php-version }}composer composer install --prefer-dist
+      - name: Install dependencies (composer update) for PHP
+        run: sh dock composer update
 
-      - name: Run tests
-        run: docker compose run --rm -v ${{ github.workspace }}/test-output:/app/test-output ${{ matrix.php-version }} vendor/bin/phpunit
+      - name: Run PHPUnit tests for PHP
+        run: sh dock test

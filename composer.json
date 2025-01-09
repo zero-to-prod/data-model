@@ -61,21 +61,5 @@
     "files": [
       "./tests/functions.php"
     ]
-  },
-  "scripts": {
-    "test": [
-      "docker compose run --rm php81 ./vendor/bin/phpunit"
-    ],
-    "test-all": [
-      "sh test.sh"
-    ],
-    "docker": [
-      "docker compose run --rm php81composer"
-    ]
-  },
-  "scripts-descriptions": {
-    "test": "runs tests in the container",
-    "test-all": "tests all php versions",
-    "docker": "runs the composer container"
   }
 }

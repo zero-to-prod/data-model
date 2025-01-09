@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+set -e
+
+PHP_VERSION=$(grep "^PHP_VERSION=" .env | cut -d '=' -f2-)
+
+run_service() {
+  local service=$1
+  shift
+  if ! docker compose run --rm "$service" "$@"; then
+    exit 1
+  fi
+}
+
+case "$1" in
+  test)
+    shift
+    run_service "php${PHP_VERSION}" vendor/bin/phpunit --configuration "docker/${PHP_VERSION}/phpunit.xml" "$@"
+    ;;
+  composer)
+    shift
+    run_service "composer${PHP_VERSION}" composer "$@"
+    ;;
+  *)
+    run_service "$@"
+    ;;
+esac
