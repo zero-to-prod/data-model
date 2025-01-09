@@ -1,106 +1,108 @@
 services:
-  php81:
+  php8.1:
+    volumes:
+      - ./:/app:delegated
+      - ./.vendor/php8.1:/app/vendor
     build:
-      context: docker/php81
+      context: ./docker/8.1
       target: base
-    volumes:
-      - ./:/app
-      - ./vendor-php81:/app/vendor
 
-  php81debug:
+  debug8.1:
+    extends:
+      service: php8.1
+    volumes:
+      - ./:/app:delegated
+      - ./.vendor/php8.1:/app/vendor
+      - ./docker/8.1:/usr/local/etc/php
     build:
-      context: docker/php81
       target: debug
-    volumes:
-      - ./:/app
-      - ./docker/php81:/usr/local/etc/php
-      - ./vendor-php81:/app/vendor
 
-  php81composer:
+  composer8.1:
+    extends:
+      service: php8.1
+    volumes:
+      - ./:/app:delegated
+      - ./.vendor/php8.1:/app/vendor
     build:
-      context: docker/php81
       target: composer
-    volumes:
-      - ./:/app
-      - ./vendor-php81:/app/vendor
 
-  php82:
+  php8.2:
+    volumes:
+      - ./:/app:delegated
+      - ./.vendor/php8.2:/app/vendor
     build:
-      context: docker/php82
+      context: ./docker/8.2
       target: base
-    volumes:
-      - ./:/app
-      - ./vendor-php82:/app/vendor
 
-  php82debug:
+  debug8.2:
+    extends:
+      service: php8.2
+    volumes:
+      - ./:/app:delegated
+      - ./.vendor/php8.2:/app/vendor
+      - ./docker/8.2:/usr/local/etc/php
     build:
-      context: docker/php82
       target: debug
-    volumes:
-      - ./:/app
-      - ./docker/php82:/usr/local/etc/php
-      - ./vendor-php82:/app/vendor
 
-  php82composer:
+  composer8.2:
+    extends:
+      service: php8.2
+    volumes:
+      - ./:/app:delegated
+      - ./.vendor/php8.2:/app/vendor
     build:
-      context: docker/php82
       target: composer
-    volumes:
-      - ./:/app
-      - ./vendor-php82:/app/vendor
 
-  php83:
+  php8.3:
+    volumes:
+      - ./:/app:delegated
+      - ./.vendor/php8.3:/app/vendor
     build:
-      context: docker/php83
+      context: ./docker/8.3
       target: base
-    volumes:
-      - ./:/app
-      - ./vendor-php83:/app/vendor
 
-  php83debug:
+  debug8.3:
+    extends:
+      service: php8.3
+    volumes:
+      - ./:/app:delegated
+      - ./.vendor/php8.3:/app/vendor
+      - ./docker/8.3:/usr/local/etc/php
     build:
-      context: docker/php83
       target: debug
-    volumes:
-      - ./:/app
-      - ./docker/php83:/usr/local/etc/php
-      - ./vendor-php83:/app/vendor
 
-  php83composer:
+  composer8.3:
+    extends:
+      service: php8.3
+    volumes:
+      - ./:/app:delegated
+      - ./.vendor/php8.3:/app/vendor
     build:
-      context: docker/php83
       target: composer
-    volumes:
-      - ./:/app
-      - ./vendor-php83:/app/vendor
 
-  php84:
+  php8.4:
+    volumes:
+      - ./:/app:delegated
+      - ./.vendor/php8.4:/app/vendor
     build:
-      context: docker/php84
+      context: ./docker/8.4
       target: base
-    volumes:
-      - ./:/app
-      - ./vendor-php84:/app/vendor
 
-  php84debug:
+  debug8.4:
+    extends:
+      service: php8.4
+    volumes:
+      - ./:/app:delegated
+      - ./.vendor/php8.4:/app/vendor
+      - ./docker/8.4:/usr/local/etc/php
     build:
-      context: docker/php84
       target: debug
-    volumes:
-      - ./:/app
-      - ./docker/php84:/usr/local/etc/php
-      - ./vendor-php84:/app/vendor
 
-  php84composer:
+  composer8.4:
+    extends:
+      service: php8.4
+    volumes:
+      - ./:/app:delegated
+      - ./.vendor/php8.4:/app/vendor
     build:
-      context: docker/php84
       target: composer
-    volumes:
-      - ./:/app
-      - ./vendor-php84:/app/vendor
-
-networks:
-  default:
-    driver: bridge
-    labels:
-      auto-remove: "true"
