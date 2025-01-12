@@ -6,3 +6,4 @@ composer.lock
 .env
 .phpunit.result.cache
 /.phpunit.cache
+.vendor/
