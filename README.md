@@ -786,7 +786,7 @@ Before starting development, verify that your `.env` file contains the correct s
 You can specify which PHP version to use for local development, debugging, and Composer operations by updating these variables in your `.env` file:
 
 ```dotenv
-PHP_VERSION=7.1
+PHP_VERSION=8.1
 PHP_DEBUG=7.1
 PHP_COMPOSER=7.1
 ```
