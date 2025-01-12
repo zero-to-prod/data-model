@@ -53,7 +53,7 @@ PHP_VERSION=$(grep "^PHP_VERSION=" .env | cut -d '=' -f2-)
 case "$1" in
   test)
     shift
-    run_service "php${PHP_VERSION}" vendor/bin/phpunit --configuration "docker/${PHP_VERSION}/phpunit.xml" "$@"
+    run_service "php${PHP_VERSION}" vendor/bin/phpunit "$@"
   ;;
   build)
     shift
