@@ -3,11 +3,11 @@ set -e
 
 PHP_VERSIONS=("8.4" "8.3" "8.2" "8.1")
 
-for version in "${PHP_VERSIONS[@]}"; do
+for PHP_VERSION in "${PHP_VERSIONS[@]}"; do
 
-  docker compose run --rm "composer${version}" composer update
+  sh dock "composer${PHP_VERSION}" composer update
 
-  if ! docker compose run --rm "php${version}" ./vendor/bin/phpunit
+  if ! sh dock "php${PHP_VERSION}" ./vendor/bin/phpunit --configuration "docker/${PHP_VERSION}/phpunit.xml"
   then
     exit 1
   fi
