@@ -7,7 +7,7 @@ for PHP_VERSION in "${PHP_VERSIONS[@]}"; do
 
   sh dock "composer${PHP_VERSION}" composer update
 
-  if ! sh dock "php${PHP_VERSION}" ./vendor/bin/phpunit --configuration "docker/${PHP_VERSION}/phpunit.xml"
+  if ! sh dock "php${PHP_VERSION}" ./vendor/bin/phpunit
   then
     exit 1
   fi
