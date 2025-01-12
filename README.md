@@ -753,7 +753,7 @@ You can use this script to initialize the project, manage Composer dependencies,
 ### Prerequisites
 
 - Docker installed and running
-- A `.env` file (created automatically via the `dock init`z command, if it doesn’t already exist)
+- A `.env` file (created automatically via the `dock init` command, if it doesn’t already exist)
 
 ### Initializing
 
