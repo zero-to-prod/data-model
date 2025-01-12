@@ -12,8 +12,8 @@ services:
       service: php8.1
     volumes:
       - ./:/app:delegated
-      - ./.vendor/php8.1:/app/vendor
       - ./docker/8.1:/usr/local/etc/php
+      - ./.vendor/php8.1:/app/vendor
     build:
       target: debug
 
@@ -39,8 +39,8 @@ services:
       service: php8.2
     volumes:
       - ./:/app:delegated
-      - ./.vendor/php8.2:/app/vendor
       - ./docker/8.2:/usr/local/etc/php
+      - ./.vendor/php8.2:/app/vendor
     build:
       target: debug
 
@@ -66,8 +66,8 @@ services:
       service: php8.3
     volumes:
       - ./:/app:delegated
-      - ./.vendor/php8.3:/app/vendor
       - ./docker/8.3:/usr/local/etc/php
+      - ./.vendor/php8.3:/app/vendor
     build:
       target: debug
 
@@ -93,8 +93,8 @@ services:
       service: php8.4
     volumes:
       - ./:/app:delegated
-      - ./.vendor/php8.4:/app/vendor
       - ./docker/8.4:/usr/local/etc/php
+      - ./.vendor/php8.4:/app/vendor
     build:
       target: debug
 
