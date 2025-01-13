@@ -787,8 +787,8 @@ You can specify which PHP version to use for local development, debugging, and C
 
 ```dotenv
 PHP_VERSION=8.1
-PHP_DEBUG=7.1
-PHP_COMPOSER=7.1
+PHP_DEBUG=8.1
+PHP_COMPOSER=8.1
 ```
 
 Make sure these values reflect the PHP versions you intend to use.
