@@ -1,0 +1,14 @@
+{
+  "name": "Project",
+  "image": "mcr.microsoft.com/devcontainers/base:bullseye",
+
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {
+      "version": "latest",
+      "enableNonRootDocker": true,
+      "moby": true,
+      "installZsh": false
+    }
+  },
+  "postCreateCommand": "cat .devcontainer/.bashrc >> ~/.bashrc"
+}
