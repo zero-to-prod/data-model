@@ -1,1 +1,5 @@
 alias dock="bash dock "
+alias gpl="git pull "
+alias gcb="git checkout -b "
+alias gc="git checkout "
+alias gcmn="git checkout main "
