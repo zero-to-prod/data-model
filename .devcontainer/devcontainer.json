@@ -10,7 +10,7 @@
       "installZsh": false
     }
   },
-  "postCreateCommand": "mkdir -p /home/devcontainer/bin && ln -s $(which php) /home/devcontainer/bin/php && echo 'export PATH=/home/devcontainer/bin:$PATH' >> ~/.bashrc",
+  "postCreateCommand": "./postCreateCommand.sh",
 
   "customizations": {
     "vscode": {
@@ -18,8 +18,7 @@
         "ms-azuretools.vscode-docker"
       ],
       "settings": {
-        "terminal.integrated.defaultProfile.linux": "bash",
-        "php.validate.executablePath": "/usr/local/bin/php"
+        "terminal.integrated.defaultProfile.linux": "bash"
       }
     }
   }
