@@ -6,20 +6,8 @@
     "ghcr.io/devcontainers/features/docker-in-docker:2": {
       "version": "latest",
       "enableNonRootDocker": true,
-      "moby": true,
-      "installZsh": false
+      "moby": true
     }
   },
-  "postCreateCommand": ".devcontainer/postCreateCommand.sh",
-
-  "customizations": {
-    "vscode": {
-      "extensions": [
-        "ms-azuretools.vscode-docker"
-      ],
-      "settings": {
-        "terminal.integrated.defaultProfile.linux": "bash"
-      }
-    }
-  }
+  "postCreateCommand": ".devcontainer/postCreateCommand.sh"
 }
