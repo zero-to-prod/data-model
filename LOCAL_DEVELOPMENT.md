@@ -26,6 +26,11 @@ Use the following commands to set up the project:
 
 ```shell
 sh dock init
+```
+
+Update the Composer dependencies:
+
+```shell
 sh dock composer update
 ```
 
