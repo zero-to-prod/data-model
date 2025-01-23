@@ -10,7 +10,7 @@
       "installZsh": false
     }
   },
-  "postCreateCommand": "./postCreateCommand.sh",
+  "postCreateCommand": ".devcontainer/postCreateCommand.sh",
 
   "customizations": {
     "vscode": {
