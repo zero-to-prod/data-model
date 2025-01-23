@@ -17,9 +17,6 @@
 
   "customizations": {
     "vscode": {
-      "extensions": [
-        "ms-azuretools.vscode-docker"
-      ],
       "settings": {
         "terminal.integrated.defaultProfile.linux": "bash",
         "php.validate.executablePath": "/usr/local/bin/php"
