@@ -1,4 +1,4 @@
 #!/bin/bash
 set -e
 
-cat .bashrc >> ~/.bashrc
+cat .devcontainer/.bashrc >> ~/.bashrc
