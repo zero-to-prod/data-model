@@ -10,10 +10,7 @@
       "installZsh": false
     }
   },
-  "postCreateCommand": [
-    "cat .devcontainer/.bashrc >> ~/.bashrc",
-    "ln -s /app/vendor /usr/local/bin/php"
-  ],
+  "postCreateCommand": "if [ -f .devcontainer/.bashrc ]; then cat .devcontainer/.bashrc >> ~/.bashrc; fi && ln -s /usr/local/bin/php /usr/local/bin/php",
 
   "customizations": {
     "vscode": {
