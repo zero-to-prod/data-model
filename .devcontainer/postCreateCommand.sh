@@ -2,4 +2,4 @@
 set -e
 
 cat .devcontainer/.bashrc >> ~/.bashrc
-git config --global --add safe.directory /app
+git config --global --add safe.directory '*'
