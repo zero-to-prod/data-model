@@ -148,10 +148,10 @@ trait DataModel
      * @see  https://github.com/zero-to-prod/data-model-factory
      * @see  https://github.com/zero-to-prod/transformable
      *
-     * @param  iterable|object|null|string  $context  Data to populate the instance.
+     * @param  array|object|null|string  $context  Data to populate the instance.
      * @param  mixed|null                   $instance
      */
-    public static function from(iterable|object|null|string $context = [], mixed $instance = null): self
+    public static function from(array|object|null|string $context = [], mixed $instance = null): self
     {
         if ($context instanceof self) {
             return $context;
