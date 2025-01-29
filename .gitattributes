@@ -1,3 +1,4 @@
+/.devcontainer/           export-ignore
 /.github/                 export-ignore
 /docker/                  export-ignore
 /tests/                   export-ignore
