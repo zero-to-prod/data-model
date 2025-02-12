@@ -29,10 +29,6 @@
     - [Nullable Missing Values](#nullable-missing-values)
     - [Remapping](#re-mapping)
     - [Ignoring Properties](#ignoring-properties)
-- [Examples](#examples)
-    - [Array of DataModels](#array-of-datamodels)
-    - [Collection of DataModels](#collection-of-datamodels)
-    - [Laravel Validation](#laravel-validation)
 - [How It Works](#how-it-works)
 - [Why It Works](#why-it-works)
     - [Eliminate Defensive Programming](#eliminate-defensive-programming)
@@ -60,7 +56,9 @@
 - [Re-Mapping](#re-mapping)
 - [Ignoring Properties](#ignoring-properties)
 - [Using the Constructor](#using-the-constructor)
+- [Extending DataModels](#extending-datamodels)
 - [Examples](#examples)
+    - [Hydrating From a Laravel Model](#hydrating-from-a-laravel-model) 
     - [Array of DataModels](#array-of-datamodels)
     - [Collection of DataModels](#collection-of-datamodels)
     - [Laravel Validation](#laravel-validation)
@@ -626,7 +624,33 @@ $User = new User([
 echo $User->name; // 'Jane Doe'; 
 ```
 
+## Extending DataModels
+
+You can extend the capabilities of your DataModels by creating your own DataModel trait.
+
+```php
+namespace App\DataModels;
+
+trait DataModel
+{
+    use \Zerotoprod\DataModel\DataModel;
+
+    public function toArray(): array
+    {
+        return collect($this)->toArray();
+    }
+}
+```
+
 ## Examples
+
+### Hydrating from a Laravel Model
+
+You can hydrate a DataModel from a Laravel model like this:
+
+```php
+$UserDataModel = UserDataModel::from($user->toArray());
+```
 
 ### Array of DataModels
 
