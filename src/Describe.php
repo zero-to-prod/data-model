@@ -123,6 +123,8 @@ class Describe
 
     public bool $ignore;
 
+    public string|array $via;
+
     /**
      *  Pass an associative array to the constructor to describe the behavior of a property when it is resolved.
      *
@@ -212,7 +214,7 @@ class Describe
      *  ```
      *
      * @param  string|array{'from': string,'pre': string|string[], 'cast': string|string[], 'post': string|string[], 'required': bool, 'default': mixed, 'nullable': bool,
-     *                                            'ignore': bool}|null  $attributes
+     *                                            'ignore': bool, 'via': string}|null  $attributes
      *
      * @link https://github.com/zero-to-prod/data-model
      *
