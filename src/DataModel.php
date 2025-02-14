@@ -334,7 +334,7 @@ trait DataModel
                 continue;
             }
 
-            if (is_callable([$property_type, $via])) {
+            if (is_callable([$property_type, $via]) && method_exists($property_type, $via)) {
                 $self->{$property_name} = $property_type::$via($value);
                 continue;
             }
