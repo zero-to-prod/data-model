@@ -12,9 +12,11 @@ class IgnoreTest extends TestCase
         $user = User::from([
             'name' => 'John Doe',
             'age' => '30',
+            'height' => '30',
         ]);
 
         $this->assertEquals('John Doe', $user->name);
         $this->assertFalse(isset($user->age));
+        $this->assertFalse(isset($user->height));
     }
 }

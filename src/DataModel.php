@@ -114,6 +114,8 @@ trait DataModel
      *  'default' => 'value',
      *  'required', // Throws an exception if the element is missing
      *  'nullable', // sets the value to null if the element is missing
+     *   // The callable to instantiate the class
+     *   'via' => [MyClass::class, 'staticMethod'] // or 'my_func',
      * ])]
      * public string $property;
      * ```
@@ -149,7 +151,7 @@ trait DataModel
      * @see  https://github.com/zero-to-prod/transformable
      *
      * @param  array|object|null|string  $context  Data to populate the instance.
-     * @param  mixed|null                   $instance
+     * @param  mixed|null                $instance
      */
     public static function from(array|object|null|string $context = [], mixed $instance = null): self
     {
@@ -322,13 +324,18 @@ trait DataModel
                 continue;
             }
 
-            /** Call the static method from(). */
-            if (is_callable([$property_type, 'from']) && method_exists($property_type, 'from')) {
-                $self->{$property_name} = $property_type::from(
-                    $context[$context_key] instanceof UnitEnum
-                        ? $context[$context_key]->value
-                        : $context[$context_key]
-                );
+            $via = $Describe->via ?? 'from';
+            $value = $context[$context_key] instanceof UnitEnum
+                ? $context[$context_key]->value
+                : $context[$context_key];
+
+            if (is_callable($via)) {
+                $self->{$property_name} = $via($value);
+                continue;
+            }
+
+            if (is_callable([$property_type, $via])) {
+                $self->{$property_name} = $property_type::$via($value);
                 continue;
             }
 

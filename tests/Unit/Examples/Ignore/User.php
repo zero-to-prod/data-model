@@ -13,4 +13,7 @@ class User
 
     #[Describe(['ignore' => true])]
     public int $age;
+
+    #[Describe(['ignore'])]
+    public int $height;
 }

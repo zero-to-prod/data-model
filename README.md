@@ -56,6 +56,7 @@
 - [Re-Mapping](#re-mapping)
 - [Ignoring Properties](#ignoring-properties)
 - [Using the Constructor](#using-the-constructor)
+- [Targeting a function to Instantiate a Class](#targeting-a-function-to-instantiate-a-class)
 - [Extending DataModels](#extending-datamodels)
 - [Examples](#examples)
     - [Hydrating From a Laravel Model](#hydrating-from-a-laravel-model) 
@@ -260,6 +261,8 @@ The `Describe` attribute can accept these arguments.
     'default' => 'value',
     'required', // Throws an exception if the element is missing
     'nullable', // sets the value to null if the element is missing
+     // The callable to instantiate the class
+     'via' => [MyClass::class, 'staticMethod'] // or 'my_func',
 ])]
 ```
 
@@ -576,7 +579,7 @@ class User
 
     public string $name;
 
-    #[Describe(['ignore' => true])]
+    #[Describe(['ignore'])]
     public int $age;
 }
 ```
@@ -622,6 +625,45 @@ $User = new User([
 ]);
 
 echo $User->name; // 'Jane Doe'; 
+```
+
+## Targeting a function to Instantiate a Class
+
+To resolve naming conflicts or to control how a class is instantiated, use the 'via' key.
+
+```php
+use Zerotoprod\DataModel\Describe;
+
+class BaseClass
+{
+    use DataModel;
+
+    #[Describe(['via' => 'via'])]
+    public ChildClass $ChildClass;
+
+    #[Describe(['via' => [ChildClass::class, 'via']])]
+    public ChildClass $ChildClass2;
+}
+
+class ChildClass
+{
+    public function __construct(public int $int)
+    {
+    }
+
+    public static function via(array $context): self
+    {
+        return new self($context[self::int]);
+    }
+}
+
+$BaseClass = BaseClass::from([
+    'ChildClass' => ['int' => 1],
+    'ChildClass2' => ['int' => 1],
+]);
+
+$BaseClass->ChildClass->int;  // 1
+$BaseClass->ChildClass2->int; // 1
 ```
 
 ## Extending DataModels
