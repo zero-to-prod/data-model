@@ -1,0 +1,60 @@
+name: Release
+
+on:
+  push:
+    tags: [ 'v*' ]
+
+permissions:
+  contents: write
+  pull-requests: read
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check for Backwards Compatibility Breaks
+        id: bc_check
+        run: |
+          docker run --rm -v "${GITHUB_WORKSPACE}":/app -w /app nyholm/roave-bc-check-ga || 
+          echo "bc_breaks=true" >> $GITHUB_OUTPUT
+
+      - name: Validate version against Backwards Compatibility Breaks
+        run: |
+          TAG=${GITHUB_REF#refs/tags/v}
+
+          if ! [[ $TAG =~ ^([0-9]+)\.([0-9]+)\.([0-9]+) ]]; then
+            echo "Invalid semver format"
+            exit 1
+          fi
+
+          if [[ "${{ steps.bc_check.outputs.bc_breaks }}" == "true" ]]; then
+            PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo 'v0.0.0')
+            PREV_MAJOR=${PREV_TAG#v} | cut -d'.' -f1
+          
+            if [ "${BASH_REMATCH[1]}" -le "$PREV_MAJOR" ]; then
+              echo "Breaking changes require major version bump"
+              exit 1
+            fi
+          fi
+
+      - name: Generate Release Notes
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo '')
+          SINCE_DATE=$(git log -1 --format=%aI $PREV_TAG)
+          
+          gh pr list --base main --state merged --json title,number,author \
+            --search "merged:>=$SINCE_DATE" | \
+          jq -r '.[] | "- \(.title) by @\(.author.login) in #\(.number)"' > RELEASE_NOTES.md
+
+          git log --pretty=format:"- %s by %an in %H" $PREV_TAG..HEAD --no-merges >> RELEASE_NOTES.md
+      - uses: softprops/action-gh-release@v2
+        if: ${{ !steps.bc_check.outputs.bc_breaks }}
+        with:
+          body_path: RELEASE_NOTES.md
