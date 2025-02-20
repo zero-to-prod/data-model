@@ -1,0 +1,29 @@
+name: composer_require_checker
+
+on:
+  push:
+
+jobs:
+  composer-require-checker:
+    name: Composer Require Checker
+    runs-on: ubuntu-latest
+    continue-on-error: ${{ github.event.pull_request.base.ref != 'main' }}
+
+    strategy:
+      matrix:
+        php-version: [ "8.4", "8.3", "8.2", "8.1" ]
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set safe directory
+        run: git config --global --add safe.directory /github/workspace
+      - name: Install PHP and Composer
+        uses: shivammathur/setup-php@v2
+      - name: Install project dependencies
+        run: composer install --no-plugins --no-interaction
+      - name: Run ComposerRequireChecker
+        run: |
+          wget -O composer-require-checker.phar https://github.com/maglnet/ComposerRequireChecker/releases/latest/download/composer-require-checker.phar
+          XDEBUG_MODE=off php composer-require-checker.phar check ./composer.json
