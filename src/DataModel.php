@@ -229,14 +229,14 @@ trait DataModel
 
             /** Property-level Pre Hook */
             if (isset($Describe->pre)) {
-                ($Describe->pre)($context[$context_key] ?? [], $context, $Attribute, $ReflectionProperty);
+                ($Describe->pre)($context[$context_key] ?? null, $context, $Attribute, $ReflectionProperty);
             }
 
             $property_name = $ReflectionProperty->getName();
 
             if (isset($Describe->default) && !isset($context[$context_key])) {
                 $self->{$property_name} = is_callable($Describe->default)
-                    ? ($Describe->default)([], $context, $Attribute, $ReflectionProperty)
+                    ? ($Describe->default)(null, $context, $Attribute, $ReflectionProperty)
                     : $Describe->default;
 
                 if (isset($Describe->post)) {
@@ -248,7 +248,7 @@ trait DataModel
 
             /** Property-level Cast */
             if (isset($Describe->cast)) {
-                $self->{$property_name} = ($Describe->cast)($context[$context_key] ?? [], $context, $Attribute, $ReflectionProperty);
+                $self->{$property_name} = ($Describe->cast)($context[$context_key] ?? null, $context, $Attribute, $ReflectionProperty);
 
                 /** Property-level Post Hook */
                 if (isset($Describe->post)) {
