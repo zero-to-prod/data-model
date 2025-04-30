@@ -167,13 +167,8 @@ trait DataModel
 
         $ReflectionClass = new ReflectionClass($self);
         /** Get Describe Attribute on class. */
-        /** @var ReflectionAttribute $ClassAttribute */
-        $ClassAttribute = current(
-            array_filter(
-                $ReflectionClass->getAttributes(),
-                static fn(ReflectionAttribute $ReflectionAttribute) => $ReflectionAttribute->getName() === Describe::class
-            )
-        );
+        /** @var ReflectionAttribute|bool $ClassAttribute */
+        $ClassAttribute = current($ReflectionClass->getAttributes(Describe::class));
         /** @var Describe|null $ClassDescribe */
         $ClassDescribe = $ClassAttribute ? $ClassAttribute->newInstance() : null;
         $ClassDescribeArguments = $ClassAttribute ? $ClassAttribute->getArguments() : null;
