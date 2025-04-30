@@ -181,44 +181,48 @@ trait DataModel
         $methods = [];
         foreach ($ReflectionClass->getMethods() as $ReflectionMethod) {
             $ReflectionAttributes = $ReflectionMethod->getAttributes(Describe::class);
-            if (!empty($ReflectionAttributes)) {
-                foreach ($ReflectionAttributes as $ReflectionAttribute) {
-                    $property = $ReflectionAttribute->getArguments()[0];
-                    try {
-                        if (!isset($methods[$property])) {
-                            throw new ReflectionException();
-                        }
-                        $filename = $ReflectionClass->getMethod($methods[$property])->getFileName();
-                        $start_line = $ReflectionClass->getMethod($methods[$property])->getStartLine();
-                    } catch (ReflectionException) {
-                        $filename = null;
-                        $start_line = null;
+            foreach ($ReflectionAttributes as $ReflectionAttribute) {
+                $property = $ReflectionAttribute->getArguments()[0];
+                try {
+                    if (!isset($methods[$property])) {
+                        throw new ReflectionException();
                     }
-                    $methods[$property] = isset($methods[$property])
-                        ? throw new DuplicateDescribeAttributeException(
-                            sprintf(
-                                "\nDuplicate #[Describe($property)] attribute for property $%s found in methods:\n".
-                                "%s() %s:%d\n".
-                                "%s() %s:%d",
-                                $property,
-                                $methods[$property],
-                                $filename,
-                                $start_line,
-                                $ReflectionMethod->getName(),
-                                $ReflectionMethod->getFileName(),
-                                $ReflectionMethod->getStartLine()
-                            )
-                        )
-                        : $ReflectionMethod->getName();
+                    $filename = $ReflectionClass->getMethod($methods[$property])->getFileName();
+                    $start_line = $ReflectionClass->getMethod($methods[$property])->getStartLine();
+                } catch (ReflectionException) {
+                    $filename = null;
+                    $start_line = null;
                 }
+                $methods[$property] = isset($methods[$property])
+                    ? throw new DuplicateDescribeAttributeException(
+                        sprintf(
+                            "\nDuplicate #[Describe($property)] attribute for property $%s found in methods:\n".
+                            "%s() %s:%d\n".
+                            "%s() %s:%d",
+                            $property,
+                            $methods[$property],
+                            $filename,
+                            $start_line,
+                            $ReflectionMethod->getName(),
+                            $ReflectionMethod->getFileName(),
+                            $ReflectionMethod->getStartLine()
+                        )
+                    )
+                    : $ReflectionMethod->getName();
             }
+        }
+
+        $propertyAttributes = [];
+        $ReflectionProperties = $ReflectionClass->getProperties();
+        foreach ($ReflectionProperties as $ReflectionProperty) {
+            $propertyAttributes[$ReflectionProperty->getName()] =
+                $ReflectionProperty->getAttributes(Describe::class)[0] ?? null;
         }
 
         $context = is_object($context) ? (array)$context : $context ?? [];
 
-        foreach ($ReflectionClass->getProperties() as $ReflectionProperty) {
-            $Attribute = ($ReflectionProperty->getAttributes(Describe::class)[0] ?? null);
-            /** @var Describe $Describe */
+        foreach ($ReflectionProperties as $ReflectionProperty) {
+            $Attribute = $propertyAttributes[$ReflectionProperty->getName()];
             $Describe = $Attribute?->newInstance();
 
             if (isset($Describe->ignore) && $Describe->ignore) {
