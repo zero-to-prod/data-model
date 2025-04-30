@@ -103,26 +103,32 @@ use Attribute;
 class Describe
 {
     public const missing_as_null = 'missing_as_null';
-    public const nullable = 'nullable';
-    public const required = 'required';
-    public const ignore = 'ignore';
-
+    /** @see $from */
+    public const from = 'from';
     public string $from;
-
+    /** @see $cast */
+    public const cast = 'cast';
     public string|array $cast;
-
+    /** @see $required */
+    public const required = 'required';
     public bool $required;
-
+    /** @see $default */
+    public const default = 'default';
     public $default;
-
+    /** @see $pre */
+    public const pre = 'pre';
     public $pre;
-
+    /** @see $post */
+    public const post = 'post';
     public $post;
-
+    /** @see $nullable */
+    public const nullable = 'nullable';
     public bool $nullable;
-
+    /** @see $ignore */
+    public const ignore = 'ignore';
     public bool $ignore;
-
+    /** @see $via */
+    public const via = 'via';
     public string|array $via;
 
     /**
@@ -224,51 +230,85 @@ class Describe
      */
     public function __construct(string|null|array $attributes = null)
     {
-        if (is_countable($attributes)) {
-            foreach ($attributes as $key => $value) {
-                if (property_exists($this, $key)) {
-                    if ($key === self::nullable && !is_bool($value)) {
-                        throw new InvalidValue(sprintf("Invalid value: `%s` should be a boolean.", self::nullable));
-                    }
+        if (!is_array($attributes)) {
+            return;
+        }
 
-                    if ($key === self::required && !is_bool($value)) {
-                        throw new InvalidValue(sprintf("Invalid value: `%s` should be a boolean.", self::required));
-                    }
-
-                    if ($key === self::ignore && !is_bool($value)) {
-                        throw new InvalidValue(sprintf("Invalid value: `%s` should be a boolean.", self::ignore));
-                    }
-
-                    $this->$key = $value;
-                    continue;
-                }
-                if (is_string($value) && property_exists($this, $value) && $key === 0) {
-                    if ($value === self::required) {
-                        $this->$value = true;
-                    }
-
-                    if ($value === self::nullable) {
-                        $this->$value = true;
-                    }
-
-                    if ($value === self::ignore) {
-                        $this->$value = true;
-                    }
-                }
-                /**
-                 * Aliases
-                 */
-
-                if ($key === self::missing_as_null) {
+        foreach ($attributes as $key => $value) {
+            switch ($key) {
+                case self::required:
                     if (!is_bool($value)) {
-                        throw new InvalidValue(sprintf("Invalid value: `%s` should be a boolean.", self::missing_as_null));
+                        throw new InvalidValue('Invalid value: `required` should be a boolean.');
+                    }
+                    $this->required = $value;
+                    break;
+
+                case self::nullable:
+                    if (!is_bool($value)) {
+                        throw new InvalidValue('Invalid value: `nullable` should be a boolean.');
                     }
                     $this->nullable = $value;
-                    continue;
-                }
-                if ($value === self::missing_as_null) {
-                    $this->nullable = true;
-                }
+                    break;
+
+                case self::ignore:
+                    if (!is_bool($value)) {
+                        throw new InvalidValue('Invalid value: `ignore` should be a boolean.');
+                    }
+                    $this->ignore = $value;
+                    break;
+
+                case self::missing_as_null:
+                    if (!is_bool($value)) {
+                        throw new InvalidValue('Invalid value: `missing_as_null` should be a boolean.');
+                    }
+                    $this->nullable = $value;
+                    break;
+
+                case self::from:
+                    $this->from = $value;
+                    break;
+
+                case self::cast:
+                    $this->cast = $value;
+                    break;
+
+                case self::default:
+                    $this->default = $value;
+                    break;
+
+                case self::pre:
+                    $this->pre = $value;
+                    break;
+
+                case self::post:
+                    $this->post = $value;
+                    break;
+
+                case self::via:
+                    $this->via = $value;
+                    break;
+
+                case 0:
+                    if (is_string($value)) {
+                        switch ($value) {
+                            case self::required:
+                                $this->required = true;
+                                break;
+                            case self::missing_as_null:
+                            case self::nullable:
+                                $this->nullable = true;
+                                break;
+                            case self::ignore:
+                                $this->ignore = true;
+                                break;
+                        }
+                    }
+                    break;
+
+                default:
+                    if ($value === self::missing_as_null) {
+                        $this->nullable = true;
+                    }
             }
         }
     }
