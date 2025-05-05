@@ -219,8 +219,8 @@ class Describe
      *  }
      *  ```
      *
-     * @param  string|array{'from': string,'pre': string|string[], 'cast': string|string[], 'post': string|string[], 'required': bool, 'default': mixed, 'nullable': bool,
-     *                                            'ignore': bool, 'via': string}|null  $attributes
+     * @param  string|array{'from'?: string, 'pre'?: string|string[], 'cast'?: string|string[], 'post'?: string|string[], 'required'?: bool, 'default'?: mixed, 'nullable'?: bool,
+     *                                            'ignore'?: bool, 'via'?: string}|null  $attributes
      *
      * @link https://github.com/zero-to-prod/data-model
      *
