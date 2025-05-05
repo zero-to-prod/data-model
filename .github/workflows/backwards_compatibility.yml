@@ -1,5 +1,8 @@
 name: backwards_compatibility
 
+permissions:
+  contents: read
+
 on:
   push:
 
