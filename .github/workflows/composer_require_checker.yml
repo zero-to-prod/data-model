@@ -1,5 +1,8 @@
 name: composer_require_checker
 
+permissions:
+  contents: read
+
 on:
   push:
 
