@@ -1,0 +1,33 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * Zero-to-Prod Factory Documentation Publisher
+ *
+ * Publishes the README.md file to the user's documentation directory.
+ */
+
+require getcwd().'/vendor/autoload.php';
+
+use Zerotoprod\PackageHelper\PackageHelper;
+
+$target_path = getcwd().'/docs/zero-to-prod/data-model/';
+if (isset($argv[1])) {
+    $target_path = rtrim($argv[1], '/').'/';
+}
+
+$source_file = __DIR__.'/../README.md';
+
+if (!file_exists($source_file)) {
+    fwrite(STDERR, "Error: Not found $source_file\n");
+    exit(1);
+}
+
+try {
+    PackageHelper::copy($source_file, $target_path);
+    exit(0);
+} catch (RuntimeException $e) {
+    fwrite(STDERR, "Error: ".$e->getMessage()."\n");
+    exit(1);
+}
+

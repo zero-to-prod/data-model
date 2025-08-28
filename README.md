@@ -17,7 +17,9 @@
 - [Introduction](#introduction)
     - [Why Use DataModel?](#why-use-datamodel)
 - [Installation](#installation)
-    - [Additional Packages](#additional-packages)
+- [Documentation Publishing](#documentation-publishing)
+  - [Automatic Documentation Publishing](#automatic-documentation-publishing)
+- [Additional Packages](#additional-packages)
 - [Features](#features)
     - [Type-Safe](#recursive-hydration)
     - [Recursive Instantiation](#recursive-hydration)
@@ -86,6 +88,39 @@ You can install the package via Composer:
 
 ```bash
 composer require zero-to-prod/data-model
+```
+
+## Documentation Publishing
+
+You can publish this README to your local documentation directory.
+
+This can be useful for providing documentation for AI agents.
+
+This can be done using the included script:
+
+```bash
+# Publish to default location (./docs/zero-to-prod/data-model)
+vendor/bin/zero-to-prod-data-model
+
+# Publish to custom directory
+vendor/bin/zero-to-prod-data-model /path/to/your/docs
+```
+
+#### Automatic Documentation Publishing
+
+You can automatically publish documentation by adding the following to your `composer.json`:
+
+```json
+{
+  "scripts": {
+    "post-install-cmd": [
+      "zero-to-prod-data-model"
+    ],
+    "post-update-cmd": [
+      "zero-to-prod-data-model"
+    ]
+  }
+}
 ```
 
 ### Additional Packages
