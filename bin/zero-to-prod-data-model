@@ -11,7 +11,7 @@ require getcwd().'/vendor/autoload.php';
 
 use Zerotoprod\PackageHelper\PackageHelper;
 
-$target_path = getcwd().'/docs/zero-to-prod/package-helper/';
+$target_path = getcwd().'/docs/zero-to-prod/data-model/';
 if (isset($argv[1])) {
     $target_path = rtrim($argv[1], '/').'/';
 }
