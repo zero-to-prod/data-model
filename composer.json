@@ -39,7 +39,8 @@
     }
   ],
   "require": {
-    "php": ">=8.1.0"
+    "php": ">=8.1.0",
+    "zero-to-prod/package-helper": "^1.1.3"
   },
   "require-dev": {
     "phpunit/phpunit": "^10.0"
@@ -61,5 +62,8 @@
     "files": [
       "./tests/functions.php"
     ]
-  }
+  },
+  "bin": [
+    "bin/zero-to-prod-data-model"
+  ]
 }
