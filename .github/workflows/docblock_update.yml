@@ -1,0 +1,43 @@
+name: docblock_update
+
+on:
+  pull_request:
+    branches: [ "*" ]
+
+jobs:
+  update-docblocks:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ref: ${{ github.head_ref || github.ref }}
+          fetch-depth: 0
+
+      - name: Update docblocks
+        run: |
+          set -e
+          SOURCE_URL=$(jq -r '.support.source' composer.json)
+          if [ ! -d ./src ]; then
+            echo "Source directory ./src does not exist!"
+            exit 1
+          fi
+          docker run --rm -v "$PWD/src:/app/run" davidsmith3/docblock-annotator-cli \
+            docblock-annotator-cli:update-directory /app/run "@link $SOURCE_URL"
+
+      - name: Commit and push changes (if any)
+        run: |
+          set -e
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add -A
+          if ! git diff --cached --quiet; then
+            git commit -m "Update docblocks with @link annotations" --no-verify
+            git push
+          else
+            echo "No changes to commit."
+          fi
