@@ -1,0 +1,57 @@
+name: annotate
+
+on:
+  workflow_dispatch:
+
+jobs:
+  update-docblocks:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.ref }}
+
+      - name: Install jq
+        run: sudo apt-get install -y jq
+
+      - name: Extract homepage from composer.json
+        id: composer
+        run: |
+          if [ -f "composer.json" ]; then
+            HOMEPAGE=$(jq -r '.homepage // empty' composer.json)
+            if [ ! -z "$HOMEPAGE" ]; then
+              echo "homepage=$HOMEPAGE" >> $GITHUB_OUTPUT
+            else
+              echo "Error: homepage not found in composer.json"
+              exit 1
+            fi
+          else
+            echo "Error: composer.json not found"
+            exit 1
+          fi
+
+      - name: Run DocBlock Annotator
+        run: docker run -v ${{ github.workspace }}/src:/app/run --rm davidsmith3/docblock-annotator-cli docblock-annotator-cli:update /app/run "@link ${{ steps.composer.outputs.homepage }}"
+
+      - name: Check for changes
+        id: git-check
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "changes=true" >> $GITHUB_OUTPUT
+          else
+            echo "changes=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit changes
+        if: steps.git-check.outputs.changes == 'true'
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add .
+          git commit -m "Update docblocks."
+          git push
