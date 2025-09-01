@@ -2,7 +2,7 @@
 <?php
 
 /**
- * Zero-to-Prod Factory Documentation Publisher
+ * Zero-to-Prod Data Model Documentation Publisher
  *
  * Publishes the README.md file to the user's documentation directory.
  */

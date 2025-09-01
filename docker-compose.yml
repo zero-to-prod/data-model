@@ -106,3 +106,30 @@ services:
       - ./.vendor/php8.4:/app/vendor
     build:
       target: composer
+
+  php8.5:
+    volumes:
+      - ./:/app:delegated
+      - ./.vendor/php8.5:/app/vendor
+    build:
+      context: ./docker/8.5
+      target: base
+
+  debug8.5:
+    extends:
+      service: php8.5
+    volumes:
+      - ./:/app:delegated
+      - ./docker/8.5:/usr/local/etc/php
+      - ./.vendor/php8.5:/app/vendor
+    build:
+      target: debug
+
+  composer8.5:
+    extends:
+      service: php8.5
+    volumes:
+      - ./:/app:delegated
+      - ./.vendor/php8.5:/app/vendor
+    build:
+      target: composer

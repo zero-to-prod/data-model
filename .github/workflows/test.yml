@@ -15,10 +15,10 @@ jobs:
 
     strategy:
       matrix:
-        php-version: ["8.4", "8.3", "8.2", "8.1"]
+        php-version: [ "8.5", "8.4", "8.3", "8.2", "8.1" ]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Create .env
         run: touch .env
