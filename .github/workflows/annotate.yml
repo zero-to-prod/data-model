@@ -1,7 +1,8 @@
 name: annotate
 
 on:
-  workflow_dispatch:
+  pull_request:
+    branches: [ "*" ]
 
 jobs:
   update-docblocks:
@@ -14,7 +15,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v5
         with:
-          ref: ${{ github.ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install jq
         run: sudo apt-get install -y jq
@@ -54,4 +55,5 @@ jobs:
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           git add .
           git commit -m "Update docblocks."
-          git push
+          git pull --rebase origin ${{ github.head_ref }}
+          git push origin HEAD:${{ github.head_ref }}
