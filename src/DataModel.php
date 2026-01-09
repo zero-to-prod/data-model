@@ -5,6 +5,8 @@ namespace Zerotoprod\DataModel;
 use ReflectionAttribute;
 use ReflectionClass;
 use ReflectionException;
+use ReflectionFunction;
+use ReflectionMethod;
 use ReflectionUnionType;
 use UnitEnum;
 
@@ -247,7 +249,12 @@ trait DataModel
 
             /** Property-level Cast */
             if (isset($Describe->cast)) {
-                $self->{$property_name} = ($Describe->cast)($context[$context_key] ?? null, $context, $Attribute, $ReflectionProperty);
+                $param_count = (new (is_array($Describe->cast) ? ReflectionMethod::class : ReflectionFunction::class)(...(array)$Describe->cast))
+                    ->getNumberOfParameters();
+
+                $self->{$property_name} = $param_count === 1
+                    ? ($Describe->cast)($context[$context_key] ?? null)
+                    : ($Describe->cast)($context[$context_key] ?? null, $context, $Attribute, $ReflectionProperty);
 
                 /** Property-level Post Hook */
                 if (isset($Describe->post)) {
