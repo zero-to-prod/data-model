@@ -102,33 +102,90 @@ use Attribute;
 #[Attribute]
 class Describe
 {
+    /**
+     * @link https://github.com/zero-to-prod/data-model
+     */
     public const missing_as_null = 'missing_as_null';
-    /** @see $from */
+    /**
+     * @see $from
+     * @link https://github.com/zero-to-prod/data-model
+     */
     public const from = 'from';
+    /**
+     * @link https://github.com/zero-to-prod/data-model
+     */
     public string $from;
-    /** @see $cast */
+    /**
+     * @see $cast
+     * @link https://github.com/zero-to-prod/data-model
+     */
     public const cast = 'cast';
+    /**
+     * @link https://github.com/zero-to-prod/data-model
+     */
     public string|array $cast;
-    /** @see $required */
+    /**
+     * @see $required
+     * @link https://github.com/zero-to-prod/data-model
+     */
     public const required = 'required';
+    /**
+     * @link https://github.com/zero-to-prod/data-model
+     */
     public bool $required;
-    /** @see $default */
+    /**
+     * @see $default
+     * @link https://github.com/zero-to-prod/data-model
+     */
     public const default = 'default';
+    /**
+     * @link https://github.com/zero-to-prod/data-model
+     */
     public $default;
-    /** @see $pre */
+    /**
+     * @see $pre
+     * @link https://github.com/zero-to-prod/data-model
+     */
     public const pre = 'pre';
+    /**
+     * @link https://github.com/zero-to-prod/data-model
+     */
     public $pre;
-    /** @see $post */
+    /**
+     * @see $post
+     * @link https://github.com/zero-to-prod/data-model
+     */
     public const post = 'post';
+    /**
+     * @link https://github.com/zero-to-prod/data-model
+     */
     public $post;
-    /** @see $nullable */
+    /**
+     * @see $nullable
+     * @link https://github.com/zero-to-prod/data-model
+     */
     public const nullable = 'nullable';
+    /**
+     * @link https://github.com/zero-to-prod/data-model
+     */
     public bool $nullable;
-    /** @see $ignore */
+    /**
+     * @see $ignore
+     * @link https://github.com/zero-to-prod/data-model
+     */
     public const ignore = 'ignore';
+    /**
+     * @link https://github.com/zero-to-prod/data-model
+     */
     public bool $ignore;
-    /** @see $via */
+    /**
+     * @see $via
+     * @link https://github.com/zero-to-prod/data-model
+     */
     public const via = 'via';
+    /**
+     * @link https://github.com/zero-to-prod/data-model
+     */
     public string|array $via;
 
     /**
