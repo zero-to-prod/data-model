@@ -4,6 +4,9 @@ namespace Zerotoprod\DataModel;
 
 use Attribute;
 
+use function is_bool;
+use function is_string;
+
 /**
  * Pass an associative array to the constructor to describe the behavior of a property when it is resolved.
  *
