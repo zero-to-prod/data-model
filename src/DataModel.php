@@ -10,6 +10,10 @@ use ReflectionMethod;
 use ReflectionUnionType;
 use UnitEnum;
 
+use function is_array;
+use function is_object;
+use function is_string;
+
 /**
  * Enables classes to instantiate themselves from arrays or objects, auto-populating properties based on type hints and attributes.
  * Supports primitives, custom classes, enums, and allows for custom casting logic.
