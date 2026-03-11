@@ -289,8 +289,9 @@ The `Describe` attribute can accept these arguments.
     // Runs before 'cast'
     'pre' => [MyClass::class, 'preHook']
     // Targets the static method: `MyClass::methodName()`
-    'cast' => [MyClass::class, 'castMethod'], 
+    'cast' => [MyClass::class, 'castMethod'],
     // 'cast' => 'my_func', // alternately target a function
+    // 'cast' => MyClass::castMethod(...), // or a first-class callable (PHP 8.5+)
     // Runs after 'cast' passing the resolved value as `$value`
     'post' => [MyClass::class, 'postHook']
     'default' => 'value',
@@ -324,12 +325,15 @@ class User
     use \Zerotoprod\DataModel\DataModel;
 
     #[Describe(['cast' => [self::class, 'firstName'], 'function' => 'strtoupper'])]
+    // Or with first-class callable (PHP 8.5+):
+    // #[Describe(['cast' => self::firstName(...), 'function' => 'strtoupper'])]
     public string $first_name;
-    
+
     #[Describe(['cast' => 'uppercase'])]
     public string $last_name;
 
     #[Describe(['cast' => [self::class, 'fullName']])]
+    // Or: #[Describe(['cast' => self::fullName(...)])]
     public string $full_name;
 
     private static function firstName(mixed $value, array $context, ?\ReflectionAttribute $ReflectionAttribute, \ReflectionProperty $ReflectionProperty): string
@@ -748,6 +752,7 @@ class User
     /** @var Alias[] $Aliases */
     #[Describe([
         'cast' => [self::class, 'mapOf'],   // Use the mapOf helper method
+        // 'cast' => self::mapOf(...),       // Or use first-class callable (PHP 8.5+)
         'type' => Alias::class,             // Target type for each item
     ])]
     public array $Aliases;
@@ -791,7 +796,7 @@ class User
     
     /** @var Collection<int, Alias> $Aliases */
     #[Describe([
-        'cast' => [self::class, 'mapOf'],
+        'cast' => [self::class, 'mapOf'],   // Or: self::mapOf(...) on PHP 8.5+
         'type' => Alias::class,
     ])]
     public \Illuminate\Support\Collection $Aliases;
