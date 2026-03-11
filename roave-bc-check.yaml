@@ -1,0 +1,3 @@
+parameters:
+    ignoreErrors:
+        - '#\[BC\] CHANGED: Type of property Zerotoprod\\DataModel\\Describe\#\$cast changed from string\|array to string\|array\|Closure#'

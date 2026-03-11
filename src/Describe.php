@@ -3,6 +3,7 @@
 namespace Zerotoprod\DataModel;
 
 use Attribute;
+use Closure;
 
 use function is_bool;
 use function is_string;
@@ -20,12 +21,15 @@ use function is_string;
  *     use DataModel;
  *
  *     #[Describe(['cast' => [__CLASS__, 'firstName'], 'required' => true])]
+ *     // Or with first-class callable (PHP 8.5+):
+ *     // #[Describe(['cast' => self::firstName(...), 'required' => true])]
  *     public string $first_name;
  *
  *     #[Describe(['cast' => 'uppercase'])]
  *     public string $last_name;
  *
  *     #[Describe(['cast' => [__CLASS__, 'fullName']])]
+ *     // Or: #[Describe(['cast' => self::fullName(...)])]
  *     public string $full_name;
  *
  *
@@ -126,7 +130,7 @@ class Describe
     /**
      * @link https://github.com/zero-to-prod/data-model
      */
-    public string|array $cast;
+    public string|array|Closure $cast;
     /**
      * @see $required
      * @link https://github.com/zero-to-prod/data-model
@@ -204,12 +208,15 @@ class Describe
      *      use DataModel;
      *
      *      #[Describe(['cast' => [__CLASS__, 'firstName'], 'function' => 'strtoupper'])]
+     *      // Or with first-class callable (PHP 8.5+):
+     *      // #[Describe(['cast' => self::firstName(...), 'function' => 'strtoupper'])]
      *      public string $first_name;
      *
      *      #[Describe(['cast' => 'uppercase'])]
      *      public string $last_name;
      *
      *      #[Describe(['cast' => [__CLASS__, 'fullName'], 'required' => true])]
+     *      // Or: #[Describe(['cast' => self::fullName(...), 'required' => true])]
      *      public string $full_name;
      *
      *      private static function firstName(mixed $value, array $context, ?\ReflectionAttribute $ReflectionAttribute, \ReflectionProperty $ReflectionProperty): string
@@ -279,7 +286,7 @@ class Describe
      *  }
      *  ```
      *
-     * @param  string|array{'from'?: string, 'pre'?: string|string[], 'cast'?: string|string[], 'post'?: string|string[], 'required'?: bool, 'default'?: mixed, 'nullable'?: bool,
+     * @param  string|array{'from'?: string, 'pre'?: string|string[], 'cast'?: string|array|\Closure, 'post'?: string|string[], 'required'?: bool, 'default'?: mixed, 'nullable'?: bool,
      *                                            'ignore'?: bool, 'via'?: string}|null  $attributes
      *
      * @link https://github.com/zero-to-prod/data-model

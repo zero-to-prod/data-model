@@ -8,6 +8,7 @@ use ReflectionException;
 use ReflectionFunction;
 use ReflectionMethod;
 use ReflectionUnionType;
+use Closure;
 use UnitEnum;
 
 use function is_array;
@@ -44,6 +45,7 @@ use function is_string;
  *  // Targets the static method: `MyClass::methodName()`
  *  'cast' => [MyClass::class, 'castMethod'],
  *  // 'cast' => 'my_func', // alternately target a function
+ *  // 'cast' => MyClass::castMethod(...), // or a first-class callable (PHP 8.5+)
  *  // Runs after 'cast' passing the resolved value as `$value`
  *  'post' => [MyClass::class, 'postHook']
  *  'default' => 'value',
@@ -253,7 +255,9 @@ trait DataModel
 
             /** Property-level Cast */
             if (isset($Describe->cast)) {
-                $param_count = (new (is_array($Describe->cast) ? ReflectionMethod::class : ReflectionFunction::class)(...(array)$Describe->cast))
+                $param_count = ($Describe->cast instanceof Closure
+                    ? new ReflectionFunction($Describe->cast)
+                    : new (is_array($Describe->cast) ? ReflectionMethod::class : ReflectionFunction::class)(...(array)$Describe->cast))
                     ->getNumberOfParameters();
 
                 $self->{$property_name} = $param_count === 1
