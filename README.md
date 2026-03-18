@@ -28,6 +28,7 @@
     - [Transformations](#transformations)
     - [Required Properties](#required-properties)
     - [Default Values](#default-values)
+    - [Assigning Values](#assigning-values)
     - [Nullable Missing Values](#nullable-missing-values)
     - [Remapping](#re-mapping)
     - [Ignoring Properties](#ignoring-properties)
@@ -55,6 +56,7 @@
     - [Limitations](#limitations)
 - [Nullable Missing Values](#nullable-missing-values)
     - [Limitations](#limitations-1)
+- [Assigning Values](#assigning-values)
 - [Re-Mapping](#re-mapping)
 - [Ignoring Properties](#ignoring-properties)
 - [Using the Constructor](#using-the-constructor)
@@ -146,7 +148,8 @@ You can automatically publish documentation by adding the following to your `com
 - [Life-Cycle Hooks](#life-cycle-hooks): Run code before/after property assignment with [pre](#pre-hook) and [post](#post-hook).
 - [Transformations](#transformations): Describe how to resolve a value before instantiation.
 - [Required Properties](#required-properties): Throw an exception when a property is not set.
-- [Default Values](#default-values): Set a default property value.
+- [Default Values](#default-values): Set a default property value when the key is absent.
+- [Assigning Values](#assigning-values): Always assign a fixed value regardless of context.
 - [Nullable Missing Values](#nullable-missing-values): Resolve a missing value as null.
 - [Remapping](#re-mapping): Re-map a key to a property of a different name.
 - [Ignoring Properties](#ignoring-properties): Skip properties as needed
@@ -283,22 +286,24 @@ The `Describe` attribute can accept these arguments.
 
 ```php
 #[\Zerotoprod\DataModel\Describe([
-    'ignore' // ignores a property
+    'ignore', // ignores a property
     // Re-map a key to a property of a different name
-    'from' => 'key', 
+    'from' => 'key',
     // Runs before 'cast'
-    'pre' => [MyClass::class, 'preHook']
+    'pre' => [MyClass::class, 'preHook'],
     // Targets the static method: `MyClass::methodName()`
     'cast' => [MyClass::class, 'castMethod'],
     // 'cast' => 'my_func', // alternately target a function
     // 'cast' => MyClass::castMethod(...), // or a first-class callable (PHP 8.5+)
     // Runs after 'cast' passing the resolved value as `$value`
-    'post' => [MyClass::class, 'postHook']
+    'post' => [MyClass::class, 'postHook'],
     'default' => 'value',
     'required', // Throws an exception if the element is missing
     'nullable', // sets the value to null if the element is missing
-     // The callable to instantiate the class
-     'via' => [MyClass::class, 'staticMethod'] // or 'my_func',
+    // Always assigns this value regardless of whether a matching key exists in the context
+    'assign' => 'value',
+    // The callable to instantiate the class
+    'via' => [MyClass::class, 'staticMethod'], // or 'my_func',
 ])]
 ```
 
@@ -306,12 +311,13 @@ The `Describe` attribute can accept these arguments.
 
 There is an order of precedence when resolving a value for a property.
 
-1. [Property-level Cast](#property-level-cast)
-2. [Method-level Cast](#method-level-cast)
-3. [Union Types](#union-types)
-4. [Class-level Casts](#class-level-cast)
-5. Types that have a **concrete** static method `from()`.
-6. Native Types
+1. [`assign`](#assigning-values) (always wins — context is ignored)
+2. [Property-level Cast](#property-level-cast)
+3. [Method-level Cast](#method-level-cast)
+4. [Union Types](#union-types)
+5. [Class-level Casts](#class-level-cast)
+6. Types that have a **concrete** static method `from()`.
+7. Native Types
 
 ### Property-Level Cast
 
@@ -549,6 +555,35 @@ echo $User->username // 'N/A'
 Note that using `null` as a default will not work: `#[Describe(['default' => null])]`.
 
 Use `#[Describe(['nullable' => true])]` or `#[Describe(['nullable'])]` to set a null value.
+
+## Assigning Values
+
+Use `assign` to always set a fixed value on a property, regardless of what the context contains.
+Unlike `default`, which only applies when the key is absent, `assign` overwrites any value from context.
+
+```php
+use Zerotoprod\DataModel\Describe;
+
+class User
+{
+    use \Zerotoprod\DataModel\DataModel;
+
+    #[Describe(['assign' => ['role' => 'admin']])]
+    public array $config;
+}
+
+$User = User::from();
+// $User->config === ['role' => 'admin']
+
+$User = User::from(['config' => ['role' => 'guest']]);
+// $User->config === ['role' => 'admin']  (context value is ignored)
+```
+
+### Limitations
+
+Note that using `null` as an assigned value will not work: `#[Describe(['assign' => null])]`.
+
+Use `#[Describe(['nullable' => true])]` to set a null value.
 
 ## Nullable Missing Values
 

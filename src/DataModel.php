@@ -37,20 +37,24 @@ use function is_string;
  * Property-Level
  * ```
  * #[\Zerotoprod\DataModel\Describe([
- *  'ignore' // ignores a property
+ *  'ignore', // ignores a property
  *  // Re-map a key to a property of a different name
  *  'from' => 'key',
  *  // Runs before 'cast'
- *  'pre' => [MyClass::class, 'preHook']
+ *  'pre' => [MyClass::class, 'preHook'],
  *  // Targets the static method: `MyClass::methodName()`
  *  'cast' => [MyClass::class, 'castMethod'],
  *  // 'cast' => 'my_func', // alternately target a function
  *  // 'cast' => MyClass::castMethod(...), // or a first-class callable (PHP 8.5+)
  *  // Runs after 'cast' passing the resolved value as `$value`
- *  'post' => [MyClass::class, 'postHook']
+ *  'post' => [MyClass::class, 'postHook'],
  *  'default' => 'value',
  *  'required', // Throws an exception if the element is missing
  *  'nullable', // sets the value to null if the element is missing
+ *  // Always assigns this value regardless of whether a matching key exists in the context
+ *  'assign' => 'value',
+ *   // The callable to instantiate the class
+ *   'via' => [MyClass::class, 'staticMethod'] // or 'my_func',
  * ])]
  * public string $property;
  * ```
@@ -109,19 +113,21 @@ trait DataModel
      * Property-Level
      * ```
      * #[\Zerotoprod\DataModel\Describe([
-     *  'ignore' // ignores a property
+     *  'ignore', // ignores a property
      *  // Re-map a key to a property of a different name
      *  'from' => 'key',
      *  // Runs before 'cast'
-     *  'pre' => [MyClass::class, 'preHook']
+     *  'pre' => [MyClass::class, 'preHook'],
      *  // Targets the static method: `MyClass::methodName()`
      *  'cast' => [MyClass::class, 'castMethod'],
      *  // 'cast' => 'my_func', // alternately target a function
      *  // Runs after 'cast' passing the resolved value as `$value`
-     *  'post' => [MyClass::class, 'postHook']
+     *  'post' => [MyClass::class, 'postHook'],
      *  'default' => 'value',
      *  'required', // Throws an exception if the element is missing
      *  'nullable', // sets the value to null if the element is missing
+     *  // Always assigns this value regardless of whether a matching key exists in the context
+     *  'assign' => 'value',
      *   // The callable to instantiate the class
      *   'via' => [MyClass::class, 'staticMethod'] // or 'my_func',
      * ])]
@@ -229,6 +235,11 @@ trait DataModel
             $Describe = $Attribute?->newInstance();
 
             if (isset($Describe->ignore) && $Describe->ignore) {
+                continue;
+            }
+
+            if (isset($Describe->assign)) {
+                $self->{$ReflectionProperty->getName()} = $Describe->assign;
                 continue;
             }
 
