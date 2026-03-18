@@ -32,6 +32,9 @@ use function is_string;
  *     // Or: #[Describe(['cast' => self::fullName(...)])]
  *     public string $full_name;
  *
+ *     // Always assigns ['role' => 'admin'] regardless of what is passed in context.
+ *     #[Describe(['assign' => ['role' => 'admin']])]
+ *     public array $config;
  *
  *     public static function firstName(mixed $value, array $context): string
  *     {
@@ -194,6 +197,17 @@ class Describe
      * @link https://github.com/zero-to-prod/data-model
      */
     public string|array $via;
+    /**
+     * @see $assign
+     * @link https://github.com/zero-to-prod/data-model
+     */
+    public const assign = 'assign';
+    /**
+     * Always assigns this value to the property regardless of whether a matching key exists in the context.
+     *
+     * @link https://github.com/zero-to-prod/data-model
+     */
+    public mixed $assign;
 
     /**
      *  Pass an associative array to the constructor to describe the behavior of a property when it is resolved.
@@ -218,6 +232,10 @@ class Describe
      *      #[Describe(['cast' => [__CLASS__, 'fullName'], 'required' => true])]
      *      // Or: #[Describe(['cast' => self::fullName(...), 'required' => true])]
      *      public string $full_name;
+     *
+     *      // Always assigns ['role' => 'admin'] regardless of what is passed in context.
+     *      #[Describe(['assign' => ['role' => 'admin']])]
+     *      public array $config;
      *
      *      private static function firstName(mixed $value, array $context, ?\ReflectionAttribute $ReflectionAttribute, \ReflectionProperty $ReflectionProperty): string
      *      {
@@ -287,7 +305,7 @@ class Describe
      *  ```
      *
      * @param  string|array{'from'?: string, 'pre'?: string|string[], 'cast'?: string|array|\Closure, 'post'?: string|string[], 'required'?: bool, 'default'?: mixed, 'nullable'?: bool,
-     *                                            'ignore'?: bool, 'via'?: string}|null  $attributes
+     *                                            'ignore'?: bool, 'via'?: string, 'assign'?: mixed}|null  $attributes
      *
      * @link https://github.com/zero-to-prod/data-model
      *
@@ -353,6 +371,10 @@ class Describe
 
                 case self::via:
                     $this->via = $value;
+                    break;
+
+                case self::assign:
+                    $this->assign = $value;
                     break;
 
                 case 0:
