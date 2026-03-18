@@ -51,8 +51,10 @@ use function is_string;
  *  'default' => 'value',
  *  'required', // Throws an exception if the element is missing
  *  'nullable', // sets the value to null if the element is missing
- *  // Always assigns this value regardless of whether a matching key exists in the context
+ *  // Always assigns this value regardless of whether a matching key exists in the context.
+ *  // When callable, delegates to the function and assigns its return value.
  *  'assign' => 'value',
+ *  // 'assign' => [MyClass::class, 'method'], // or a callable
  *   // The callable to instantiate the class
  *   'via' => [MyClass::class, 'staticMethod'] // or 'my_func',
  * ])]
@@ -239,7 +241,18 @@ trait DataModel
             }
 
             if (isset($Describe->assign)) {
-                $self->{$ReflectionProperty->getName()} = $Describe->assign;
+                $property_name = $ReflectionProperty->getName();
+                if (is_callable($Describe->assign)) {
+                    $param_count = ($Describe->assign instanceof Closure
+                        ? new ReflectionFunction($Describe->assign)
+                        : new (is_array($Describe->assign) ? ReflectionMethod::class : ReflectionFunction::class)(...(array)$Describe->assign))
+                        ->getNumberOfParameters();
+                    $self->{$property_name} = $param_count === 1
+                        ? ($Describe->assign)(null)
+                        : ($Describe->assign)(null, $context, $Attribute, $ReflectionProperty);
+                } else {
+                    $self->{$property_name} = $Describe->assign;
+                }
                 continue;
             }
 

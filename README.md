@@ -300,8 +300,10 @@ The `Describe` attribute can accept these arguments.
     'default' => 'value',
     'required', // Throws an exception if the element is missing
     'nullable', // sets the value to null if the element is missing
-    // Always assigns this value regardless of whether a matching key exists in the context
+    // Always assigns this value regardless of whether a matching key exists in the context.
+    // When callable, delegates to the function and assigns its return value.
     'assign' => 'value',
+    // 'assign' => [MyClass::class, 'method'], // or a callable
     // The callable to instantiate the class
     'via' => [MyClass::class, 'staticMethod'], // or 'my_func',
 ])]
@@ -578,6 +580,37 @@ $User = User::from();
 $User = User::from(['config' => ['role' => 'guest']]);
 // $User->config === ['role' => 'admin']  (context value is ignored)
 ```
+
+When the value is callable it is invoked and its return value is assigned.
+The callable receives `null` as the first argument (there is no context value to pass)
+followed by the full context, attribute, and property — matching the same signatures as `cast`.
+
+```php
+use Zerotoprod\DataModel\Describe;
+
+class User
+{
+    use \Zerotoprod\DataModel\DataModel;
+
+    #[Describe(['assign' => [self::class, 'account']])]
+    public string $account;
+
+    public static function account($value, array $context): string
+    {
+        return 'service-account';
+    }
+}
+
+$User = User::from();
+// $User->account === 'service-account'
+
+$User = User::from(['account' => 'other']);
+// $User->account === 'service-account'  (context value is ignored)
+```
+
+Callable signatures supported (matched by parameter count, same as `cast`):
+- 1 param: `function($value): mixed`
+- 4 params: `function($value, array $context, ?\ReflectionAttribute $Attribute, \ReflectionProperty $Property): mixed`
 
 ### Limitations
 

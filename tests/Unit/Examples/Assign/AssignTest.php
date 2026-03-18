@@ -20,4 +20,25 @@ class AssignTest extends TestCase
 
         $this->assertEquals(['role' => 'admin'], $user->config);
     }
+
+    #[Test] public function delegates_to_callable(): void
+    {
+        $user = User::from();
+
+        $this->assertEquals('service-account', $user->account);
+    }
+
+    #[Test] public function callable_ignores_context_value(): void
+    {
+        $user = User::from(['account' => 'other']);
+
+        $this->assertEquals('service-account', $user->account);
+    }
+
+    #[Test] public function delegates_to_callable_returning_array(): void
+    {
+        $user = User::from(['permissions' => ['none']]);
+
+        $this->assertEquals(['read', 'write'], $user->permissions);
+    }
 }
