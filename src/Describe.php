@@ -204,6 +204,9 @@ class Describe
     public const assign = 'assign';
     /**
      * Always assigns this value to the property regardless of whether a matching key exists in the context.
+     * When callable, it is invoked and the return value is assigned.
+     * Callable signature (1 param): `function($value): mixed`
+     * Callable signature (4 params): `function($value, array $context, ?\ReflectionAttribute $Attribute, \ReflectionProperty $Property): mixed`
      *
      * @link https://github.com/zero-to-prod/data-model
      */
@@ -236,6 +239,15 @@ class Describe
      *      // Always assigns ['role' => 'admin'] regardless of what is passed in context.
      *      #[Describe(['assign' => ['role' => 'admin']])]
      *      public array $config;
+     *
+     *      // Delegates to a callable; return value is always assigned.
+     *      #[Describe(['assign' => [__CLASS__, 'account']])]
+     *      public string $account;
+     *
+     *      public static function account($value, array $context): string
+     *      {
+     *          return 'service-account';
+     *      }
      *
      *      private static function firstName(mixed $value, array $context, ?\ReflectionAttribute $ReflectionAttribute, \ReflectionProperty $ReflectionProperty): string
      *      {
