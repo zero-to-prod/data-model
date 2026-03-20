@@ -57,6 +57,8 @@ use function is_string;
  *  // 'assign' => [MyClass::class, 'method'], // or a callable
  *   // The callable to instantiate the class
  *   'via' => [MyClass::class, 'staticMethod'] // or 'my_func',
+ *  // Any unrecognized keys are captured in Describe::$extra
+ *  'custom_key' => 'custom_value',
  * ])]
  * public string $property;
  * ```
@@ -132,6 +134,8 @@ trait DataModel
      *  'assign' => 'value',
      *   // The callable to instantiate the class
      *   'via' => [MyClass::class, 'staticMethod'] // or 'my_func',
+     *  // Any unrecognized keys are captured in Describe::$extra
+     *  'custom_key' => 'custom_value',
      * ])]
      * public string $property;
      * ```

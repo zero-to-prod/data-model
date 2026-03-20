@@ -32,6 +32,7 @@
     - [Nullable Missing Values](#nullable-missing-values)
     - [Remapping](#re-mapping)
     - [Ignoring Properties](#ignoring-properties)
+    - [Custom Metadata](#custom-metadata)
 - [How It Works](#how-it-works)
 - [Why It Works](#why-it-works)
     - [Eliminate Defensive Programming](#eliminate-defensive-programming)
@@ -59,6 +60,7 @@
 - [Assigning Values](#assigning-values)
 - [Re-Mapping](#re-mapping)
 - [Ignoring Properties](#ignoring-properties)
+- [Custom Metadata](#custom-metadata)
 - [Using the Constructor](#using-the-constructor)
 - [Targeting a function to Instantiate a Class](#targeting-a-function-to-instantiate-a-class)
 - [Extending DataModels](#extending-datamodels)
@@ -152,7 +154,8 @@ You can automatically publish documentation by adding the following to your `com
 - [Assigning Values](#assigning-values): Always assign a fixed value regardless of context.
 - [Nullable Missing Values](#nullable-missing-values): Resolve a missing value as null.
 - [Remapping](#re-mapping): Re-map a key to a property of a different name.
-- [Ignoring Properties](#ignoring-properties): Skip properties as needed
+- [Ignoring Properties](#ignoring-properties): Skip properties as needed.
+- [Custom Metadata](#custom-metadata): Attach arbitrary keys to a `Describe` attribute and access them via `$Describe->extra`.
 
 ## How It Works
 
@@ -306,6 +309,8 @@ The `Describe` attribute can accept these arguments.
     // 'assign' => [MyClass::class, 'method'], // or a callable
     // The callable to instantiate the class
     'via' => [MyClass::class, 'staticMethod'], // or 'my_func',
+    // Any unrecognized keys are captured in `extra`
+    'custom_key' => 'custom_value',
 ])]
 ```
 
@@ -708,6 +713,41 @@ $User = User::from([
 ]);
 
 isset($User->age); // false
+```
+
+## Custom Metadata
+
+Any unrecognized keys passed to `Describe` are captured in the `extra` array.
+This lets you attach arbitrary metadata to a property and access it in your cast, pre, or post
+callables without relying on reflection.
+
+```php
+use Zerotoprod\DataModel\Describe;
+
+class User
+{
+    use \Zerotoprod\DataModel\DataModel;
+
+    #[Describe(['cast' => [self::class, 'firstName'], 'function' => 'strtoupper'])]
+    public string $first_name;
+
+    private static function firstName(
+        mixed $value,
+        array $context,
+        ?\ReflectionAttribute $Attribute,
+        \ReflectionProperty $Property
+    ): string
+    {
+        // Access via reflection (still works)
+        $fn = $Attribute->getArguments()[0]['function'];
+
+        // Or access via extra (no reflection needed)
+        $Describe = $Attribute->newInstance();
+        $fn = $Describe->extra['function'];
+
+        return $fn($value);
+    }
+}
 ```
 
 ## Using the Constructor

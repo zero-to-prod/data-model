@@ -203,6 +203,18 @@ class Describe
      */
     public const assign = 'assign';
     /**
+     * @see $extra
+     * @link https://github.com/zero-to-prod/data-model
+     */
+    public const extra = 'extra';
+    /**
+     * Stores unrecognized keys passed to the Describe attribute.
+     * Allows custom metadata to be attached without relying on reflection.
+     *
+     * @link https://github.com/zero-to-prod/data-model
+     */
+    public array $extra = [];
+    /**
      * Always assigns this value to the property regardless of whether a matching key exists in the context.
      * When callable, it is invoked and the return value is assigned.
      * Callable signature (1 param): `function($value): mixed`
@@ -317,7 +329,7 @@ class Describe
      *  ```
      *
      * @param  string|array{'from'?: string, 'pre'?: string|string[], 'cast'?: string|array|\Closure, 'post'?: string|string[], 'required'?: bool, 'default'?: mixed, 'nullable'?: bool,
-     *                                            'ignore'?: bool, 'via'?: string, 'assign'?: mixed}|null  $attributes
+     *                                            'ignore'?: bool, 'via'?: string, 'assign'?: mixed, ...}|null  $attributes  Unrecognized keys are captured in {@see $extra}.
      *
      * @link https://github.com/zero-to-prod/data-model
      *
@@ -409,6 +421,8 @@ class Describe
                 default:
                     if ($value === self::missing_as_null) {
                         $this->nullable = true;
+                    } else {
+                        $this->extra[$key] = $value;
                     }
             }
         }
