@@ -5,12 +5,12 @@ namespace Zerotoprod\DataModel;
 use RuntimeException;
 
 /**
- * Thrown when a property is required.
+ * Thrown when a Describe attribute key receives an invalid value type.
  *
+ * For example, passing a non-boolean to `required`, `nullable`, `ignore`, or `missing_as_null`.
+ *
+ * @see Describe::__construct()
  * @link https://github.com/zero-to-prod/data-model
- * @see  https://github.com/zero-to-prod/data-model-helper
- * @see  https://github.com/zero-to-prod/data-model-factory
- * @see  https://github.com/zero-to-prod/transformable
  */
 class InvalidValue extends RuntimeException
 {

@@ -5,12 +5,12 @@ namespace Zerotoprod\DataModel;
 use RuntimeException;
 
 /**
- * Thrown when a duplicate Describe attribute references the same property.
+ * Thrown when two or more method-level `#[Describe('property')]` attributes target the same property name.
  *
+ * Message includes both method names and their file:line locations.
+ *
+ * @see DataModel::from()
  * @link https://github.com/zero-to-prod/data-model
- * @see  https://github.com/zero-to-prod/data-model-helper
- * @see  https://github.com/zero-to-prod/data-model-factory
- * @see  https://github.com/zero-to-prod/transformable
  */
 class DuplicateDescribeAttributeException extends RuntimeException
 {
