@@ -9,333 +9,185 @@ use function is_bool;
 use function is_string;
 
 /**
- * Pass an associative array to the constructor to describe the behavior of a property when it is resolved.
+ * PHP attribute that configures how {@see DataModel::from()} resolves a property, method, or class.
  *
- * Property example:
+ * Can be applied at three levels:
+ *
+ * **Property-level** — pass an associative array of configuration keys:
  * ```
- * use Zerotoprod\DataModel\DataModel;
- * use Zerotoprod\DataModel\Describe;
- *
- * class User
- * {
- *     use DataModel;
- *
- *     #[Describe(['cast' => [__CLASS__, 'firstName'], 'required' => true])]
- *     // Or with first-class callable (PHP 8.5+):
- *     // #[Describe(['cast' => self::firstName(...), 'required' => true])]
- *     public string $first_name;
- *
- *     #[Describe(['cast' => 'uppercase'])]
- *     public string $last_name;
- *
- *     #[Describe(['cast' => [__CLASS__, 'fullName']])]
- *     // Or: #[Describe(['cast' => self::fullName(...)])]
- *     public string $full_name;
- *
- *     // Always assigns ['role' => 'admin'] regardless of what is passed in context.
- *     #[Describe(['assign' => ['role' => 'admin']])]
- *     public array $config;
- *
- *     public static function firstName(mixed $value, array $context): string
- *     {
- *         return strtoupper($value);
- *     }
- *
- *     public static function fullName(null $value, array $context): string
- *     {
- *         return "{$context['first_name']} {$context['last_name']}";
- *     }
- * }
- * ```
- * Method example:
- * ```
- * use Zerotoprod\DataModel\DataModel;
- * use Zerotoprod\DataModel\Describe;
- *
- * class User
- * {
- *     use DataModel;
- *
- *     public string $first_name;
- *     public string $last_name;
- *     public string $fullName;
- *
- *     #[Describe('last_name')]
- *     public function lastName(?string $value, array $context): string
- *     {
- *         return strtoupper($value);
- *     }
- *
- *     #[Describe('fullName')]
- *     public function fullName(null $value, array $context): string
- *     {
- *         return "{$context['first_name']} {$context['last_name']}";
- *     }
- * }
- * ```
- * Class example:
- * ```
- * use DateTimeImmutable;
- * use Zerotoprod\DataModel\DataModel;
- * use Zerotoprod\DataModel\Describe;
- *
- * function uppercase(mixed $value, array $context){
- *      return strtoupper($value);
- * }
- *
  * #[Describe([
- *  'cast' => [
- *      'string' => 'uppercase',
- *      DateTimeImmutable::class => [__CLASS__, 'toDateTimeImmutable'],
- *  ]
+ *   'from'     => 'key',                          // Remap: read this context key instead of the property name.
+ *   'pre'      => [self::class, 'hook'],           // Pre-hook: void callable, runs before cast.
+ *   'cast'     => [self::class, 'method'],         // Cast: callable that returns the resolved value.
+ *   'post'     => [self::class, 'hook'],           // Post-hook: void callable, runs after cast.
+ *   'default'  => 'value',                         // Default: used when context key is absent. Callable OK.
+ *   'assign'   => 'value',                         // Assign: always set this value; context ignored. Callable OK.
+ *   'required' => true,                            // Required: throw PropertyRequiredException when key absent.
+ *   'nullable' => true,                            // Nullable: set null when key absent.
+ *   'ignore'   => true,                            // Ignore: skip this property entirely.
+ *   'via'      => [Class::class, 'staticMethod'],  // Via: custom instantiation callable (default: 'from').
+ *   'my_key'   => 'my_value',                      // Custom: unrecognized keys captured in $extra.
  * ])]
- * class User
- * {
- *     use DataModel;
- *
- *     public string $first_name;
- *     public DateTimeImmutable $registered;
- *
- *     public static function toDateTimeImmutable(string $value, array $context): DateTimeImmutable
- *     {
- *         return new DateTimeImmutable($value);
- *     }
- * }
+ * public string $property;
  * ```
+ *
+ * **Method-level** — pass the target property name as a string:
+ * ```
+ * #[Describe('property_name')]
+ * public function resolver($value, array $context, ?ReflectionAttribute $Attr, ReflectionProperty $Prop): mixed
+ * ```
+ *
+ * **Class-level** — map types to cast callables:
+ * ```
+ * #[Describe(['cast' => ['string' => 'strtoupper', DateTimeImmutable::class => [self::class, 'toDate']]])]
+ * class User { use DataModel; }
+ * ```
+ *
+ * Callable signatures (auto-detected by parameter count):
+ *  - 1 param:  `function($value): mixed`
+ *  - 4 params: `function($value, array $context, ?ReflectionAttribute $Attr, ReflectionProperty $Prop): mixed`
  *
  * @link https://github.com/zero-to-prod/data-model
- *
- * @see  https://github.com/zero-to-prod/data-model-helper
- * @see  https://github.com/zero-to-prod/data-model-factory
- * @see  https://github.com/zero-to-prod/transformable
  */
 #[Attribute]
 class Describe
 {
-    /**
-     * @link https://github.com/zero-to-prod/data-model
-     */
+    /** Deprecated alias for 'nullable'. Use `'nullable'` instead. */
     public const missing_as_null = 'missing_as_null';
-    /**
-     * @see $from
-     * @link https://github.com/zero-to-prod/data-model
-     */
+
+    /** Key constant for {@see $from}. */
     public const from = 'from';
     /**
-     * @link https://github.com/zero-to-prod/data-model
+     * Remap: use this context key instead of the property name.
+     *
+     * Example: `#[Describe(['from' => 'first_name'])]` reads `$context['first_name']`.
      */
     public string $from;
-    /**
-     * @see $cast
-     * @link https://github.com/zero-to-prod/data-model
-     */
+
+    /** Key constant for {@see $cast}. */
     public const cast = 'cast';
     /**
-     * @link https://github.com/zero-to-prod/data-model
+     * Cast: callable that transforms the context value before assignment.
+     *
+     * Accepts a function name (`'strtoupper'`), a static method array (`[self::class, 'method']`),
+     * a first-class callable (`self::method(...)` PHP 8.5+), or a Closure.
+     *
+     * Callable signatures (auto-detected by parameter count):
+     *  - 1 param:  `function($value): mixed`
+     *  - 4 params: `function($value, array $context, ?ReflectionAttribute $Attr, ReflectionProperty $Prop): mixed`
      */
     public string|array|Closure $cast;
-    /**
-     * @see $required
-     * @link https://github.com/zero-to-prod/data-model
-     */
+
+    /** Key constant for {@see $required}. */
     public const required = 'required';
     /**
-     * @link https://github.com/zero-to-prod/data-model
+     * Required: when `true`, throws {@see PropertyRequiredException} if the context key is absent.
+     *
+     * Must be a boolean. Shorthand: `#[Describe(['required'])]`.
      */
     public bool $required;
-    /**
-     * @see $default
-     * @link https://github.com/zero-to-prod/data-model
-     */
+
+    /** Key constant for {@see $default}. */
     public const default = 'default';
     /**
-     * @link https://github.com/zero-to-prod/data-model
+     * Default: value used when the context key is absent. Skips cast when applied.
+     *
+     * When callable, invoked as `($value=null, $context, $Attribute, $Property)` and the return value is used.
+     * Limitation: `null` cannot be used as a default; use `'nullable'` instead.
      */
     public $default;
-    /**
-     * @see $pre
-     * @link https://github.com/zero-to-prod/data-model
-     */
+
+    /** Key constant for {@see $pre}. */
     public const pre = 'pre';
     /**
-     * @link https://github.com/zero-to-prod/data-model
+     * Pre-hook: void callable that runs before cast/assignment.
+     *
+     * Signature: `function($value, array $context, ?ReflectionAttribute $Attr, ReflectionProperty $Prop): void`
      */
     public $pre;
-    /**
-     * @see $post
-     * @link https://github.com/zero-to-prod/data-model
-     */
+
+    /** Key constant for {@see $post}. */
     public const post = 'post';
     /**
-     * @link https://github.com/zero-to-prod/data-model
+     * Post-hook: void callable that runs after cast/assignment.
+     *
+     * Signature: `function($value, array $context, ?ReflectionAttribute $Attr, ReflectionProperty $Prop): void`
      */
     public $post;
-    /**
-     * @see $nullable
-     * @link https://github.com/zero-to-prod/data-model
-     */
+
+    /** Key constant for {@see $nullable}. */
     public const nullable = 'nullable';
     /**
-     * @link https://github.com/zero-to-prod/data-model
+     * Nullable: when `true`, sets the property to `null` if the context key is absent.
+     *
+     * Can be set at the class level or property level. Must be a boolean.
+     * Shorthand: `#[Describe(['nullable'])]`.
      */
     public bool $nullable;
-    /**
-     * @see $ignore
-     * @link https://github.com/zero-to-prod/data-model
-     */
+
+    /** Key constant for {@see $ignore}. */
     public const ignore = 'ignore';
     /**
-     * @link https://github.com/zero-to-prod/data-model
+     * Ignore: when `true`, the property is skipped entirely during hydration.
+     *
+     * Must be a boolean. Shorthand: `#[Describe(['ignore'])]`.
      */
     public bool $ignore;
-    /**
-     * @see $via
-     * @link https://github.com/zero-to-prod/data-model
-     */
+
+    /** Key constant for {@see $via}. */
     public const via = 'via';
     /**
-     * @link https://github.com/zero-to-prod/data-model
+     * Via: callable or method name used to instantiate a class-typed property.
+     *
+     * Defaults to `'from'`. Accepts a string method name or a callable array.
+     * Example: `#[Describe(['via' => [ChildClass::class, 'create']])]`
      */
     public string|array $via;
-    /**
-     * @see $assign
-     * @link https://github.com/zero-to-prod/data-model
-     */
+
+    /** Key constant for {@see $assign}. */
     public const assign = 'assign';
-    /**
-     * @see $extra
-     * @link https://github.com/zero-to-prod/data-model
-     */
+
+    /** Key constant for {@see $extra}. */
     public const extra = 'extra';
     /**
-     * Stores unrecognized keys passed to the Describe attribute.
-     * Allows custom metadata to be attached without relying on reflection.
+     * Extra: stores all unrecognized keys passed to the attribute.
      *
-     * @link https://github.com/zero-to-prod/data-model
+     * Provides first-class access to custom metadata without reflection.
+     * Example: `#[Describe(['cast' => [self::class, 'fn'], 'label' => 'Name'])]`
+     * Access: `$Describe->extra['label']` or via `$Attribute->getArguments()[0]['label']`.
      */
     public array $extra = [];
     /**
-     * Always assigns this value to the property regardless of whether a matching key exists in the context.
-     * When callable, it is invoked and the return value is assigned.
-     * Callable signature (1 param): `function($value): mixed`
-     * Callable signature (4 params): `function($value, array $context, ?\ReflectionAttribute $Attribute, \ReflectionProperty $Property): mixed`
+     * Assign: always set this value on the property, regardless of context.
      *
-     * @link https://github.com/zero-to-prod/data-model
+     * Unlike `default` (which only applies when the key is absent), `assign` unconditionally
+     * overwrites any context value. When callable, it is invoked and the return value is assigned.
+     *
+     * Callable signatures (auto-detected by parameter count):
+     *  - 1 param:  `function($value=null): mixed`
+     *  - 4 params: `function($value=null, array $context, ?ReflectionAttribute $Attr, ReflectionProperty $Prop): mixed`
+     *
+     * Limitation: `null` cannot be used as an assigned value; use `'nullable'` instead.
      */
     public mixed $assign;
 
     /**
-     *  Pass an associative array to the constructor to describe the behavior of a property when it is resolved.
+     * @param string|array{
+     *   from?:     string,
+     *   pre?:      string|array|Closure,
+     *   cast?:     string|array|Closure,
+     *   post?:     string|array|Closure,
+     *   default?:  mixed,
+     *   assign?:   mixed,
+     *   required?: bool,
+     *   nullable?: bool,
+     *   ignore?:   bool,
+     *   via?:      string|array,
+     * }|null $attributes  Recognized keys configure behavior; unrecognized keys are captured in {@see $extra}.
+     *                      When a string: `'required'`, `'nullable'`, or `'ignore'` set the corresponding flag to `true`.
+     *                      When null or a non-array: no configuration is applied.
      *
-     *  Property example:
-     *  ```
-     *  use Zerotoprod\DataModel\DataModel;
-     *  use Zerotoprod\DataModel\Describe;
-     *
-     *  class User
-     *  {
-     *      use DataModel;
-     *
-     *      #[Describe(['cast' => [__CLASS__, 'firstName'], 'function' => 'strtoupper'])]
-     *      // Or with first-class callable (PHP 8.5+):
-     *      // #[Describe(['cast' => self::firstName(...), 'function' => 'strtoupper'])]
-     *      public string $first_name;
-     *
-     *      #[Describe(['cast' => 'uppercase'])]
-     *      public string $last_name;
-     *
-     *      #[Describe(['cast' => [__CLASS__, 'fullName'], 'required' => true])]
-     *      // Or: #[Describe(['cast' => self::fullName(...), 'required' => true])]
-     *      public string $full_name;
-     *
-     *      // Always assigns ['role' => 'admin'] regardless of what is passed in context.
-     *      #[Describe(['assign' => ['role' => 'admin']])]
-     *      public array $config;
-     *
-     *      // Delegates to a callable; return value is always assigned.
-     *      #[Describe(['assign' => [__CLASS__, 'account']])]
-     *      public string $account;
-     *
-     *      public static function account($value, array $context): string
-     *      {
-     *          return 'service-account';
-     *      }
-     *
-     *      private static function firstName(mixed $value, array $context, ?\ReflectionAttribute $ReflectionAttribute, \ReflectionProperty $ReflectionProperty): string
-     *      {
-     *          return $ReflectionAttribute->getArguments()[0]['function']($value);
-     *      }
-     *
-     *      public static function fullName(null $value, array $context): string
-     *      {
-     *          return "{$context['first_name']} {$context['last_name']}";
-     *      }
-     *  }
-     *  ```
-     *  Method example:
-     *  ```
-     *  use Zerotoprod\DataModel\DataModel;
-     *  use Zerotoprod\DataModel\Describe;
-     *
-     *  class User
-     *  {
-     *      use DataModel;
-     *
-     *      public string $first_name;
-     *      public string $last_name;
-     *      public string $fullName;
-     *
-     *      #[Describe('last_name')]
-     *      public function lastName(?string $value, array $context): string
-     *      {
-     *          return strtoupper($value);
-     *      }
-     *
-     *      #[Describe('fullName')]
-     *      public function fullName(null $value, array $context): string
-     *      {
-     *          return "{$context['first_name']} {$context['last_name']}";
-     *      }
-     *  }
-     *  ```
-     *  Class example:
-     *  ```
-     *  use DateTimeImmutable;
-     *  use Zerotoprod\DataModel\DataModel;
-     *  use Zerotoprod\DataModel\Describe;
-     *
-     *  function uppercase(mixed $value, array $context){
-     *       return strtoupper($value);
-     *  }
-     *
-     *  #[Describe([
-     *   'cast' => [
-     *       'string' => 'uppercase',
-     *       DateTimeImmutable::class => [__CLASS__, 'toDateTimeImmutable'],
-     *   ]
-     *  ])]
-     *  class User
-     *  {
-     *      use DataModel;
-     *
-     *      public string $first_name;
-     *      public DateTimeImmutable $registered;
-     *
-     *      public static function toDateTimeImmutable(string $value, array $context): DateTimeImmutable
-     *      {
-     *          return new DateTimeImmutable($value);
-     *      }
-     *  }
-     *  ```
-     *
-     * @param  string|array{'from'?: string, 'pre'?: string|string[], 'cast'?: string|array|\Closure, 'post'?: string|string[], 'required'?: bool, 'default'?: mixed, 'nullable'?: bool,
-     *                                            'ignore'?: bool, 'via'?: string, 'assign'?: mixed, ...}|null  $attributes  Unrecognized keys are captured in {@see $extra}.
-     *
-     * @link https://github.com/zero-to-prod/data-model
-     *
-     * @see  https://github.com/zero-to-prod/data-model-helper
-     * @see  https://github.com/zero-to-prod/data-model-factory
-     * @see  https://github.com/zero-to-prod/transformable
+     * @throws InvalidValue When `required`, `nullable`, `ignore`, or `missing_as_null` is not a boolean.
      */
     public function __construct(string|null|array $attributes = null)
     {

@@ -16,162 +16,80 @@ use function is_object;
 use function is_string;
 
 /**
- * Enables classes to instantiate themselves from arrays or objects, auto-populating properties based on type hints and attributes.
- * Supports primitives, custom classes, enums, and allows for custom casting logic.
  *
- * Create an instance from data, populating properties based on type declarations.
+ * Trait that adds `from()` to hydrate an object from an array or object.
  *
- * Usage
- * ```
- * $user = User::from([
- *     'first_name' => 'Jane',
- *     'last_name' => 'Doe',
- *     'registered' => '2015-10-04 17:24:43.000000'
- * ]);
+ * Add `use DataModel;` to any class. Call `YourClass::from($data)` to get a populated instance.
+ * Properties are resolved by matching array keys to property names. Type-hinted classes
+ * are recursively instantiated via their own `from()` method.
  *
- * $user->first_name;              // 'Jane'
- * $user->last_name:               // 'DOE'
- * $user->full_name:               // 'Jane Doe'
- * $user->registered->format('l'); // 'Sunday'
- * ```
- * Property-Level
- * ```
- * #[\Zerotoprod\DataModel\Describe([
- *  'ignore', // ignores a property
- *  // Re-map a key to a property of a different name
- *  'from' => 'key',
- *  // Runs before 'cast'
- *  'pre' => [MyClass::class, 'preHook'],
- *  // Targets the static method: `MyClass::methodName()`
- *  'cast' => [MyClass::class, 'castMethod'],
- *  // 'cast' => 'my_func', // alternately target a function
- *  // 'cast' => MyClass::castMethod(...), // or a first-class callable (PHP 8.5+)
- *  // Runs after 'cast' passing the resolved value as `$value`
- *  'post' => [MyClass::class, 'postHook'],
- *  'default' => 'value',
- *  'required', // Throws an exception if the element is missing
- *  'nullable', // sets the value to null if the element is missing
- *  // Always assigns this value regardless of whether a matching key exists in the context.
- *  // When callable, delegates to the function and assigns its return value.
- *  'assign' => 'value',
- *  // 'assign' => [MyClass::class, 'method'], // or a callable
- *   // The callable to instantiate the class
- *   'via' => [MyClass::class, 'staticMethod'] // or 'my_func',
- *  // Any unrecognized keys are captured in Describe::$extra
- *  'custom_key' => 'custom_value',
- * ])]
- * public string $property;
- * ```
- * Method-Level
- * ```
- *  public string $last_name;
+ * Configure per-property behavior with the `#[Describe]` attribute. See {@see Describe} for all available keys.
  *
- *  #[Describe('last_name')]
- *  public function lastName(
- *      $value,
- *      array $context,
- *      ?\ReflectionAttribute $Attribute,
- *      \ReflectionProperty $Property
- *  ): string
- *  {
- *      return strtoupper($value);
- *  }
- * ```
- * Class-Level
- * ```
- * #[Describe([
- *      'cast' => [
- *      'string' => 'uppercase',
- *      \DateTimeImmutable::class => [self::class, 'toDateTimeImmutable'],
- *  ]
- * ])]
- * class User {}
- * ```
+ * Resolution order (first match wins):
+ *  1. `assign`  — unconditional value (context ignored)
+ *  2. `cast`    — property-level callable
+ *  3. `post`    — property-level post hook (when no cast)
+ *  4. Method-level `#[Describe('property')]` on a class method
+ *  5. Class-level `cast` (type-based map)
+ *  6. `via`     — custom instantiation callable (default: `from`)
+ *  7. Direct assignment
  *
  * @link https://github.com/zero-to-prod/data-model
- * @see  https://github.com/zero-to-prod/data-model-helper
- * @see  https://github.com/zero-to-prod/data-model-factory
- * @see  https://github.com/zero-to-prod/transformable
+ * @see  Describe
  */
 trait DataModel
 {
     /**
-     * Enables classes to instantiate themselves from arrays or objects, auto-populating properties based on type hints and attributes.
-     * Supports primitives, custom classes, enums, and allows for custom casting logic.
+     * Hydrate an instance from an array, object, or null.
      *
-     * Create an instance from data, populating properties based on type declarations.
+     * Returns `$context` unchanged when it is already an instance of the class.
+     * Returns a blank instance when `$context` is a string.
      *
-     * Usage
      * ```
-     * $user = User::from([
-     *     'first_name' => 'Jane',
-     *     'last_name' => 'Doe',
-     *     'registered' => '2015-10-04 17:24:43.000000'
-     * ]);
+     * $user = User::from(['name' => 'Jane', 'age' => 30]);
+     * ```
      *
-     * $user->first_name;              // 'Jane'
-     * $user->last_name:               // 'DOE'
-     * $user->full_name:               // 'Jane Doe'
-     * $user->registered->format('l'); // 'Sunday'
-     * ```
-     * Property-Level
-     * ```
-     * #[\Zerotoprod\DataModel\Describe([
-     *  'ignore', // ignores a property
-     *  // Re-map a key to a property of a different name
-     *  'from' => 'key',
-     *  // Runs before 'cast'
-     *  'pre' => [MyClass::class, 'preHook'],
-     *  // Targets the static method: `MyClass::methodName()`
-     *  'cast' => [MyClass::class, 'castMethod'],
-     *  // 'cast' => 'my_func', // alternately target a function
-     *  // Runs after 'cast' passing the resolved value as `$value`
-     *  'post' => [MyClass::class, 'postHook'],
-     *  'default' => 'value',
-     *  'required', // Throws an exception if the element is missing
-     *  'nullable', // sets the value to null if the element is missing
-     *  // Always assigns this value regardless of whether a matching key exists in the context
-     *  'assign' => 'value',
-     *   // The callable to instantiate the class
-     *   'via' => [MyClass::class, 'staticMethod'] // or 'my_func',
-     *  // Any unrecognized keys are captured in Describe::$extra
-     *  'custom_key' => 'custom_value',
-     * ])]
-     * public string $property;
-     * ```
-     * Method-Level
-     * ```
-     *  public string $last_name;
-     *
-     *  #[Describe('last_name')]
-     *  public function lastName(
-     *      $value,
-     *      array $context,
-     *      ?\ReflectionAttribute $Attribute,
-     *      \ReflectionProperty $Property
-     *  ): string
-     *  {
-     *      return strtoupper($value);
-     *  }
-     * ```
-     * Class-Level
+     * Property-level attribute — all keys optional, unrecognized keys go to {@see Describe::$extra}:
      * ```
      * #[Describe([
-     *      'cast' => [
-     *      'string' => 'uppercase',
-     *      \DateTimeImmutable::class => [self::class, 'toDateTimeImmutable'],
-     *  ]
+     *   'from'     => 'key',                          // remap context key
+     *   'pre'      => [self::class, 'hook'],           // void; runs before cast
+     *   'cast'     => [self::class, 'method'],         // returns resolved value
+     *   'post'     => [self::class, 'hook'],           // void; runs after cast
+     *   'default'  => 'value',                         // used when key absent; callable OK
+     *   'assign'   => 'value',                         // always set; context ignored; callable OK
+     *   'required' => true,                            // throws PropertyRequiredException
+     *   'nullable' => true,                            // sets null when key absent
+     *   'ignore'   => true,                            // skip property entirely
+     *   'via'      => [Class::class, 'staticMethod'],  // custom instantiation callable
      * ])]
-     * class User {}
      * ```
      *
-     * @link https://github.com/zero-to-prod/data-model
-     * @see  https://github.com/zero-to-prod/data-model-helper
-     * @see  https://github.com/zero-to-prod/data-model-factory
-     * @see  https://github.com/zero-to-prod/transformable
+     * Callable signatures (auto-detected by parameter count):
+     *  - 1 param:  `function($value): mixed`
+     *  - 4 params: `function($value, array $context, ?ReflectionAttribute $Attr, ReflectionProperty $Prop): mixed`
      *
-     * @param  array|object|null|string  $context  Data to populate the instance.
-     * @param  mixed|null                $instance
+     * Method-level — tag a class method to resolve a property:
+     * ```
+     * #[Describe('property_name')]
+     * public function resolver($value, array $context, ?ReflectionAttribute $Attr, ReflectionProperty $Prop): mixed
+     * ```
+     *
+     * Class-level — map types to cast functions:
+     * ```
+     * #[Describe(['cast' => ['string' => 'strtoupper', DateTimeImmutable::class => [self::class, 'toDate']]])]
+     * ```
+     *
+     * @param  array|object|null|string  $context   Data to populate the instance.
+     * @param  mixed|null                $instance  Optional pre-created instance to populate.
+     *
+     * @return self
+     *
+     * @throws PropertyRequiredException         When a required property key is missing.
+     * @throws DuplicateDescribeAttributeException When two methods target the same property.
+     *
+     * @see Describe
+     * @link https://github.com/zero-to-prod/data-model
      */
     public static function from(array|object|null|string $context = [], mixed $instance = null): self
     {
