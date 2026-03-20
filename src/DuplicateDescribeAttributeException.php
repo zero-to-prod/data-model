@@ -10,6 +10,7 @@ use RuntimeException;
  * Message includes both method names and their file:line locations.
  *
  * @see DataModel::from()
+ * @link https://github.com/zero-to-prod/data-model
  */
 class DuplicateDescribeAttributeException extends RuntimeException
 {

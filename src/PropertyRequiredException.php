@@ -11,6 +11,7 @@ use RuntimeException;
  *
  * @see Describe::$required
  * @see DataModel::from()
+ * @link https://github.com/zero-to-prod/data-model
  */
 class PropertyRequiredException extends RuntimeException
 {
