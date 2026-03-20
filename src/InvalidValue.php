@@ -10,6 +10,7 @@ use RuntimeException;
  * For example, passing a non-boolean to `required`, `nullable`, `ignore`, or `missing_as_null`.
  *
  * @see Describe::__construct()
+ * @link https://github.com/zero-to-prod/data-model
  */
 class InvalidValue extends RuntimeException
 {

@@ -52,19 +52,29 @@ use function is_string;
 #[Attribute]
 class Describe
 {
-    /** Deprecated alias for 'nullable'. Use `'nullable'` instead. */
+    /**
+     * Deprecated alias for 'nullable'. Use `'nullable'` instead.
+     * @link https://github.com/zero-to-prod/data-model
+     */
     public const missing_as_null = 'missing_as_null';
 
-    /** Key constant for {@see $from}. */
+    /**
+     * Key constant for {@see $from}.
+     * @link https://github.com/zero-to-prod/data-model
+     */
     public const from = 'from';
     /**
      * Remap: use this context key instead of the property name.
      *
      * Example: `#[Describe(['from' => 'first_name'])]` reads `$context['first_name']`.
+     * @link https://github.com/zero-to-prod/data-model
      */
     public string $from;
 
-    /** Key constant for {@see $cast}. */
+    /**
+     * Key constant for {@see $cast}.
+     * @link https://github.com/zero-to-prod/data-model
+     */
     public const cast = 'cast';
     /**
      * Cast: callable that transforms the context value before assignment.
@@ -75,79 +85,114 @@ class Describe
      * Callable signatures (auto-detected by parameter count):
      *  - 1 param:  `function($value): mixed`
      *  - 4 params: `function($value, array $context, ?ReflectionAttribute $Attr, ReflectionProperty $Prop): mixed`
+     * @link https://github.com/zero-to-prod/data-model
      */
     public string|array|Closure $cast;
 
-    /** Key constant for {@see $required}. */
+    /**
+     * Key constant for {@see $required}.
+     * @link https://github.com/zero-to-prod/data-model
+     */
     public const required = 'required';
     /**
      * Required: when `true`, throws {@see PropertyRequiredException} if the context key is absent.
      *
      * Must be a boolean. Shorthand: `#[Describe(['required'])]`.
+     * @link https://github.com/zero-to-prod/data-model
      */
     public bool $required;
 
-    /** Key constant for {@see $default}. */
+    /**
+     * Key constant for {@see $default}.
+     * @link https://github.com/zero-to-prod/data-model
+     */
     public const default = 'default';
     /**
      * Default: value used when the context key is absent. Skips cast when applied.
      *
      * When callable, invoked as `($value=null, $context, $Attribute, $Property)` and the return value is used.
      * Limitation: `null` cannot be used as a default; use `'nullable'` instead.
+     * @link https://github.com/zero-to-prod/data-model
      */
     public $default;
 
-    /** Key constant for {@see $pre}. */
+    /**
+     * Key constant for {@see $pre}.
+     * @link https://github.com/zero-to-prod/data-model
+     */
     public const pre = 'pre';
     /**
      * Pre-hook: void callable that runs before cast/assignment.
      *
      * Signature: `function($value, array $context, ?ReflectionAttribute $Attr, ReflectionProperty $Prop): void`
+     * @link https://github.com/zero-to-prod/data-model
      */
     public $pre;
 
-    /** Key constant for {@see $post}. */
+    /**
+     * Key constant for {@see $post}.
+     * @link https://github.com/zero-to-prod/data-model
+     */
     public const post = 'post';
     /**
      * Post-hook: void callable that runs after cast/assignment.
      *
      * Signature: `function($value, array $context, ?ReflectionAttribute $Attr, ReflectionProperty $Prop): void`
+     * @link https://github.com/zero-to-prod/data-model
      */
     public $post;
 
-    /** Key constant for {@see $nullable}. */
+    /**
+     * Key constant for {@see $nullable}.
+     * @link https://github.com/zero-to-prod/data-model
+     */
     public const nullable = 'nullable';
     /**
      * Nullable: when `true`, sets the property to `null` if the context key is absent.
      *
      * Can be set at the class level or property level. Must be a boolean.
      * Shorthand: `#[Describe(['nullable'])]`.
+     * @link https://github.com/zero-to-prod/data-model
      */
     public bool $nullable;
 
-    /** Key constant for {@see $ignore}. */
+    /**
+     * Key constant for {@see $ignore}.
+     * @link https://github.com/zero-to-prod/data-model
+     */
     public const ignore = 'ignore';
     /**
      * Ignore: when `true`, the property is skipped entirely during hydration.
      *
      * Must be a boolean. Shorthand: `#[Describe(['ignore'])]`.
+     * @link https://github.com/zero-to-prod/data-model
      */
     public bool $ignore;
 
-    /** Key constant for {@see $via}. */
+    /**
+     * Key constant for {@see $via}.
+     * @link https://github.com/zero-to-prod/data-model
+     */
     public const via = 'via';
     /**
      * Via: callable or method name used to instantiate a class-typed property.
      *
      * Defaults to `'from'`. Accepts a string method name or a callable array.
      * Example: `#[Describe(['via' => [ChildClass::class, 'create']])]`
+     * @link https://github.com/zero-to-prod/data-model
      */
     public string|array $via;
 
-    /** Key constant for {@see $assign}. */
+    /**
+     * Key constant for {@see $assign}.
+     * @link https://github.com/zero-to-prod/data-model
+     */
     public const assign = 'assign';
 
-    /** Key constant for {@see $extra}. */
+    /**
+     * Key constant for {@see $extra}.
+     * @link https://github.com/zero-to-prod/data-model
+     */
     public const extra = 'extra';
     /**
      * Extra: stores all unrecognized keys passed to the attribute.
@@ -155,6 +200,7 @@ class Describe
      * Provides first-class access to custom metadata without reflection.
      * Example: `#[Describe(['cast' => [self::class, 'fn'], 'label' => 'Name'])]`
      * Access: `$Describe->extra['label']` or via `$Attribute->getArguments()[0]['label']`.
+     * @link https://github.com/zero-to-prod/data-model
      */
     public array $extra = [];
     /**
@@ -168,6 +214,7 @@ class Describe
      *  - 4 params: `function($value=null, array $context, ?ReflectionAttribute $Attr, ReflectionProperty $Prop): mixed`
      *
      * Limitation: `null` cannot be used as an assigned value; use `'nullable'` instead.
+     * @link https://github.com/zero-to-prod/data-model
      */
     public mixed $assign;
 
@@ -188,6 +235,7 @@ class Describe
      *                      When null or a non-array: no configuration is applied.
      *
      * @throws InvalidValue When `required`, `nullable`, `ignore`, or `missing_as_null` is not a boolean.
+     * @link https://github.com/zero-to-prod/data-model
      */
     public function __construct(string|null|array $attributes = null)
     {
