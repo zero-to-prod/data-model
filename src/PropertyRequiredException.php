@@ -5,12 +5,12 @@ namespace Zerotoprod\DataModel;
 use RuntimeException;
 
 /**
- * Thrown when a property is required.
+ * Thrown when a property marked with `#[Describe(['required' => true])]` has no matching key in the context.
  *
- * @link https://github.com/zero-to-prod/data-model
- * @see  https://github.com/zero-to-prod/data-model-helper
- * @see  https://github.com/zero-to-prod/data-model-factory
- * @see  https://github.com/zero-to-prod/transformable
+ * Message format: `"Property `$name` is required.\n/path/to/File.php:lineNumber"`
+ *
+ * @see Describe::$required
+ * @see DataModel::from()
  */
 class PropertyRequiredException extends RuntimeException
 {
