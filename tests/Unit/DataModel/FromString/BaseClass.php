@@ -5,7 +5,7 @@ namespace Tests\Unit\DataModel\FromString;
 use Zerotoprod\DataModel\DataModel;
 use Zerotoprod\DataModel\Describe;
 
-readonly class BaseClass
+class BaseClass
 {
     use DataModel;
 
@@ -27,15 +27,6 @@ readonly class BaseClass
     #[Describe(['ignore' => true])]
     public string $ignored_prop;
 
-    public static int $pre_called = 0;
-    public static int $post_called = 0;
-
-    #[Describe(['pre' => [self::class, 'preHook'], 'nullable' => true])]
-    public ?string $pre_prop;
-
-    #[Describe(['post' => [self::class, 'postHook'], 'nullable' => true])]
-    public ?string $post_prop;
-
     public static function defaultCallable(): string
     {
         return 'callable_default';
@@ -44,15 +35,5 @@ readonly class BaseClass
     public static function assignCallable(): string
     {
         return 'callable_assign';
-    }
-
-    public static function preHook(mixed $value, array $context, ?\ReflectionAttribute $Attribute, \ReflectionProperty $Property): void
-    {
-        self::$pre_called++;
-    }
-
-    public static function postHook(mixed $value, array $context, ?\ReflectionAttribute $Attribute, \ReflectionProperty $Property): void
-    {
-        self::$post_called++;
     }
 }
