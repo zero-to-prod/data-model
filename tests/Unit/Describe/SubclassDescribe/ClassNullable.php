@@ -5,7 +5,7 @@ namespace Tests\Unit\Describe\SubclassDescribe;
 use Zerotoprod\DataModel\DataModel;
 
 #[ChildDescribe(['nullable' => true])]
-readonly class ClassNullable
+class ClassNullable
 {
     use DataModel;
 

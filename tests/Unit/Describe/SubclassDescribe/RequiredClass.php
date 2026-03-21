@@ -4,7 +4,7 @@ namespace Tests\Unit\Describe\SubclassDescribe;
 
 use Zerotoprod\DataModel\DataModel;
 
-readonly class RequiredClass
+class RequiredClass
 {
     use DataModel;
 

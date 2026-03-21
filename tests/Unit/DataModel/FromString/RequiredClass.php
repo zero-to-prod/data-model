@@ -5,7 +5,7 @@ namespace Tests\Unit\DataModel\FromString;
 use Zerotoprod\DataModel\DataModel;
 use Zerotoprod\DataModel\Describe;
 
-readonly class RequiredClass
+class RequiredClass
 {
     use DataModel;
 

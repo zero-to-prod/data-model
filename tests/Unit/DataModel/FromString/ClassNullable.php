@@ -6,7 +6,7 @@ use Zerotoprod\DataModel\DataModel;
 use Zerotoprod\DataModel\Describe;
 
 #[Describe(['nullable' => true])]
-readonly class ClassNullable
+class ClassNullable
 {
     use DataModel;
 
