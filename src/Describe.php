@@ -47,6 +47,13 @@ use function is_string;
  *  - 1 param:  `function($value): mixed`
  *  - 4 params: `function($value, array $context, ?ReflectionAttribute $Attr, ReflectionProperty $Prop): mixed`
  *
+ * **Subclassing** — You can extend this class to create a project-specific attribute.
+ * Subclasses are automatically recognized by {@see DataModel::from()} via `ReflectionAttribute::IS_INSTANCEOF`:
+ * ```
+ * #[Attribute]
+ * class MyDescribe extends Describe {}
+ * ```
+ *
  * @link https://github.com/zero-to-prod/data-model
  */
 #[Attribute]
