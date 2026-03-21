@@ -23,7 +23,8 @@ use function is_string;
  * Properties are resolved by matching array keys to property names. Type-hinted classes
  * are recursively instantiated via their own `from()` method.
  *
- * Configure per-property behavior with the `#[Describe]` attribute. See {@see Describe} for all available keys.
+ * Configure per-property behavior with the `#[Describe]` attribute (or any subclass of it).
+ * See {@see Describe} for all available keys.
  *
  * Resolution order (first match wins):
  *  1. `assign`  — unconditional value (context ignored)
@@ -43,7 +44,7 @@ trait DataModel
      * Hydrate an instance from an array, object, or null.
      *
      * Returns `$context` unchanged when it is already an instance of the class.
-     * Returns a blank instance when `$context` is a string.
+     * Treats string `$context` as empty — attribute defaults (`default`, `assign`, `nullable`) still apply.
      *
      * ```
      * $user = User::from(['name' => 'Jane', 'age' => 30]);
@@ -80,7 +81,7 @@ trait DataModel
      * #[Describe(['cast' => ['string' => 'strtoupper', DateTimeImmutable::class => [self::class, 'toDate']]])]
      * ```
      *
-     * @param  array|object|null|string  $context   Data to populate the instance.
+     * @param  array|object|null|string  $context   Data to populate the instance. Strings are treated as empty context.
      * @param  mixed|null                $instance  Optional pre-created instance to populate.
      *
      * @return self
@@ -99,21 +100,22 @@ trait DataModel
 
         $self = $instance ?? new self();
 
+        /** Treat string context as empty so attribute defaults (default, assign, nullable) still apply. */
         if (is_string($context)) {
-            return $self;
+            $context = [];
         }
 
         $ReflectionClass = new ReflectionClass($self);
-        /** Get Describe Attribute on class. */
+        /** Get Describe Attribute on class (IS_INSTANCEOF matches subclasses of Describe). */
         /** @var ReflectionAttribute|bool $ClassAttribute */
-        $ClassAttribute = current($ReflectionClass->getAttributes(Describe::class));
+        $ClassAttribute = current($ReflectionClass->getAttributes(Describe::class, ReflectionAttribute::IS_INSTANCEOF));
         /** @var Describe|null $ClassDescribe */
         $ClassDescribe = $ClassAttribute ? $ClassAttribute->newInstance() : null;
         $ClassDescribeArguments = $ClassAttribute ? $ClassAttribute->getArguments() : null;
 
         $methods = [];
         foreach ($ReflectionClass->getMethods() as $ReflectionMethod) {
-            $ReflectionAttributes = $ReflectionMethod->getAttributes(Describe::class);
+            $ReflectionAttributes = $ReflectionMethod->getAttributes(Describe::class, ReflectionAttribute::IS_INSTANCEOF);
             foreach ($ReflectionAttributes as $ReflectionAttribute) {
                 $property = $ReflectionAttribute->getArguments()[0];
                 try {
@@ -149,7 +151,7 @@ trait DataModel
         $ReflectionProperties = $ReflectionClass->getProperties();
         foreach ($ReflectionProperties as $ReflectionProperty) {
             $propertyAttributes[$ReflectionProperty->getName()] =
-                $ReflectionProperty->getAttributes(Describe::class)[0] ?? null;
+                $ReflectionProperty->getAttributes(Describe::class, ReflectionAttribute::IS_INSTANCEOF)[0] ?? null;
         }
 
         $context = is_object($context) ? (array)$context : $context ?? [];

@@ -130,6 +130,8 @@ All callables (`cast`, `pre`, `post`, `default`, `assign`) auto-detect parameter
 - [Using the Constructor](#using-the-constructor)
 - [Targeting a function to Instantiate a Class](#targeting-a-function-to-instantiate-a-class)
 - [Extending DataModels](#extending-datamodels)
+- [Subclassing Describe](#subclassing-describe)
+- [String Context](#string-context)
 - [Examples](#examples)
     - [Hydrating From a Laravel Model](#hydrating-from-a-laravel-model)
     - [Array of DataModels](#array-of-datamodels)
@@ -197,7 +199,7 @@ class User
 
 ### Hydrating from Data
 
-Pass an associative array or object to `from()`:
+Pass an associative array, object, or nothing to `from()`. Strings and `null` are treated as empty context:
 
 ```php
 $User = User::from([
@@ -242,7 +244,7 @@ echo $User->address->city; // 'Hometown'
 
 ## Transformations
 
-The `Describe` attribute declaratively configures how property values are resolved.
+The `Describe` attribute (or any subclass of it) declaratively configures how property values are resolved.
 
 ### Property-Level Cast
 
@@ -715,6 +717,61 @@ trait DataModel
         return collect($this)->toArray();
     }
 }
+```
+
+## Subclassing Describe
+
+You can extend `Describe` to create a project-specific attribute. Subclasses are automatically
+recognized by `from()` — all keys (`default`, `nullable`, `cast`, etc.) work identically.
+
+```php
+use Attribute;
+use Zerotoprod\DataModel\Describe;
+
+#[Attribute]
+class MyDescribe extends Describe {}
+```
+
+Then use it on your models:
+
+```php
+readonly class Config
+{
+    use \Zerotoprod\DataModel\DataModel;
+
+    #[MyDescribe(['default' => 'fallback'])]
+    public string $name;
+
+    #[MyDescribe(['nullable' => true])]
+    public ?string $label;
+}
+
+$Config = Config::from();
+
+echo $Config->name;  // 'fallback'
+echo $Config->label; // null
+```
+
+## String Context
+
+When `from()` receives a string, it is treated as empty context. Attribute defaults (`default`, `assign`, `nullable`) still apply:
+
+```php
+class User
+{
+    use \Zerotoprod\DataModel\DataModel;
+
+    #[Describe(['default' => 'guest'])]
+    public string $role;
+
+    #[Describe(['nullable' => true])]
+    public ?string $name;
+}
+
+$User = User::from('any_string');
+
+echo $User->role; // 'guest'
+echo $User->name; // null
 ```
 
 ## Examples
