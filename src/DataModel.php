@@ -98,7 +98,7 @@ trait DataModel
             return $context;
         }
 
-        $self = $instance ?? new self();
+        $self = $instance ?? new static();
 
         /** Treat string context as empty so attribute defaults (default, assign, nullable) still apply. */
         if (is_string($context)) {
