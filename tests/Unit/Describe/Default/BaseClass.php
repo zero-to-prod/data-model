@@ -12,6 +12,9 @@ class BaseClass
     public const string = 'string';
     public const bool = 'bool';
 
+    #[Describe(['default' => DefaultEnum::unknown])]
+    readonly public DefaultEnum $DefaultEnum;
+
     #[Describe(['default' => '1'])]
     public string $string;
 

@@ -21,6 +21,14 @@ class ClassTest extends TestCase
         $this->assertFalse($BaseClass->bool);
     }
 
+
+    #[Test] public function from_default_enum(): void
+    {
+        $BaseClass = BaseClass::from([BaseClass::bool => false]);
+
+        $this->assertEquals(DefaultEnum::unknown, $BaseClass->DefaultEnum);
+    }
+
     #[Test] public function from_reference(): void
     {
         $BaseClass = BaseClass::from();
