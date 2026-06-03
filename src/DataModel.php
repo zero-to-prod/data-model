@@ -2,13 +2,13 @@
 
 namespace Zerotoprod\DataModel;
 
+use Closure;
 use ReflectionAttribute;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionFunction;
 use ReflectionMethod;
 use ReflectionUnionType;
-use Closure;
 use UnitEnum;
 
 use function is_array;
@@ -87,9 +87,9 @@ trait DataModel
      * @return self
      *
      * @throws PropertyRequiredException         When a required property key is missing.
-     * @throws DuplicateDescribeAttributeException When two methods target the same property.
+     * @throws DuplicateDescribeAttributeException|ReflectionException When two methods target the same property.
      *
-     * @see Describe
+     * @see  Describe
      * @link https://github.com/zero-to-prod/data-model
      */
     public static function from(array|object|null|string $context = [], mixed $instance = null): self
@@ -281,8 +281,15 @@ trait DataModel
             }
             /** Class-level cast  */
             if ($ClassDescribe?->cast[$property_type] ?? false) {
-                $self->{$property_name} =
-                    $ClassDescribe?->cast[$property_type]($context[$context_key], $context, $ClassDescribeArguments);
+                $cast = $ClassDescribe->cast[$property_type];
+                $param_count = ($cast instanceof Closure
+                    ? new ReflectionFunction($cast)
+                    : new (is_array($cast) ? ReflectionMethod::class : ReflectionFunction::class)(...(array)$cast))
+                    ->getNumberOfParameters();
+
+                $self->{$property_name} = $param_count === 1
+                    ? $cast($context[$context_key])
+                    : $cast($context[$context_key], $context, $ClassDescribeArguments);
                 continue;
             }
 
