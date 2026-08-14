@@ -61,12 +61,33 @@ class Describe
 {
     /**
      * Deprecated alias for 'nullable'. Use `'nullable'` instead.
+     *
+     * Examples:
+     * ```
+     * #[Describe(['missing_as_null' => true])]       // sets null when key absent
+     * public ?string $a;
+     *
+     * #[Describe(['missing_as_null'])]               // shorthand
+     * public ?string $b;
+     *
+     * #[Describe(['anything' => 'missing_as_null'])] // legacy: any key with this value
+     * public ?string $c;
+     * ```
      * @link https://github.com/zero-to-prod/data-model
      */
     public const missing_as_null = 'missing_as_null';
 
     /**
      * Key constant for {@see $from}.
+     *
+     * Examples:
+     * ```
+     * #[Describe(['from' => 'first_name'])]      // reads $context['first_name']
+     * public string $name;
+     *
+     * #[Describe([Describe::from => 'meta'])]    // constant form
+     * public array $data;
+     * ```
      * @link https://github.com/zero-to-prod/data-model
      */
     public const from = 'from';
@@ -80,6 +101,41 @@ class Describe
 
     /**
      * Key constant for {@see $cast}.
+     *
+     * Examples:
+     * ```
+     * #[Describe(['cast' => 'strtoupper'])]               // function name (must declare exactly 1 param)
+     * public string $a;
+     *
+     * #[Describe(['cast' => [self::class, 'shout']])]     // static method: shout($value)
+     * public string $b;
+     *
+     * #[Describe(['cast' => [self::class, 'withCtx']])]   // withCtx($value, $context, $Attribute, $Property)
+     * public string $c;
+     *
+     * #[Describe(['cast' => strtoupper(...)])]            // first-class callable (PHP 8.5+ in attributes)
+     * public string $d;
+     * ```
+     *
+     * Closures cannot appear in an attribute (constant expression) — only when built directly:
+     * ```
+     * $Describe = new Describe(['cast' => fn($value) => strrev($value)]);
+     * ($Describe->cast)('abc'); // 'cba'
+     * ```
+     *
+     * Class-level: map a type to a callable. Non-1-param callables receive
+     * `($value, $context, $ClassAttributeArguments)` — three args, not four.
+     * ```
+     * #[Describe(['cast' => [
+     *     'string' => 'strtoupper',
+     *     'int' => 'abs',
+     *     DateTimeImmutable::class => [self::class, 'toDate'],
+     * ]])]
+     * class User { use DataModel; }
+     * ```
+     *
+     * Note: `'trim'`/`'intval'` declare 2 parameters, so they are invoked with 4 arguments
+     * and throw ArgumentCountError. Wrap them in a single-parameter method.
      * @link https://github.com/zero-to-prod/data-model
      */
     public const cast = 'cast';
@@ -98,6 +154,17 @@ class Describe
 
     /**
      * Key constant for {@see $required}.
+     *
+     * Examples:
+     * ```
+     * #[Describe(['required' => true])]  // throws PropertyRequiredException when key absent
+     * public string $a;
+     *
+     * #[Describe(['required'])]          // shorthand
+     * public string $b;
+     * ```
+     *
+     * Non-boolean values throw {@see InvalidValue}: `new Describe(['required' => 'yes'])`.
      * @link https://github.com/zero-to-prod/data-model
      */
     public const required = 'required';
@@ -111,6 +178,27 @@ class Describe
 
     /**
      * Key constant for {@see $default}.
+     *
+     * Examples:
+     * ```
+     * #[Describe(['default' => 'anon'])]                // scalar
+     * public string $a;
+     *
+     * #[Describe(['default' => ['x']])]                 // array
+     * public array $b;
+     *
+     * #[Describe(['default' => Suit::Hearts])]          // enum case
+     * public Suit $c;
+     *
+     * #[Describe(['default' => [self::class, 'make']])] // callable: always 4 args, $value is null
+     * public string $d;
+     *
+     * #[Describe(['default' => 'anon', 'post' => [self::class, 'after']])] // post still runs
+     * public string $e;
+     * ```
+     *
+     * Applies when the key is absent or its value is null. Skips {@see $cast}.
+     * `null` cannot be a default — use {@see $nullable}.
      * @link https://github.com/zero-to-prod/data-model
      */
     public const default = 'default';
@@ -125,6 +213,18 @@ class Describe
 
     /**
      * Key constant for {@see $pre}.
+     *
+     * Example — always invoked with 4 arguments (no parameter-count detection):
+     * ```
+     * #[Describe(['pre' => [self::class, 'before'], 'cast' => 'strtoupper'])]
+     * public string $a;
+     *
+     * public static function before(
+     *     $value, array $context, ?ReflectionAttribute $Attribute, ReflectionProperty $Property
+     * ): void {
+     *     // $value is the raw context value, before cast
+     * }
+     * ```
      * @link https://github.com/zero-to-prod/data-model
      */
     public const pre = 'pre';
@@ -138,6 +238,23 @@ class Describe
 
     /**
      * Key constant for {@see $post}.
+     *
+     * Examples — always invoked with 4 arguments, receives the resolved value:
+     * ```
+     * #[Describe(['cast' => 'strtoupper', 'post' => [self::class, 'after']])]
+     * public string $a;  // after() receives the cast value
+     *
+     * #[Describe(['post' => [self::class, 'after']])]
+     * public string $b;  // no cast: value assigned as-is, then after() runs
+     *
+     * public static function after(
+     *     $value, array $context, ?ReflectionAttribute $Attribute, ReflectionProperty $Property
+     * ): void {
+     * }
+     * ```
+     *
+     * Without a `cast`, the context key is read directly — pair with {@see $default},
+     * {@see $nullable}, or {@see $required} when the key may be absent.
      * @link https://github.com/zero-to-prod/data-model
      */
     public const post = 'post';
@@ -151,6 +268,22 @@ class Describe
 
     /**
      * Key constant for {@see $nullable}.
+     *
+     * Examples:
+     * ```
+     * #[Describe(['nullable' => true])]  // null when key absent
+     * public ?string $a;
+     *
+     * #[Describe(['nullable'])]          // shorthand
+     * public ?string $b;
+     * ```
+     *
+     * Class level — applies to every property missing from the context
+     * (property level takes precedence):
+     * ```
+     * #[Describe(['nullable' => true])]
+     * class User { use DataModel; public ?string $a; public ?int $b; }
+     * ```
      * @link https://github.com/zero-to-prod/data-model
      */
     public const nullable = 'nullable';
@@ -165,6 +298,15 @@ class Describe
 
     /**
      * Key constant for {@see $ignore}.
+     *
+     * Examples — the property is never read from context nor written:
+     * ```
+     * #[Describe(['ignore' => true])]
+     * public string $a;              // stays uninitialized
+     *
+     * #[Describe(['ignore'])]        // shorthand
+     * public string $b = 'untouched'; // keeps its declared default
+     * ```
      * @link https://github.com/zero-to-prod/data-model
      */
     public const ignore = 'ignore';
@@ -178,6 +320,20 @@ class Describe
 
     /**
      * Key constant for {@see $via}.
+     *
+     * Examples — the callable receives one argument: the context value:
+     * ```
+     * #[Describe(['via' => 'via'])]                   // static method on the property's type
+     * public Child $a;                                // Child::via(['int' => 1])
+     *
+     * #[Describe(['via' => [Child::class, 'make']])]  // explicit callable
+     * public Child $b;
+     *
+     * #[Describe(['via' => 'intval'])]                // any callable
+     * public int $c;                                  // '42' => 42
+     * ```
+     *
+     * Defaults to `'from'`. Enum values are unwrapped to `->value` before the call.
      * @link https://github.com/zero-to-prod/data-model
      */
     public const via = 'via';
@@ -192,12 +348,50 @@ class Describe
 
     /**
      * Key constant for {@see $assign}.
+     *
+     * Examples — always wins; the context is ignored:
+     * ```
+     * #[Describe(['assign' => 'fixed'])]                // scalar
+     * public string $a;
+     *
+     * #[Describe(['assign' => true])]                   // bool
+     * public bool $b;
+     *
+     * #[Describe(['assign' => Suit::Hearts])]           // enum case
+     * public Suit $c;
+     *
+     * #[Describe(['assign' => [self::class, 'one']])]   // 1 param:  one($value = null)
+     * public string $d;
+     *
+     * #[Describe(['assign' => [self::class, 'four']])]  // 4 params: four(null, $context, $Attribute, $Property)
+     * public string $e;
+     * ```
+     *
+     * `$value` is always `null`. `null` cannot be assigned — use {@see $nullable}.
      * @link https://github.com/zero-to-prod/data-model
      */
     public const assign = 'assign';
 
     /**
      * Key constant for {@see $extra}.
+     *
+     * Not an input key — a bucket for every unrecognized key:
+     * ```
+     * #[Describe(['cast' => [self::class, 'apply'], 'function' => 'strtoupper', 'label' => 'Name'])]
+     * public string $a;
+     *
+     * public static function apply(
+     *     $value, array $context, ?ReflectionAttribute $Attribute, ReflectionProperty $Property
+     * ): string {
+     *     $Describe = $Attribute->newInstance();
+     *     $Describe->extra['label'];                    // 'Name'
+     *
+     *     return ($Describe->extra['function'])($value); // 'jane' => 'JANE'
+     * }
+     * ```
+     *
+     * Raw access without instantiating: `$Attribute->getArguments()[0]['label']`.
+     * Passing a literal `'extra' => [...]` key nests it inside {@see $extra} — use your own key names.
      * @link https://github.com/zero-to-prod/data-model
      */
     public const extra = 'extra';
