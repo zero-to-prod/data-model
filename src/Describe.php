@@ -16,15 +16,15 @@ use function is_string;
  * **Property-level** — pass an associative array of configuration keys:
  * ```
  * #[Describe([
- *   'from'     => 'key',                          // Remap: read this context key instead of the property name.
+ *   'from'     => 'key',                          // Remap: read this context key instead of the property name. Callable OK.
  *   'pre'      => [self::class, 'hook'],           // Pre-hook: void callable, runs before cast.
  *   'cast'     => [self::class, 'method'],         // Cast: callable that returns the resolved value.
  *   'post'     => [self::class, 'hook'],           // Post-hook: void callable, runs after cast.
  *   'default'  => 'value',                         // Default: used when context key is absent. Callable OK.
  *   'assign'   => 'value',                         // Assign: always set this value; context ignored. Callable OK.
- *   'required' => true,                            // Required: throw PropertyRequiredException when key absent.
+ *   'required' => true,                            // Required: throw PropertyRequiredException when key absent. Callable OK.
  *   'nullable' => true,                            // Nullable: set null when key absent.
- *   'ignore'   => true,                            // Ignore: skip this property entirely.
+ *   'ignore'   => true,                            // Ignore: skip this property entirely. Callable OK.
  *   'via'      => [Class::class, 'staticMethod'],  // Via: custom instantiation callable (default: 'from').
  *   'my_key'   => 'my_value',                      // Custom: unrecognized keys captured in $extra.
  * ])]
@@ -43,9 +43,24 @@ use function is_string;
  * class User { use DataModel; }
  * ```
  *
- * Callable signatures (auto-detected by parameter count):
+ * Callable signatures (auto-detected by parameter count for `cast`/`assign`; always 4 args for
+ * `from`/`required`/`ignore`/`default`/`pre`/`post`):
  *  - 1 param:  `function($value): mixed`
  *  - 4 params: `function($value, array $context, ?ReflectionAttribute $Attr, ReflectionProperty $Prop): mixed`
+ *
+ * **PHP 8.5+** — `from`, `cast`, `required`, `default`, `pre`, `post`, `ignore`, and `assign` accept
+ * a closure literal directly inside the attribute, since PHP 8.5 allows closures in constant expressions:
+ * ```
+ * #[Describe([
+ *     Describe::default => static function (): array {
+ *         return myFunction();
+ *     }
+ * ])]
+ * public array $property;
+ * ```
+ * On PHP < 8.5, pass a function name, a static-method array (`[self::class, 'method']`), or a
+ * first-class callable (`self::method(...)`) instead — closures remain unsupported in attribute
+ * arguments on those versions.
  *
  * **Subclassing** — You can extend this class to create a project-specific attribute.
  * Subclasses are automatically recognized by {@see DataModel::from()} via `ReflectionAttribute::IS_INSTANCEOF`:
@@ -95,9 +110,18 @@ class Describe
      * Remap: use this context key instead of the property name.
      *
      * Example: `#[Describe(['from' => 'first_name'])]` reads `$context['first_name']`.
+     *
+     * When callable, invoked as `($propertyName, $context, $Attribute, $Property)` and the
+     * return value is used as the context key. Always called with all 4 arguments.
+     * ```
+     * #[Describe(['from' => static function (): string {
+     *     return 'first_name';
+     * }])]
+     * public string $name; // PHP 8.5+: closures allowed directly in attribute arguments
+     * ```
      * @link https://github.com/zero-to-prod/data-model
      */
-    public string $from;
+    public string|array|Closure $from;
 
     /**
      * Key constant for {@see $cast}.
@@ -162,19 +186,28 @@ class Describe
      *
      * #[Describe(['required'])]          // shorthand
      * public string $b;
+     *
+     * #[Describe(['required' => static function (): bool {  // PHP 8.5+
+     *     return true;
+     * }])]
+     * public string $c;
      * ```
      *
-     * Non-boolean values throw {@see InvalidValue}: `new Describe(['required' => 'yes'])`.
+     * Values that are neither boolean nor callable throw {@see InvalidValue}: `new Describe(['required' => 'yes'])`.
      * @link https://github.com/zero-to-prod/data-model
      */
     public const required = 'required';
     /**
      * Required: when `true`, throws {@see PropertyRequiredException} if the context key is absent.
      *
-     * Must be a boolean. Shorthand: `#[Describe(['required'])]`.
+     * Must be a boolean or a callable. Shorthand: `#[Describe(['required'])]`.
+     *
+     * When callable, invoked as `($value, $context, $Attribute, $Property)` — where `$value` is the
+     * raw context value (or `null` when absent) — and the return value is cast to boolean.
+     * Always called with all 4 arguments.
      * @link https://github.com/zero-to-prod/data-model
      */
-    public bool $required;
+    public bool|string|array|Closure $required;
 
     /**
      * Key constant for {@see $default}.
@@ -306,6 +339,11 @@ class Describe
      *
      * #[Describe(['ignore'])]        // shorthand
      * public string $b = 'untouched'; // keeps its declared default
+     *
+     * #[Describe(['ignore' => static function (): bool {  // PHP 8.5+
+     *     return true;
+     * }])]
+     * public string $c;
      * ```
      * @link https://github.com/zero-to-prod/data-model
      */
@@ -313,10 +351,14 @@ class Describe
     /**
      * Ignore: when `true`, the property is skipped entirely during hydration.
      *
-     * Must be a boolean. Shorthand: `#[Describe(['ignore'])]`.
+     * Must be a boolean or a callable. Shorthand: `#[Describe(['ignore'])]`.
+     *
+     * When callable, invoked as `($value, $context, $Attribute, $Property)` — where `$value` is the
+     * raw context value (or `null` when absent) — and the return value is cast to boolean.
+     * Always called with all 4 arguments.
      * @link https://github.com/zero-to-prod/data-model
      */
-    public bool $ignore;
+    public bool|string|array|Closure $ignore;
 
     /**
      * Key constant for {@see $via}.
@@ -421,21 +463,22 @@ class Describe
 
     /**
      * @param string|array{
-     *   from?:     string,
+     *   from?:     string|array|Closure,
      *   pre?:      string|array|Closure,
      *   cast?:     string|array|Closure,
      *   post?:     string|array|Closure,
      *   default?:  mixed,
      *   assign?:   mixed,
-     *   required?: bool,
+     *   required?: bool|string|array|Closure,
      *   nullable?: bool,
-     *   ignore?:   bool,
+     *   ignore?:   bool|string|array|Closure,
      *   via?:      string|array,
      * }|null $attributes  Recognized keys configure behavior; unrecognized keys are captured in {@see $extra}.
      *                      When a string: `'required'`, `'nullable'`, or `'ignore'` set the corresponding flag to `true`.
      *                      When null or a non-array: no configuration is applied.
      *
-     * @throws InvalidValue When `required`, `nullable`, `ignore`, or `missing_as_null` is not a boolean.
+     * @throws InvalidValue When `required` or `ignore` is neither a boolean nor a callable, or when
+     *                      `nullable`/`missing_as_null` is not a boolean.
      * @link https://github.com/zero-to-prod/data-model
      */
     public function __construct(string|null|array $attributes = null)
@@ -447,8 +490,8 @@ class Describe
         foreach ($attributes as $key => $value) {
             switch ($key) {
                 case self::required:
-                    if (!is_bool($value)) {
-                        throw new InvalidValue('Invalid value: `required` should be a boolean.');
+                    if (!is_bool($value) && !is_callable($value)) {
+                        throw new InvalidValue('Invalid value: `required` should be a boolean or a callable.');
                     }
                     $this->required = $value;
                     break;
@@ -461,8 +504,8 @@ class Describe
                     break;
 
                 case self::ignore:
-                    if (!is_bool($value)) {
-                        throw new InvalidValue('Invalid value: `ignore` should be a boolean.');
+                    if (!is_bool($value) && !is_callable($value)) {
+                        throw new InvalidValue('Invalid value: `ignore` should be a boolean or a callable.');
                     }
                     $this->ignore = $value;
                     break;

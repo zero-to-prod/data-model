@@ -57,21 +57,32 @@ $user = User::from(['name' => 'Jane', 'age' => 30]);
 
 ```php
 #[\Zerotoprod\DataModel\Describe([
-    'from'     => 'key',                          // Remap: read this context key instead of property name
+    'from'     => 'key',                          // Remap: read this context key instead of property name. Callable OK
     'pre'      => [self::class, 'hook'],           // Pre-hook: void callable, runs before cast
     'cast'     => [self::class, 'method'],         // Cast: callable, returns resolved value
     'post'     => [self::class, 'hook'],           // Post-hook: void callable, runs after cast
     'default'  => 'value',                         // Default: used when context key absent. Callable OK
     'assign'   => 'value',                         // Assign: always set; context ignored. Callable OK
-    'required' => true,                            // Required: throws PropertyRequiredException when key absent
+    'required' => true,                            // Required: throws PropertyRequiredException when key absent. Callable OK
     'nullable' => true,                            // Nullable: set null when key absent
-    'ignore'   => true,                            // Ignore: skip property entirely
+    'ignore'   => true,                            // Ignore: skip property entirely. Callable OK
     'via'      => [Class::class, 'staticMethod'],  // Via: custom instantiation callable (default: 'from')
     'my_key'   => 'my_value',                      // Custom: unrecognized keys captured in Describe::$extra
 ])]
 ```
 
 Shorthand: `#[Describe(['required'])]`, `#[Describe(['nullable'])]`, `#[Describe(['ignore'])]`
+
+> **PHP 8.5+**: `from`, `cast`, `required`, `default`, `pre`, `post`, `ignore`, and `assign` accept a closure literal written directly inside the attribute (PHP 8.5 allows closures in constant expressions):
+> ```php
+> #[Describe([
+>     Describe::default => static function (): array {
+>         return myFunction();
+>     }
+> ])]
+> public array $property;
+> ```
+> On earlier PHP versions, pass a function name, a static-method array (`[self::class, 'method']`), or a first-class callable (`self::method(...)`) instead.
 
 ### Resolution Order (first match wins)
 
@@ -88,21 +99,21 @@ Shorthand: `#[Describe(['required'])]`, `#[Describe(['nullable'])]`, `#[Describe
 
 ### Callable Signatures
 
-All callables (`cast`, `pre`, `post`, `default`, `assign`) auto-detect parameter count:
+`cast` and `assign` auto-detect parameter count; `from`, `required`, `default`, `pre`, `post`, and `ignore` are always called with all 4 arguments:
 
 | Params | Signature |
 |--------|-----------|
 | 1 | `function($value): mixed` |
 | 4 | `function($value, array $context, ?ReflectionAttribute $Attr, ReflectionProperty $Prop): mixed` |
 
-`pre`/`post` hooks return `void`. For `assign`, `$value` is always `null`.
+`pre`/`post` hooks return `void`. For `assign`, `$value` is always `null`. For `from`, the first argument is the property name and the return value is used as the context key. For `required`/`ignore`, the return value is cast to boolean.
 
 ### Exceptions
 
 | Exception | Thrown when |
 |-----------|------------|
 | `PropertyRequiredException` | A `required` property key is missing from context |
-| `InvalidValue` | A `Describe` key receives an invalid type (e.g., non-bool for `required`) |
+| `InvalidValue` | A `Describe` key receives an invalid type (e.g., non-bool/non-callable for `required`) |
 | `DuplicateDescribeAttributeException` | Two methods target the same property via `#[Describe('prop')]` |
 
 ## Contents
@@ -294,6 +305,15 @@ $User->last_name;   // 'DOE'
 $User->full_name;   // 'Jane Doe'
 ```
 
+**PHP 8.5+** also allows a closure literal directly inside the attribute (closures in constant expressions):
+
+```php
+#[Describe(['cast' => static function ($value): string {
+    return strtoupper($value);
+}])]
+public string $last_name;
+```
+
 #### Life-Cycle Hooks
 
 Run void callables before and after value resolution.
@@ -321,6 +341,17 @@ class BaseClass
 }
 ```
 
+**PHP 8.5+** allows a closure literal directly inside the attribute:
+
+```php
+#[Describe(['pre' => static function (mixed $value): void {
+    if ($value > 10) {
+        throw new \RuntimeException('Value too large.');
+    }
+}])]
+public int $int;
+```
+
 #### `post` Hook
 
 Runs after cast. Same signature as `pre`.
@@ -344,6 +375,17 @@ class BaseClass
         }
     }
 }
+```
+
+**PHP 8.5+** allows a closure literal directly inside the attribute:
+
+```php
+#[Describe(['post' => static function (mixed $value): void {
+    if ($value > 10) {
+        throw new \RuntimeException($value.' Value too large.');
+    }
+}])]
+public int $int;
 ```
 
 ### Method-level Cast
@@ -449,6 +491,15 @@ User::from(['email' => 'john@example.com']);
 // Throws PropertyRequiredException: Property `$username` is required.
 ```
 
+`required` also accepts a callable — always invoked with `($value, $context, $Attribute, $Property)`, return value cast to boolean. **PHP 8.5+** allows a closure literal directly inside the attribute:
+
+```php
+#[Describe(['required' => static function (): bool {
+    return true;
+}])]
+public string $username;
+```
+
 ## Default Values
 
 Used when the context key is absent. When callable, the return value is used. Skips `cast` when applied.
@@ -479,6 +530,15 @@ echo $User->username // 'N/A'
 
 **Limitation:** `null` cannot be used as a default (`#[Describe(['default' => null])]` will not work).
 Use `#[Describe(['nullable' => true])]` or `#[Describe(['nullable'])]` instead.
+
+**PHP 8.5+** allows a closure literal directly inside the attribute (closures in constant expressions):
+
+```php
+#[Describe(['default' => static function (): array {
+    return myFunction();
+}])]
+public array $property;
+```
 
 ## Assigning Values
 
@@ -530,6 +590,15 @@ Same callable signatures as `cast` (1 or 4 params). `$value` is always `null`.
 
 **Limitation:** `null` cannot be used as an assigned value. Use `#[Describe(['nullable' => true])]` instead.
 
+**PHP 8.5+** allows a closure literal directly inside the attribute:
+
+```php
+#[Describe(['assign' => static function (): string {
+    return 'service-account';
+}])]
+public string $account;
+```
+
 ## Nullable Missing Values
 
 Set missing values to `null`. Can be applied at the class level or property level.
@@ -579,9 +648,18 @@ $User = User::from([
 echo $User->first_name; // 'John'
 ```
 
+`from` also accepts a callable — always invoked with `($propertyName, $context, $Attribute, $Property)`, return value used as the context key. **PHP 8.5+** allows a closure literal directly inside the attribute:
+
+```php
+#[Describe(['from' => static function (string $propertyName, array $context): string {
+    return isset($context['firstName']) ? 'firstName' : 'legacyFirstName';
+}])]
+public string $first_name;
+```
+
 ## Ignoring Properties
 
-Skip a property during hydration. The property remains uninitialized.
+Skip a property during hydration. The property remains uninitialized. Also accepts a callable — always invoked with `($value, $context, $Attribute, $Property)`, return value cast to boolean.
 
 ```php
 use Zerotoprod\DataModel\Describe;
@@ -602,6 +680,15 @@ $User = User::from([
 ]);
 
 isset($User->age); // false
+```
+
+**PHP 8.5+** allows a closure literal directly inside the attribute:
+
+```php
+#[Describe(['ignore' => static function (): bool {
+    return true;
+}])]
+public int $age;
 ```
 
 ## Custom Metadata

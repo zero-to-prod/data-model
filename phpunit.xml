@@ -3,6 +3,7 @@
          xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.5/phpunit.xsd"
          bootstrap="vendor/autoload.php"
          cacheDirectory=".phpunit.cache"
+         defaultTestSuite="default"
          executionOrder="depends,defects"
          requireCoverageMetadata="false"
          beStrictAboutCoverageMetadata="false"
@@ -20,6 +21,10 @@
     <testsuites>
         <testsuite name="default">
             <directory>tests</directory>
+            <exclude>tests/Unit/Describe/Php85Closures</exclude>
+        </testsuite>
+        <testsuite name="php85">
+            <directory>tests/Unit/Describe/Php85Closures</directory>
         </testsuite>
     </testsuites>
 
