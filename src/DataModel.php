@@ -53,22 +53,33 @@ trait DataModel
      * Property-level attribute — all keys optional, unrecognized keys go to {@see Describe::$extra}:
      * ```
      * #[Describe([
-     *   'from'     => 'key',                          // remap context key
+     *   'from'     => 'key',                          // remap context key; callable OK
      *   'pre'      => [self::class, 'hook'],           // void; runs before cast
      *   'cast'     => [self::class, 'method'],         // returns resolved value
      *   'post'     => [self::class, 'hook'],           // void; runs after cast
      *   'default'  => 'value',                         // used when key absent; callable OK
      *   'assign'   => 'value',                         // always set; context ignored; callable OK
-     *   'required' => true,                            // throws PropertyRequiredException
+     *   'required' => true,                            // throws PropertyRequiredException; callable OK
      *   'nullable' => true,                            // sets null when key absent
-     *   'ignore'   => true,                            // skip property entirely
+     *   'ignore'   => true,                            // skip property entirely; callable OK
      *   'via'      => [Class::class, 'staticMethod'],  // custom instantiation callable
      * ])]
      * ```
      *
-     * Callable signatures (auto-detected by parameter count):
+     * Callable signatures (auto-detected by parameter count for `cast`/`assign`; always 4 args for
+     * `from`/`required`/`ignore`/`default`/`pre`/`post`):
      *  - 1 param:  `function($value): mixed`
      *  - 4 params: `function($value, array $context, ?ReflectionAttribute $Attr, ReflectionProperty $Prop): mixed`
+     *
+     * PHP 8.5+ allows a closure literal directly inside the attribute (closures in constant expressions):
+     * ```
+     * #[Describe([
+     *     Describe::default => static function (): array {
+     *         return myFunction();
+     *     }
+     * ])]
+     * public array $property;
+     * ```
      *
      * Method-level — tag a class method to resolve a property:
      * ```
@@ -160,8 +171,21 @@ trait DataModel
             $Attribute = $propertyAttributes[$ReflectionProperty->getName()];
             $Describe = $Attribute?->newInstance();
 
-            if (isset($Describe->ignore) && $Describe->ignore) {
-                continue;
+            /** Resolve `from` first: callables (PHP 8.5+ closures included) return the context key. */
+            $context_key = isset($Describe->from)
+                ? (is_callable($Describe->from)
+                    ? ($Describe->from)($ReflectionProperty->getName(), $context, $Attribute, $ReflectionProperty)
+                    : $Describe->from)
+                : $ReflectionProperty->getName();
+
+            if (isset($Describe->ignore)) {
+                $ignore = is_callable($Describe->ignore)
+                    ? ($Describe->ignore)($context[$context_key] ?? null, $context, $Attribute, $ReflectionProperty)
+                    : $Describe->ignore;
+
+                if ($ignore) {
+                    continue;
+                }
             }
 
             if (isset($Describe->assign)) {
@@ -179,8 +203,6 @@ trait DataModel
                 }
                 continue;
             }
-
-            $context_key = $Describe->from ?? $ReflectionProperty->getName();
 
             /** Property-level Pre Hook */
             if (isset($Describe->pre)) {
@@ -236,7 +258,13 @@ trait DataModel
 
             /** When a property name does not match a key name  */
             if (!isset($context[$context_key])) {
-                if (isset($Describe->required) && $Describe->required) {
+                $required = isset($Describe->required)
+                    ? (is_callable($Describe->required)
+                        ? ($Describe->required)($context[$context_key] ?? null, $context, $Attribute, $ReflectionProperty)
+                        : $Describe->required)
+                    : false;
+
+                if ($required) {
                     $lineNumber = static function (string $filename, string $property_name): ?int {
                         foreach (file($filename) as $line_number => $content) {
                             if (preg_match("/\\$$property_name/", $content)) {

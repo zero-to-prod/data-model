@@ -18,7 +18,7 @@ jobs:
         php-version: [ "8.5", "8.4", "8.3", "8.2", "8.1" ]
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - name: Create .env
         run: touch .env
@@ -33,3 +33,7 @@ jobs:
 
       - name: Run PHPUnit tests for PHP
         run: sh dock test
+
+      - name: Run PHP 8.5 closures-in-attributes tests
+        if: ${{ matrix.php-version == '8.5' }}
+        run: sh dock test --testsuite php85
