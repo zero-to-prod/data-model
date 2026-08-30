@@ -1,3 +1,6 @@
 parameters:
     ignoreErrors:
         - '#\[BC\] CHANGED: Type of property Zerotoprod\\DataModel\\Describe\#\$cast changed from string\|array to string\|array\|Closure#'
+        - '#\[BC\] CHANGED: Type of property Zerotoprod\\DataModel\\Describe\#\$from changed from string to string\|array\|Closure#'
+        - '#\[BC\] CHANGED: Type of property Zerotoprod\\DataModel\\Describe\#\$required changed from bool to bool\|string\|array\|Closure#'
+        - '#\[BC\] CHANGED: Type of property Zerotoprod\\DataModel\\Describe\#\$ignore changed from bool to bool\|string\|array\|Closure#'
