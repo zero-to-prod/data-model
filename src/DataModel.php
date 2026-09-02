@@ -124,7 +124,12 @@ trait DataModel
         $ClassAttribute = current($ReflectionClass->getAttributes(Describe::class, ReflectionAttribute::IS_INSTANCEOF));
         /** @var Describe|null $ClassDescribe */
         $ClassDescribe = $ClassAttribute ? $ClassAttribute->newInstance() : null;
-        $ClassDescribeArguments = $ClassAttribute ? $ClassAttribute->getArguments() : null;
+        /** Hoist class-level lookups so the property loop never re-reads them. */
+        $class_casts = $ClassDescribe->cast ?? null;
+        $class_nullable = !empty($ClassDescribe->nullable);
+        $ClassDescribeArguments = $class_casts === null ? null : $ClassAttribute->getArguments();
+        /** `from` is the default `via`; whether it names a global function is loop-invariant. */
+        $from_is_callable = is_callable('from');
 
         $methods = [];
         foreach ($ReflectionClass->getMethods() as $ReflectionMethod) {
@@ -171,75 +176,79 @@ trait DataModel
                     : $Describe->from)
                 : $property_name;
 
-            $has_key = isset($context[$context_key]);
-            $value = $has_key ? $context[$context_key] : null;
+            /** One lookup: for an array offset `isset()` is equivalent to `!== null`. */
+            $value = $context[$context_key] ?? null;
+            $has_key = $value !== null;
 
-            if (isset($Describe->ignore)) {
-                $ignore = is_callable($Describe->ignore)
-                    ? ($Describe->ignore)($value, $context, $Attribute, $ReflectionProperty)
-                    : $Describe->ignore;
+            /** Every branch below needs an attribute; skip them all when there is none. */
+            if ($Describe !== null) {
+                if (isset($Describe->ignore)) {
+                    $ignore = is_callable($Describe->ignore)
+                        ? ($Describe->ignore)($value, $context, $Attribute, $ReflectionProperty)
+                        : $Describe->ignore;
 
-                if ($ignore) {
+                    if ($ignore) {
+                        continue;
+                    }
+                }
+
+                if (isset($Describe->assign)) {
+                    if (is_callable($Describe->assign)) {
+                        $param_count = ($Describe->assign instanceof Closure
+                            ? new ReflectionFunction($Describe->assign)
+                            : new (is_array($Describe->assign) ? ReflectionMethod::class : ReflectionFunction::class)(...(array)$Describe->assign))
+                            ->getNumberOfParameters();
+                        $self->{$property_name} = $param_count === 1
+                            ? ($Describe->assign)(null)
+                            : ($Describe->assign)(null, $context, $Attribute, $ReflectionProperty);
+                    } else {
+                        $self->{$property_name} = $Describe->assign;
+                    }
                     continue;
                 }
-            }
 
-            if (isset($Describe->assign)) {
-                if (is_callable($Describe->assign)) {
-                    $param_count = ($Describe->assign instanceof Closure
-                        ? new ReflectionFunction($Describe->assign)
-                        : new (is_array($Describe->assign) ? ReflectionMethod::class : ReflectionFunction::class)(...(array)$Describe->assign))
+                /** Property-level Pre Hook */
+                if (isset($Describe->pre)) {
+                    ($Describe->pre)($value, $context, $Attribute, $ReflectionProperty);
+                }
+
+                if (isset($Describe->default) && !$has_key) {
+                    $self->{$property_name} = is_callable($Describe->default)
+                        ? ($Describe->default)(null, $context, $Attribute, $ReflectionProperty)
+                        : $Describe->default;
+
+                    if (isset($Describe->post)) {
+                        ($Describe->post)($self->{$property_name}, $context, $Attribute, $ReflectionProperty);
+                    }
+
+                    continue;
+                }
+
+                /** Property-level Cast */
+                if (isset($Describe->cast)) {
+                    $param_count = ($Describe->cast instanceof Closure
+                        ? new ReflectionFunction($Describe->cast)
+                        : new (is_array($Describe->cast) ? ReflectionMethod::class : ReflectionFunction::class)(...(array)$Describe->cast))
                         ->getNumberOfParameters();
+
                     $self->{$property_name} = $param_count === 1
-                        ? ($Describe->assign)(null)
-                        : ($Describe->assign)(null, $context, $Attribute, $ReflectionProperty);
-                } else {
-                    $self->{$property_name} = $Describe->assign;
+                        ? ($Describe->cast)($value)
+                        : ($Describe->cast)($value, $context, $Attribute, $ReflectionProperty);
+
+                    /** Property-level Post Hook */
+                    if (isset($Describe->post)) {
+                        ($Describe->post)($self->{$property_name}, $context, $Attribute, $ReflectionProperty);
+                    }
+
+                    continue;
                 }
-                continue;
-            }
-
-            /** Property-level Pre Hook */
-            if (isset($Describe->pre)) {
-                ($Describe->pre)($value, $context, $Attribute, $ReflectionProperty);
-            }
-
-            if (isset($Describe->default) && !$has_key) {
-                $self->{$property_name} = is_callable($Describe->default)
-                    ? ($Describe->default)(null, $context, $Attribute, $ReflectionProperty)
-                    : $Describe->default;
-
-                if (isset($Describe->post)) {
-                    ($Describe->post)($self->{$property_name}, $context, $Attribute, $ReflectionProperty);
-                }
-
-                continue;
-            }
-
-            /** Property-level Cast */
-            if (isset($Describe->cast)) {
-                $param_count = ($Describe->cast instanceof Closure
-                    ? new ReflectionFunction($Describe->cast)
-                    : new (is_array($Describe->cast) ? ReflectionMethod::class : ReflectionFunction::class)(...(array)$Describe->cast))
-                    ->getNumberOfParameters();
-
-                $self->{$property_name} = $param_count === 1
-                    ? ($Describe->cast)($value)
-                    : ($Describe->cast)($value, $context, $Attribute, $ReflectionProperty);
 
                 /** Property-level Post Hook */
                 if (isset($Describe->post)) {
+                    $self->{$property_name} = $context[$context_key];
                     ($Describe->post)($self->{$property_name}, $context, $Attribute, $ReflectionProperty);
+                    continue;
                 }
-
-                continue;
-            }
-
-            /** Property-level Post Hook */
-            if (isset($Describe->post)) {
-                $self->{$property_name} = $context[$context_key];
-                ($Describe->post)($self->{$property_name}, $context, $Attribute, $ReflectionProperty);
-                continue;
             }
 
             /** Method-level Cast */
@@ -278,7 +287,7 @@ trait DataModel
                         )
                     );
                 }
-                if (!empty($Describe->nullable) || !empty($ClassDescribe->nullable)) {
+                if ($class_nullable || !empty($Describe->nullable)) {
                     $self->{$property_name} = null;
                 }
                 continue;
@@ -291,13 +300,25 @@ trait DataModel
                 continue;
             }
 
+            /**
+             * Fast path: a builtin type (string/int/array/...) can never be a class name, so the
+             * class-level cast map and the `$type::$via()` call below can only miss. Skipping them
+             * also skips resolving the type name to a string.
+             */
+            if ($class_casts === null && $ReflectionType->isBuiltin()) {
+                $via = $Describe->via ?? 'from';
+                $self->{$property_name} = ($via === 'from' ? $from_is_callable : is_callable($via))
+                    ? $via($value instanceof UnitEnum ? $value->value : $value)
+                    : $value;
+                continue;
+            }
+
             $property_type = $ReflectionType->getName();
             if ($property_type === 'self') {
                 $property_type = self::class;
             }
             /** Class-level cast  */
-            if ($ClassDescribe?->cast[$property_type] ?? false) {
-                $cast = $ClassDescribe->cast[$property_type];
+            if ($cast = $class_casts[$property_type] ?? false) {
                 $param_count = ($cast instanceof Closure
                     ? new ReflectionFunction($cast)
                     : new (is_array($cast) ? ReflectionMethod::class : ReflectionFunction::class)(...(array)$cast))
@@ -312,7 +333,7 @@ trait DataModel
             $via = $Describe->via ?? 'from';
             $via_value = $value instanceof UnitEnum ? $value->value : $value;
 
-            if (is_callable($via)) {
+            if ($via === 'from' ? $from_is_callable : is_callable($via)) {
                 $self->{$property_name} = $via($via_value);
                 continue;
             }
