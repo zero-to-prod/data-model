@@ -112,8 +112,10 @@ trait DataModel
         $self = $instance ?? new static();
 
         /** Treat string context as empty so attribute defaults (default, assign, nullable) still apply. */
-        if (is_string($context)) {
+        if (is_string($context) || $context === null) {
             $context = [];
+        } elseif (is_object($context)) {
+            $context = (array)$context;
         }
 
         $ReflectionClass = new ReflectionClass($self);
@@ -126,21 +128,19 @@ trait DataModel
 
         $methods = [];
         foreach ($ReflectionClass->getMethods() as $ReflectionMethod) {
-            $ReflectionAttributes = $ReflectionMethod->getAttributes(Describe::class, ReflectionAttribute::IS_INSTANCEOF);
-            foreach ($ReflectionAttributes as $ReflectionAttribute) {
+            foreach ($ReflectionMethod->getAttributes(Describe::class, ReflectionAttribute::IS_INSTANCEOF) as $ReflectionAttribute) {
                 $property = $ReflectionAttribute->getArguments()[0];
-                try {
-                    if (!isset($methods[$property])) {
-                        throw new ReflectionException();
+                if (isset($methods[$property])) {
+                    /** Only reflect on the conflicting method when a duplicate is actually found. */
+                    try {
+                        $Existing = $ReflectionClass->getMethod($methods[$property]);
+                        $filename = $Existing->getFileName();
+                        $start_line = $Existing->getStartLine();
+                    } catch (ReflectionException) {
+                        $filename = null;
+                        $start_line = null;
                     }
-                    $filename = $ReflectionClass->getMethod($methods[$property])->getFileName();
-                    $start_line = $ReflectionClass->getMethod($methods[$property])->getStartLine();
-                } catch (ReflectionException) {
-                    $filename = null;
-                    $start_line = null;
-                }
-                $methods[$property] = isset($methods[$property])
-                    ? throw new DuplicateDescribeAttributeException(
+                    throw new DuplicateDescribeAttributeException(
                         sprintf(
                             "\nDuplicate #[Describe($property)] attribute for property $%s found in methods:\n".
                             "%s() %s:%d\n".
@@ -153,34 +153,30 @@ trait DataModel
                             $ReflectionMethod->getFileName(),
                             $ReflectionMethod->getStartLine()
                         )
-                    )
-                    : $ReflectionMethod->getName();
+                    );
+                }
+                $methods[$property] = $ReflectionMethod->getName();
             }
         }
 
-        $propertyAttributes = [];
-        $ReflectionProperties = $ReflectionClass->getProperties();
-        foreach ($ReflectionProperties as $ReflectionProperty) {
-            $propertyAttributes[$ReflectionProperty->getName()] =
-                $ReflectionProperty->getAttributes(Describe::class, ReflectionAttribute::IS_INSTANCEOF)[0] ?? null;
-        }
-
-        $context = is_object($context) ? (array)$context : $context ?? [];
-
-        foreach ($ReflectionProperties as $ReflectionProperty) {
-            $Attribute = $propertyAttributes[$ReflectionProperty->getName()];
+        foreach ($ReflectionClass->getProperties() as $ReflectionProperty) {
+            $property_name = $ReflectionProperty->getName();
+            $Attribute = $ReflectionProperty->getAttributes(Describe::class, ReflectionAttribute::IS_INSTANCEOF)[0] ?? null;
             $Describe = $Attribute?->newInstance();
 
             /** Resolve `from` first: callables (PHP 8.5+ closures included) return the context key. */
             $context_key = isset($Describe->from)
                 ? (is_callable($Describe->from)
-                    ? ($Describe->from)($ReflectionProperty->getName(), $context, $Attribute, $ReflectionProperty)
+                    ? ($Describe->from)($property_name, $context, $Attribute, $ReflectionProperty)
                     : $Describe->from)
-                : $ReflectionProperty->getName();
+                : $property_name;
+
+            $has_key = isset($context[$context_key]);
+            $value = $has_key ? $context[$context_key] : null;
 
             if (isset($Describe->ignore)) {
                 $ignore = is_callable($Describe->ignore)
-                    ? ($Describe->ignore)($context[$context_key] ?? null, $context, $Attribute, $ReflectionProperty)
+                    ? ($Describe->ignore)($value, $context, $Attribute, $ReflectionProperty)
                     : $Describe->ignore;
 
                 if ($ignore) {
@@ -189,7 +185,6 @@ trait DataModel
             }
 
             if (isset($Describe->assign)) {
-                $property_name = $ReflectionProperty->getName();
                 if (is_callable($Describe->assign)) {
                     $param_count = ($Describe->assign instanceof Closure
                         ? new ReflectionFunction($Describe->assign)
@@ -206,12 +201,10 @@ trait DataModel
 
             /** Property-level Pre Hook */
             if (isset($Describe->pre)) {
-                ($Describe->pre)($context[$context_key] ?? null, $context, $Attribute, $ReflectionProperty);
+                ($Describe->pre)($value, $context, $Attribute, $ReflectionProperty);
             }
 
-            $property_name = $ReflectionProperty->getName();
-
-            if (isset($Describe->default) && !isset($context[$context_key])) {
+            if (isset($Describe->default) && !$has_key) {
                 $self->{$property_name} = is_callable($Describe->default)
                     ? ($Describe->default)(null, $context, $Attribute, $ReflectionProperty)
                     : $Describe->default;
@@ -231,8 +224,8 @@ trait DataModel
                     ->getNumberOfParameters();
 
                 $self->{$property_name} = $param_count === 1
-                    ? ($Describe->cast)($context[$context_key] ?? null)
-                    : ($Describe->cast)($context[$context_key] ?? null, $context, $Attribute, $ReflectionProperty);
+                    ? ($Describe->cast)($value)
+                    : ($Describe->cast)($value, $context, $Attribute, $ReflectionProperty);
 
                 /** Property-level Post Hook */
                 if (isset($Describe->post)) {
@@ -250,17 +243,17 @@ trait DataModel
             }
 
             /** Method-level Cast */
-            if (isset($methods[$property_name]) && $context) {
+            if ($context && isset($methods[$property_name])) {
                 $self->{$property_name} =
-                    $self->{$methods[$property_name]}($context[$context_key] ?? null, $context, $Attribute, $ReflectionProperty);
+                    $self->{$methods[$property_name]}($value, $context, $Attribute, $ReflectionProperty);
                 continue;
             }
 
             /** When a property name does not match a key name  */
-            if (!isset($context[$context_key])) {
+            if (!$has_key) {
                 $required = isset($Describe->required)
                     ? (is_callable($Describe->required)
-                        ? ($Describe->required)($context[$context_key] ?? null, $context, $Attribute, $ReflectionProperty)
+                        ? ($Describe->required)($value, $context, $Attribute, $ReflectionProperty)
                         : $Describe->required)
                     : false;
 
@@ -285,13 +278,8 @@ trait DataModel
                         )
                     );
                 }
-                if (isset($Describe->nullable) && $Describe?->nullable) {
+                if (!empty($Describe->nullable) || !empty($ClassDescribe->nullable)) {
                     $self->{$property_name} = null;
-                    continue;
-                }
-                if (isset($ClassDescribe->nullable) && $ClassDescribe?->nullable) {
-                    $self->{$property_name} = null;
-                    continue;
                 }
                 continue;
             }
@@ -299,7 +287,7 @@ trait DataModel
             $ReflectionType = $ReflectionProperty->getType();
             /** Assigns value when no type or union type is defined. */
             if (!$ReflectionType || $ReflectionType instanceof ReflectionUnionType) {
-                $self->{$property_name} = $context[$context_key];
+                $self->{$property_name} = $value;
                 continue;
             }
 
@@ -316,27 +304,25 @@ trait DataModel
                     ->getNumberOfParameters();
 
                 $self->{$property_name} = $param_count === 1
-                    ? $cast($context[$context_key])
-                    : $cast($context[$context_key], $context, $ClassDescribeArguments);
+                    ? $cast($value)
+                    : $cast($value, $context, $ClassDescribeArguments);
                 continue;
             }
 
             $via = $Describe->via ?? 'from';
-            $value = $context[$context_key] instanceof UnitEnum
-                ? $context[$context_key]->value
-                : $context[$context_key];
+            $via_value = $value instanceof UnitEnum ? $value->value : $value;
 
             if (is_callable($via)) {
-                $self->{$property_name} = $via($value);
+                $self->{$property_name} = $via($via_value);
                 continue;
             }
 
-            if (is_callable([$property_type, $via]) && method_exists($property_type, $via)) {
-                $self->{$property_name} = $property_type::$via($value);
+            if (method_exists($property_type, $via) && is_callable([$property_type, $via])) {
+                $self->{$property_name} = $property_type::$via($via_value);
                 continue;
             }
 
-            $self->{$property_name} = $context[$context_key];
+            $self->{$property_name} = $value;
         }
 
         return $self;
