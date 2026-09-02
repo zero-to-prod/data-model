@@ -124,11 +124,9 @@ trait DataModel
         $ClassAttribute = current($ReflectionClass->getAttributes(Describe::class, ReflectionAttribute::IS_INSTANCEOF));
         /** @var Describe|null $ClassDescribe */
         $ClassDescribe = $ClassAttribute ? $ClassAttribute->newInstance() : null;
-        /** Hoist class-level lookups so the property loop never re-reads them. */
         $class_casts = $ClassDescribe->cast ?? null;
         $class_nullable = !empty($ClassDescribe->nullable);
         $ClassDescribeArguments = $class_casts === null ? null : $ClassAttribute->getArguments();
-        /** `from` is the default `via`; whether it names a global function is loop-invariant. */
         $from_is_callable = is_callable('from');
 
         $methods = [];
@@ -136,7 +134,6 @@ trait DataModel
             foreach ($ReflectionMethod->getAttributes(Describe::class, ReflectionAttribute::IS_INSTANCEOF) as $ReflectionAttribute) {
                 $property = $ReflectionAttribute->getArguments()[0];
                 if (isset($methods[$property])) {
-                    /** Only reflect on the conflicting method when a duplicate is actually found. */
                     try {
                         $Existing = $ReflectionClass->getMethod($methods[$property]);
                         $filename = $Existing->getFileName();
@@ -176,11 +173,9 @@ trait DataModel
                     : $Describe->from)
                 : $property_name;
 
-            /** One lookup: for an array offset `isset()` is equivalent to `!== null`. */
             $value = $context[$context_key] ?? null;
             $has_key = $value !== null;
 
-            /** Every branch below needs an attribute; skip them all when there is none. */
             if ($Describe !== null) {
                 if (isset($Describe->ignore)) {
                     $ignore = is_callable($Describe->ignore)
@@ -300,11 +295,6 @@ trait DataModel
                 continue;
             }
 
-            /**
-             * Fast path: a builtin type (string/int/array/...) can never be a class name, so the
-             * class-level cast map and the `$type::$via()` call below can only miss. Skipping them
-             * also skips resolving the type name to a string.
-             */
             if ($class_casts === null && $ReflectionType->isBuiltin()) {
                 $via = $Describe->via ?? 'from';
                 $self->{$property_name} = ($via === 'from' ? $from_is_callable : is_callable($via))
